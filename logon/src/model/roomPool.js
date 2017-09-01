@@ -5,6 +5,8 @@
  */
 'use strict';
 
+const assert = require('assert');
+
 const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
@@ -27,8 +29,9 @@ var res = module.exports = {};
 var rooms = {};
 
 res.create = function(room_info){
-  if(!room_info) return;
-  if(!room_info.id) return;
+  assert.notEqual(null, room_info);
+  assert.notEqual(null, room_info.id);
+
   if(rooms[room_info.id]) return;
 
   var room = new Room(room_info);
@@ -37,7 +40,7 @@ res.create = function(room_info){
 };
 
 res.release = function(id){
-  var room = rooms[id];
+  var room = this.get(id);
   if(!room) return true;
   if(!room.release()) return false;
   delete rooms[id];
