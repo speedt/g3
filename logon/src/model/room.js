@@ -27,8 +27,8 @@ const logger = require('log4js').getLogger('model.room');
 const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
-const ACT_STATUS_DEFAULT = 0;  // 动作状态：默认
-const ACT_STATUS_NEXT    = 1;  // 动作状态：
+const ACT_STATUS_INIT = 0;  // 动作状态：初始化
+const ACT_STATUS_NEXT = 1;  // 动作状态：
 
 module.exports = function(opts){
   return new Method(opts);
@@ -54,7 +54,7 @@ var Method = function(opts){
   self.create_time         = new Date().getTime();
 
   self.act_seat            = 1;
-  self.act_status          = ACT_STATUS_DEFAULT;
+  self.act_status          = ACT_STATUS_INIT;
   self.act_direction       = DIRECTION_CLOCKWISE;
 
   self.ready_count         = 0;  // 举手人数
@@ -75,6 +75,15 @@ var Method = function(opts){
 };
 
 var pro = Method.prototype;
+
+/**
+ * 判断是否游戏是否开始
+ *
+ * @return
+ */
+pro.isStart = function(){
+  return self.player_count <= self.ready_count;
+};
 
 /**
  *
@@ -172,7 +181,7 @@ pro.quit = function(user_id){
   var user = self.getUser(user_id);
   if(!user) return true;
 
-  if((self.player_count <= self.ready_count) && (0 < user.opts.seat)){
+  if(self.isStart() && (0 < user.opts.seat)){
     user.opts.is_quit   = 1;
     user.opts.quit_time = new Date().getTime();
     return false;
@@ -194,11 +203,9 @@ pro.quit = function(user_id){
  * @return
  */
 pro.ready = function(user_id){
-  assert.notEqual(null, user_id);
-
   var self = this;
 
-  if(self.act_status !== ACT_STATUS_DEFAULT) return;
+  if(self.act_status !== ACT_STATUS_INIT) return;
 
   if(self.isStart()) return;
 
@@ -216,13 +223,4 @@ pro.ready = function(user_id){
   if(isStart()) self.act_status = ACT_STATUS_NEXT;
 
   return self.ready_count;
-};
-
-/**
- * 判断是否游戏是否开始
- *
- * @return
- */
-pro.isStart = function(){
-  return self.player_count <= self.ready_count;
 };
