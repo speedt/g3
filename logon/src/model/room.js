@@ -116,6 +116,70 @@ pro.getUserBySeat = function(seat_no){
 }
 
 /**
+ * 获取用户上家
+ *
+ * @param user_id
+ * @return
+ */
+pro.getUserPrev = function(user_id){
+  var user = this.getUser(user_id);
+  if(!user) return;
+  if(0 < user.opts.seat) return;
+
+  return this.getUserPrevBySeat(user.opts.seat);
+};
+
+/**
+ * 获取用户下家
+ *
+ * @param user_id
+ * @return
+ */
+pro.getUserNext = function(user_id){
+  var user = this.getUser(user_id);
+  if(!user) return;
+  if(0 < user.opts.seat) return;
+
+  return this.getUserNextBySeat(user.opts.seat);
+};
+
+/**
+ * 获取用户上家
+ *
+ * @param seat_no
+ * @return
+ */
+pro.getUserPrevBySeat = function(seat_no){
+  seat_no -= 0;
+
+  assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
+
+  seat_no--;
+
+  if(0 === seat_no) seat_no = this.player_count;
+
+  return this.getUserBySeat(seat_no);
+};
+
+/**
+ * 获取用户下家
+ *
+ * @param seat_no
+ * @return
+ */
+pro.getUserNextBySeat = function(seat_no){
+  seat_no -= 0;
+
+  assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
+
+  seat_no++;
+
+  if(this.player_count < seat_no) seat_no = 1;
+
+  return this.getUserBySeat(seat_no);
+};
+
+/**
  * 房间满了吗？
  *
  * @return boolean
