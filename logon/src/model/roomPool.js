@@ -32,10 +32,9 @@ res.create = function(room_info){
   assert.notEqual(null, room_info);
   assert.notEqual(null, room_info.id);
 
-  if(rooms[room_info.id]) return;
+  if(this.get(room_info.id)) return;
 
   var room = new Room(room_info);
-  room.init();
   rooms[room.id] = room;
   return room;
 };

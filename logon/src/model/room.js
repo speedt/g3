@@ -28,63 +28,53 @@ const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
 const ACT_STATUS_DEFAULT = 0;  // 动作状态：默认
+const ACT_STATUS_NEXT    = 1;  // 动作状态：
 
 module.exports = function(opts){
   return new Method(opts);
 }
 
 var Method = function(opts){
-  opts                = opts || {};
-  var self            = this;
-  self.opts           = opts;
-  self.id             = opts.id;
-  self.name           = opts.name || ('Room '+ opts.id);
+  assert.notEqual(null, opts);
+  assert.notEqual(null, opts.id);
 
-  self.users          = {};
-  self.players        = {};
+  var self                 = this;
+  self.opts                = opts;
 
-  self.visitor_count  = opts.visitor_count || 6;  // 游客人数
-  self.player_count   = opts.player_count  || 4;  // 玩家人数
+  self.id                  = opts.id;
+  self.name                = opts.name || ('Room '+ opts.id);
 
-  self.extend_data    = {};
+  self.users               = {};
+  self.players             = {};
 
-  self.create_user_id = opts.user_id;
-  self.create_time    = new Date().getTime();
+  self.visitor_count       = opts.visitor_count || 6;  // 游客人数
+  self.player_count        = opts.player_count  || 4;  // 玩家人数
 
-  self.act_user_seat  = 1;
-  self.act_status     = ACT_STATUS_DEFAULT;
-  self.act_direction  = DIRECTION_CLOCKWISE;
+  self.create_user_id      = opts.user_id;
+  self.create_time         = new Date().getTime();
 
-  self.ready_count    = 0;  // 举手人数
+  self.act_seat            = 1;
+  self.act_status          = ACT_STATUS_DEFAULT;
+  self.act_direction       = DIRECTION_CLOCKWISE;
+
+  self.ready_count         = 0;  // 举手人数
+
+  self.round_id            = utils.replaceAll(uuid.v4(), '-', '');
+  self.fund                = opts.fund        || 1000;  // 组局基金
+  self.round_count         = opts.round_count || 4;     // 圈数
+  self.round_pno           = 1;  // 当前第n局
+  self.round_no            = 1;  // 当前第n把
+  self.round_no_first_seat = 1;
+  self.banker_seat         = 1;  // 当前庄家座位
+
+  // 创建空闲的座位
+  self.free_seats = [];
+  for(var i = 1; i <= self.player_count; i++){
+    self.free_seats.push(i);
+  }
 };
 
 var pro = Method.prototype;
-
-/**
- * 创建空闲的座位
- *
- * @return
- */
-function genFreeSeat(){
-  this.free_seats = [];
-  for(var i = 1; i <= 4; i++){
-    this.free_seats.push(i);
-  }
-}
-
-pro.init = function(){
-  var self                 = this;
-  genFreeSeat.call(self);
-
-  var opts                 = self.extend_data;
-  opts.id                  = utils.replaceAll(uuid.v4(), '-', '');
-  opts.fund                = self.opts.fund        || 1000;  // 组局基金
-  opts.round_count         = self.opts.round_count || 4;     // 圈数
-  opts.round_pno           = 1;  // 当前第n局
-  opts.round_no            = 1;  // 当前第n把
-  opts.round_no_first_seat = 1;
-  opts.banker_seat         = 1;  // 当前庄家座位
-};
 
 /**
  *
@@ -138,15 +128,17 @@ pro.entry = function(user_info){
   if(self.getUser(user_info.id)) return Promise.reject('已经在房间内');
   if(self.isFull()) return Promise.reject('房间满员');
 
+  user_info.opts = {};
+
   var seat_no = self.free_seats.shift();
 
   if(seat_no){
     self.players[seat_no] = user_info.id;
-    user_info._seat       = seat_no;
+    user_info.opts.seat   = seat_no;
   }
 
   // 进入房间时间
-  user_info._entry_time = new Date().getTime();
+  user_info.opts.entry_time = new Date().getTime();
 
   self.users[user_info.id] = user_info;
 
@@ -157,15 +149,17 @@ pro.entry = function(user_info){
  *
  * @return
  */
-pro.reEntry = function(user){
-  var _user = this.users[user.id];
+pro.reEntry = function(user_info){
+  assert.notEqual(null, user_info);
 
-  if(!_user) return;
+  var user = this.getUser(user_info.id);
+  if(!user) return;
 
-  _user.server_id = user.server_id;
-  _user.channel_id = user.channel_id;
+  user.server_id         = user_info.server_id;
+  user.channel_id        = user_info.channel_id;
+  user.opts.reEntry_time = new Date().getTime();
 
-  if(0 < _user.seat) _user.is_quit = 0;
+  if(0 < user.opts.seat) user.opts.is_quit = 0;
 }
 
 /**
@@ -175,18 +169,19 @@ pro.reEntry = function(user){
 pro.quit = function(user_id){
   var self = this;
 
-  var user = self.users[user_id];
+  var user = self.getUser(user_id);
   if(!user) return true;
 
-  if((3 < self.ready_count) && (0 < user.seat)){
-    user.is_quit = 1;
-    user.quit_time = new Date().getTime();
+  if((self.player_count <= self.ready_count) && (0 < user.opts.seat)){
+    user.opts.is_quit   = 1;
+    user.opts.quit_time = new Date().getTime();
     return false;
   }
 
-  if(0 < user.seat){
-    if(1 === user.ready_status) self.ready_count--;
-    delete self.players[user.seat];
+  if(0 < user.opts.seat){
+    if(1 === user.opts.ready_status) --self.ready_count;
+    self.free_seats.push(user.opts.seat);
+    delete self.players[user.opts.seat];
   }
 
   delete self.users[user_id];
@@ -194,33 +189,40 @@ pro.quit = function(user_id){
 };
 
 /**
+ * 玩家举手
  *
  * @return
  */
 pro.ready = function(user_id){
+  assert.notEqual(null, user_id);
+
   var self = this;
 
-  if(self.round_count < self.round_pno) return;
-  if(4 < self.round_no) return;
+  if(self.act_status !== ACT_STATUS_DEFAULT) return;
 
-  if(3 < self.ready_count) return self.ready_count;
+  if(self.isStart()) return;
 
-  var user = self.users[user_id];
-  if(!user) throw new Error('用户不存在，不能举手');
+  var user = self.getUser(user_id);
+  if(!user) return;
 
-  if(0 === user.seat) return self.ready_count;
-  if(1 === user.ready_status) return self.ready_count;
+  if(0 === user.opts.seat)         return;
+  if(1 === user.opts.ready_status) return;
 
-  user.ready_status = 1;
+  user.opts.ready_status = 1;
+  user.opts.ready_time   = new Date().getTime();
 
-  if(3 < (++self.ready_count)){
-    self.act_status = 1;
+  self.ready_count++;
 
-    // 生成36张牌
-    self.pai36 = CreateCards();
-  }
-
-  se.call(self);
+  if(isStart()) self.act_status = ACT_STATUS_NEXT;
 
   return self.ready_count;
+};
+
+/**
+ * 判断是否游戏是否开始
+ *
+ * @return
+ */
+pro.isStart = function(){
+  return self.player_count <= self.ready_count;
 };
