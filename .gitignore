@@ -57,3 +57,18 @@ typings/
 # dotenv environment variables file
 .env
 
+
+*.pdb
+
+
+*/target/
+
+*.bak
+
+**/webapp/logs/*.*
+**/WEB-INF/classes/**
+**/WEB-INF/classes/**/*.*
+
+**/front/demo/*.*
+
+*.exe

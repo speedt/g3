@@ -1,0 +1,33 @@
+{
+  "name": "emag.login",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "log4js": "2.3.3",
+    "stompjs": "2.3.3",
+    "google-protobuf": "3.3.0",
+    "stompit": "0.25.0",
+    "stomp-client": "0.9.0",
+    "speedt-utils": "0.1.74",
+    "speedt-redis": "0.1.60",
+    "speedt-mysql": "0.1.65",
+    "iconv-lite": "0.4.13",
+    "bufferhelper": "0.2.1",
+    "underscore.string": "3.3.4",
+    "underscore": "1.8.3",
+    "redis": "2.6.3",
+    "mysql": "2.12.0",
+    "express": "3.5.0",
+    "mongodb": "1.4.20",
+    "mongoose": "3.8.19",
+    "velocityjs": "0.4.6",
+    "connect-mongo": "0.4.1",
+    "connect-flash": "0.1.1",
+    "node-uuid": "1.4.1",
+    "async": "0.9.0",
+    "eventproxy": "0.3.5"
+  }
+}

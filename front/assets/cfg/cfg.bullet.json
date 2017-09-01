@@ -1,0 +1,149 @@
+{
+	"ver": 124,
+	"data": [{
+		"range": 0.4,
+		"style": 1,
+		"cost": 1,
+		"unlock": 0
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 10,
+		"unlock": 2
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 20,
+		"unlock": 2
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 30,
+		"unlock": 3
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 40,
+		"unlock": 5
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 50,
+		"unlock": 5
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 60,
+		"unlock": 5
+	}, {
+		"range": 0.4,
+		"style": 1,
+		"cost": 70,
+		"unlock": 8
+	},{
+		"range": 0.4,
+		"style": 1,
+		"cost": 80,
+		"unlock": 8
+	},{
+		"range": 0.4,
+		"style": 1,
+		"cost": 90,
+		"unlock": 8
+	},{
+		"range": 0.4,
+		"style": 1,
+		"cost": 100,
+		"unlock": 12
+	},{
+		"range": 0.4,
+		"style": 2,
+		"cost": 200,
+		"unlock": 12
+	},{
+		"range": 0.4,
+		"style": 2,
+		"cost": 300,
+		"unlock": 12
+	},{
+		"range": 0.4,
+		"style": 2,
+		"cost": 400,
+		"unlock": 17
+	},{
+		"range": 0.4,
+		"style": 2,
+		"cost": 500,
+		"unlock": 17
+	},{
+		"range": 0.4,
+		"style": 2,
+		"cost": 600,
+		"unlock": 17
+	},{
+		"range": 0.4,
+		"style": 2,
+		"cost": 700,
+		"unlock": 22
+	},{
+		"range": 0.4,
+		"style": 3,
+		"cost": 800,
+		"unlock": 28
+	},{
+		"range": 0.4,
+		"style": 3,
+		"cost": 900,
+		"unlock": 28
+	},{
+		"range": 0.4,
+		"style": 4,
+		"cost": 1000,
+		"unlock": 28
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 2000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 6,
+		"cost": 3000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 4000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 5000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 6000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 7000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 8000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 9000,
+		"unlock": 35
+	},{
+		"range": 0.4,
+		"style": 5,
+		"cost": 10000,
+		"unlock": 35
+	}]
+}

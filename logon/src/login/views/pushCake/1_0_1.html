@@ -1,0 +1,254 @@
+#parse('_pagelet/constant.html')
+<!DOCTYPE html>
+<html lang='zh-CN'>
+	<head>
+		#parse('_pagelet/header.html')
+	</head>
+	<body>
+
+    <input type='button' id='logout' value='logout'><p></p>
+
+    <input type='button' id='wrongTest' value='wrongTest'><p></p>
+    <input type='button' id='myInfo' value='myInfo'><p></p>
+
+    创建群组：
+    <input type='button' id='createGroup' value='createGroup'><p></p>
+
+    加入群组：
+    <input type='text' id='group_id' />
+    <input type='button' id='entryGroup' value='entryGroup'><p></p>
+    <input type='button' id='exitGroup' value='exitGroup'><p></p>
+
+    <textarea rows='8' cols='50'></textarea>
+    <textarea rows='8' cols='50'></textarea><p></p>
+
+    <input type='button' id='_5005_ready' value='举手'><p></p>
+
+    <input type='button' id='_5013_craps' value='用户摇骰子'><p></p>
+
+    发送给：
+    <input type='text' id='user_id' placeholder='ALL,GROUP,PERSON,...' />
+    <input type='text' id='msg' />
+    <input type='button' id='send' value='send'><p></p>
+
+    群发：
+    <input type='text' id='msg_all' />
+    <input type='button' id='send_all' value='send_all'><p></p>
+
+    #parse('_pagelet/js.html')
+
+<script type='text/javascript'>
+
+var random = function(){
+  $('#msg').val(new Date());
+  $('#user_id').val(new Date().getTime());
+}
+
+$(function(){
+  random();
+  $('#group_id').val(_.random(100000, 999999));
+})
+
+var socket = null;
+
+$(function(){
+
+  $('#wrongTest').click(function(){
+    socket.send(JSON.stringify({}));
+  });
+
+  $('#createGroup').click(function(){
+    var p = [
+      102,
+      3001,
+      Math.random() * 1000,
+      new Date().getTime(),
+      JSON.stringify({
+        group_name: '房间名'+ new Date().getTime(),
+        visitor_count: 6,  // n个钓鱼人
+        round_count: 4,  // n圈
+        fund: 1000,  // 组局基金
+      }),
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#entryGroup').click(function(){
+    var p = [
+      102,
+      3007,
+      Math.random() * 1000,
+      new Date().getTime(),
+      $('#group_id').val(),
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#exitGroup').click(function(){
+    var p = [
+      102,
+      3005,
+      Math.random() * 1000,
+      new Date().getTime(),
+      null,
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#_5005_ready').click(function(){
+    var p = [
+      102,
+      5005,
+      Math.random() * 1000,
+      new Date().getTime(),
+      null,
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#_5013_craps').click(function(){
+    var p = [
+      102,
+      5013,
+      Math.random() * 1000,
+      new Date().getTime(),
+      null,
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#myInfo').click(function(){
+    var p = [
+      102,
+      1001,
+      Math.random() * 1000,
+      new Date().getTime(),
+      null,
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#send').click(function(){
+    var p = [
+      102,
+      2001,
+      Math.random() * 1000,
+      new Date().getTime(),
+      JSON.stringify([$('#user_id').val(), $('#msg').val()]),
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#send_all').click(function(){
+    var p = [
+      102,
+      2003,
+      Math.random() * 1000,
+      new Date().getTime(),
+      $('#msg_all').val(),
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  var back_id;
+
+  (function(){
+
+    socket = new WebSocket('ws://'+ window.location.hostname +'/s/'+ (location.search.match(/s=([\w\-]+)/) ? RegExp.$1 : '') +'/');
+
+    socket.onopen = function(evt){
+
+      socket.onmessage = function(evt){
+        var data = evt.data;
+        var type = typeof data;
+
+        data = JSON.parse(data);
+
+        console.log('++++');
+
+        switch(data.method){
+          case 2002: {
+            random();
+
+            (function(){
+              console.log(data)
+            })();
+
+            break;
+          }
+          case 3002: {
+
+            (function(){
+              // data = data.data;
+              console.log(data)
+            })();
+
+            break;
+          }
+          case 5006: {
+
+            (function(){
+              // data = data.data;
+              back_id = data.data;
+              console.log(data.data)
+            })();
+
+            break;
+          }
+          default: {
+            console.log(data)
+            break;
+          }
+        }
+      };
+
+      // first
+      var p = [
+        102,
+        1,
+        Math.random() * 1000,
+        new Date().getTime(),
+        JSON.stringify({
+          code: location.search.match(/code=([\w\-]+)/) ? RegExp.$1 : ''
+        }),
+        null,
+      ];
+      socket.send(JSON.stringify(p));
+    };
+
+    socket.onclose = function(evt){
+      console.log(evt);
+
+      setTimeout(function(){
+        location.href = '/client/user/login?t='+ new Date().getTime();
+      }, 1000);
+    };
+
+    socket.onerror = function(evt){
+      console.error(evt);
+
+      setTimeout(function(){
+        location.href = '/client/user/login?t='+ new Date().getTime();
+      }, 1000);
+    };
+
+  })();
+
+  $('#logout').click(function(){
+    socket.close();
+  });
+
+});
+
+</script>
+
+  </body>
+</html>

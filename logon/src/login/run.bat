@@ -1,0 +1,1 @@
+del logs\*.log /q & npm install & npm install ..\db & npm install ..\lib & npm install ..\cfg & npm install ..\model & npm install ..\biz & node app.js

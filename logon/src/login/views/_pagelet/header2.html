@@ -1,0 +1,65 @@
+<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+<meta charset='utf-8' />
+<meta name='robots' content='all' />
+<meta name='author' content='@qq.com' />
+<meta http-equiv='content-type' content='text/html;charset=utf-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+<!--[if lte IE 9]>
+  <link rel='stylesheet' type='text/css' href='$!{CDN}js/bsie/0.0.0/css/bootstrap-ie6.css' />
+  <link rel='stylesheet' type='text/css' href='$!{CDN}js/bsie/0.0.0/css/ie.css' />
+  <link rel='stylesheet' type='text/css' href='$!{CDN}js/verybsie/1.0.0/css/bootstrap-verybsie.css' />
+<![endif]-->
+<!--[if lte IE 7]>
+  <link rel='stylesheet' type='text/css' href='$!{CDN}js/verybsie/1.0.0/css/bootstrap-verybsie.css' />
+<![endif]-->
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/bootstrap.min.css' />
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/bootstrap-responsive.min.css' />
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/font-awesome.min.css' />
+
+<!--[if IE 7]>
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/font-awesome-ie7.min.css' />
+<![endif]-->
+
+<!-- fonts -->
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/google/style.css' />
+
+<!-- ace -->
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/ace.min.css' />
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/ace-responsive.min.css' />
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/ace-skins.min.css' />
+
+<!--[if lte IE 8]>
+<link rel='stylesheet' type='text/css' media='screen' href='$!{CDN}js/ace/1.1.2/assets/css/ace-ie.min.css' />
+<![endif]-->
+
+<script type='text/javascript'>
+function isIE(){
+  return (!!window.ActiveXObject || 'ActiveXObject' in window);
+}
+function img404(event){
+  // 获取img对象，火狐是event.target ，IE及谷歌其他是event.srcElement
+  var img = event.srcElement || event.target;
+  img.onerror = null;
+}
+if(isIE()){
+  // console.log('I use IE.');
+}else{
+  document.write("<script type='text/javascript' src='$!{CDN}js/jquery/2.0.2/jquery.min.js?v2.0.2'><\/script>");
+}
+</script>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if gte IE 9]>
+  <script type='text/javascript' src='$!{CDN}js/jquery/2.0.2/jquery.min.js'></script>
+<![endif]-->
+<!--[if lt IE 9]>
+  <script type='text/javascript' src='$!{CDN}js/jquery/1.11.3/jquery.min.js'></script>
+  <script type='text/javascript' src='$!{CDN}js/html5shiv/3.7.2/html5shiv.min.js'></script>
+  <script type='text/javascript' src='$!{CDN}js/respond/1.4.2/respond.min.js'></script>
+<![endif]-->
+<style>
+.tit{
+  font-weight: bold;
+  text-align: center;
+}
+</style>
