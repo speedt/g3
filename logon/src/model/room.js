@@ -5,18 +5,12 @@
  */
 'use strict';
 
-const assert = require('assert');
-
 const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
-const uuid = require('node-uuid');
-
+const uuid  = require('node-uuid');
 const utils = require('speedt-utils').utils;
-
-const cfg = require('emag.cfg');
-const biz = require('emag.biz');
 
 const _  = require('underscore');
 _.str    = require('underscore.string');
@@ -36,20 +30,16 @@ module.exports = function(opts){
 }
 
 var Method = function(opts){
-  assert.notEqual(null, opts);
-  assert.notEqual(null, opts.id);
-
   var self                 = this;
   self.opts                = opts;
 
   self.id                  = opts.id;
   self.name                = opts.name || ('Room '+ opts.id);
 
-  self.users               = {};
-  self.players             = {};
+  self.users               = {};  // 全部用户
+  self.players             = {};  // 玩家列表
 
-  self.visitor_count       = opts.visitor_count || 6;  // 游客人数
-  self.player_count        = opts.player_count  || 4;  // 玩家人数
+  self.player_count        = 4;  // 玩家人数
 
   self.create_user_id      = opts.user_id;
   self.create_time         = new Date().getTime();
@@ -61,12 +51,15 @@ var Method = function(opts){
   self.ready_count         = 0;  // 举手人数
 
   self.round_id            = utils.replaceAll(uuid.v4(), '-', '');
-  self.fund                = opts.fund        || 1000;  // 组局基金
-  self.round_count         = opts.round_count || 4;     // 圈数
   self.round_pno           = 1;  // 当前第n局
   self.round_no            = 1;  // 当前第n把
   self.round_no_first_seat = 1;
+
   self.banker_seat         = 1;  // 当前庄家座位
+
+  self.visitor_count       = opts.visitor_count;        // 游客人数
+  self.fund                = opts.fund        || 1000;  // 组局基金
+  self.round_count         = opts.round_count || 4;     // 圈数
 
   // 创建空闲的座位
   self.free_seats = [];

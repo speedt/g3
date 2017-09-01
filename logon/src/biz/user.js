@@ -9,8 +9,7 @@ const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
-const EventProxy = require('eventproxy');
-const uuid       = require('node-uuid');
+const uuid  = require('node-uuid');
 
 const md5   = require('speedt-utils').md5;
 const utils = require('speedt-utils').utils;
