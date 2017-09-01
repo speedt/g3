@@ -362,3 +362,20 @@ pro.ready = function(user_id){
     return seat;
   }
 })();
+
+/**
+ * 庄家锅底
+ *
+ * @return
+ */
+pro.bankerBet = function(user_id, bet){
+  var self = this;
+
+  if(self.act_status !== ACT_STATUS_BANKER_BET) return;
+
+  var user = self.getUser(user_id);
+  if(!user) return;
+  if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+
+  user.opts.bet = bet - 0;
+};
