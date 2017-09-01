@@ -27,8 +27,9 @@ const logger = require('log4js').getLogger('model.room');
 const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
-const ACT_STATUS_INIT = 0;  // 动作状态：初始化
-const ACT_STATUS_NEXT = 1;  // 动作状态：
+const ACT_STATUS_INIT       = 0;  // 动作状态：初始化
+const ACT_STATUS_CRAPS4     = 1;  // 动作状态：摇骰子
+const ACT_STATUS_BANKER_BET = 2;  // 动作状态：庄家设置锅底
 
 module.exports = function(opts){
   return new Method(opts);
@@ -284,7 +285,80 @@ pro.ready = function(user_id){
 
   self.ready_count++;
 
-  if(isStart()) self.act_status = ACT_STATUS_NEXT;
+  if(isStart()){
+    self.act_status = ACT_STATUS_CRAPS4;
+    self.act_seat   = 1;
+  }
 
   return self.ready_count;
 };
+
+(() => {
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  pro.craps4 = function(user_id){
+    var self = this;
+
+    if(self.act_status !== ACT_STATUS_CRAPS4) return;
+
+    var user = self.getUser(user_id);
+    if(!user) return;
+    if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+
+    if(user.opts.craps) return;  // 你已经摇过骰子了
+
+    user.opts.craps = [
+      _.random(1, 6),  // 骰子1
+      _.random(1, 6),  // 骰子2
+    ];
+
+    if(self.player_count <= getCrapsCount.call(self)){
+      // 计算最大的骰子，并设置庄家位置
+      self.banker_seat = maxCraps.call(self);
+      self.act_status  = ACT_STATUS_BANKER_BET;
+      self.act_seat    = self.banker_seat;
+      return;
+    }
+
+    self.act_seat++;
+  };
+
+  /**
+   * 获取摇过骰子的人数
+   *
+   * @return
+   */
+  function getCrapsCount(){
+    var count = 0;
+
+    for(let i of this.users){
+      if(i.opts.craps) count++;
+    }
+
+    return count;
+  }
+
+  /**
+   * 计算最大的骰子
+   *
+   * @return 座位id
+   */
+  function maxCraps(){
+    var max = 0, seat = 0;
+
+    for(let i of this.users){
+      let m = i.opts.craps[0] - 0 + i.opts.craps[1];
+      if(11 < m) return i.opts.seat;
+
+      if(max <= m){
+        max  = m;
+        seat = i.opts.seat;
+      }
+    }
+
+    return seat;
+  }
+})();
