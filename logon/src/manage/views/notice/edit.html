@@ -1,0 +1,151 @@
+#parse('_pagelet/constant.html')
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<title>修改公告 | 交流中心 | $!conf.app.name</title>
+		<link rel="stylesheet" href="$!{CDN}js/ace/1.1.2/assets/css/jquery.gritter.css" />
+		#parse('_pagelet/header2.html')
+		<link rel="stylesheet" href="$!{CDN}js/ace/1.1.2/assets/css/bootstrap-editable.css" />
+		<style>
+		.editableform-loading {
+			background: url('$!{CDN}js/ace/1.1.2/assets/css/images/loading.gif') center center no-repeat;
+		}
+		</style>
+	</head>
+
+	<body>
+		#parse('site/_pagelet/nav.html')
+
+		<div class="main-container container-fluid">
+			<a class="menu-toggler" id="menu-toggler" href="#">
+				<span class="menu-text"></span>
+			</a>
+
+			#parse('site/_pagelet/sidebar.html')
+
+			<div class="main-content">
+				<div class="breadcrumbs" id="breadcrumbs">
+					<ul class="breadcrumb">
+						<li>
+							<i class="icon-home home-icon"></i>
+							<a href="$!{conf.html.virtualPath}">首页</a>
+
+							<span class="divider">
+								<i class="icon-angle-right arrow-icon"></i>
+							</span>
+						</li>
+
+						<li>
+							交流中心
+							<span class="divider">
+								<i class="icon-angle-right arrow-icon"></i>
+							</span>
+						</li>
+						<li class="active">修改公告</li>
+					</ul><!--.breadcrumb-->
+
+					<div class="nav-search" id="nav-search">
+						<form class="form-search" />
+							<span class="input-icon">
+								<input type="text" placeholder="搜索" class="input-small nav-search-input" id="nav-search-input" autocomplete="off" />
+								<i class="icon-search nav-search-icon"></i>
+							</span>
+						</form>
+					</div><!--#nav-search-->
+				</div>
+
+				<div class="page-content">
+
+					<div class="page-header position-relative">
+						<h1>
+							修改公告
+							<small>
+								<i class="icon-double-angle-right"></i>
+								Edit Notice
+							</small>
+						</h1>
+					</div><!--/.page-header-->
+
+					<div class="row-fluid">
+						<div class="span12">
+							<!--PAGE CONTENT BEGINS-->
+
+							<div class="alert alert-block alert-error">
+								<button type="button" class="close" data-dismiss="alert">
+									<i class="icon-remove"></i>
+								</button>
+
+								<strong>
+									<i class="icon-info-sign"></i>
+									系统提示：
+								</strong>
+
+							</div>
+
+							<div class="row-fluid">
+								<div class="span12">
+									<div class="tabbable">
+										<ul class="nav nav-tabs" id="myTab">
+											<li class="active">
+												<a data-toggle="tab" href="#info">
+													<i class="green icon-edit bigger-110"></i>
+													公告信息
+												</a>
+											</li>
+										</ul>
+
+										<div class="tab-content">
+											<div id="home" class="tab-pane in active">
+												#parse('notice/_pagelet/form.html')
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!--PAGE CONTENT ENDS-->
+						</div><!--/.span-->
+					</div><!--/.row-fluid-->
+				</div><!--/.page-content-->
+
+				#parse('_pagelet/settings2.html')
+			</div><!--/.main-content-->
+		</div><!--/.main-container-->
+
+		#parse('_pagelet/footer2.html')
+		#parse('_pagelet/js2.html')
+
+<script>
+function ser(frmObj){
+  var _a = frmObj.serializeArray();
+  var _b = _.pluck(_a, 'name');
+  var _c = _.pluck(_a, 'value');
+  var _d = _.object(_b, _c);
+  return _d;
+}
+
+function push(){
+  var data = ser($('#frm'));
+
+  data.content = $('#frm_content').html();
+
+  $.ajax({
+    url: '$!{conf.html.virtualPath}notice/edit',
+    type: 'POST',
+    dataType: 'JSON',
+    data: data,
+    success: function(data){
+      if(data.error) return alert(data.error.msg);
+      alert('修改成功')
+      location.href = '$!{conf.html.virtualPath}notice/';
+    },
+    error: function(){
+      alert(arguments[2]);
+    }
+  });
+
+  return false;
+}
+</script>
+	</body>
+</html>

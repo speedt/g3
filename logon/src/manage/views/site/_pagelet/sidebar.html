@@ -1,0 +1,128 @@
+<div class="sidebar" id="sidebar">
+	<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+		<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+			<button class="btn btn-small btn-success">
+				<i class="icon-signal"></i>
+			</button>
+
+			<button class="btn btn-small btn-info">
+				<i class="icon-pencil"></i>
+			</button>
+
+			<button class="btn btn-small btn-warning">
+				<i class="icon-group"></i>
+			</button>
+
+			<button class="btn btn-small btn-danger">
+				<i class="icon-cogs"></i>
+			</button>
+		</div>
+
+		<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+			<span class="btn btn-success"></span>
+
+			<span class="btn btn-info"></span>
+
+			<span class="btn btn-warning"></span>
+
+			<span class="btn btn-danger"></span>
+		</div>
+	</div><!--#sidebar-shortcuts-->
+
+	<ul class="nav nav-list">
+		<li#if('true' == "#indexOf($!{data.nav_choose}, ',01,')") class='active'#end>
+			<a href="$!{conf.html.virtualPath}">
+				<i class="icon-dashboard"></i>
+				<span class="menu-text"> 系统首页 </span>
+			</a>
+		</li>
+
+		<li#if('true' == "#indexOf($!{data.nav_choose}, ',02,')") class='active open'#end>
+			<a href='javascript:;' class="dropdown-toggle">
+				<i class="icon-comments "></i>
+				<span class="menu-text"> 系统管理 </span>
+				<b class="arrow icon-angle-down"></b>
+			</a>
+
+			<ul class="submenu">
+				<li#if('true' == "#indexOf($!{data.nav_choose}, ',0201,')") class='active'#end>
+					<a href="$!{conf.html.virtualPath}settings/">
+						<i class="icon-double-angle-right"></i>
+						系统参数
+					</a>
+				</li>
+
+				#*<!-- <li#if('true' == "#indexOf($!{data.nav_choose}, ',0202,')") class='active'#end>
+					<a href="/menu/">
+						<i class="icon-double-angle-right"></i>
+						模块管理
+					</a>
+				</li>
+
+				<li#if('true' == "#indexOf($!{data.nav_choose}, ',0203,')") class='active'#end>
+					<a href="/role/">
+						<i class="icon-double-angle-right"></i>
+						角色管理
+					</a>
+				</li> -->*#
+			</ul>
+		</li>
+
+		<li#if('true' == "#indexOf($!{data.nav_choose}, ',03,')") class='active open'#end>
+			<a href='javascript:;' class="dropdown-toggle">
+				<i class="icon-cog"></i>
+				<span class="menu-text"> 会员管理 </span>
+				<b class="arrow icon-angle-down"></b>
+			</a>
+
+			<ul class="submenu">
+
+				<li#if('true' == "#indexOf($!{data.nav_choose}, ',0301,')") class='active'#end>
+					<a href="$!{conf.html.virtualPath}user/">
+						<i class="icon-double-angle-right"></i>
+						会员信息
+					</a>
+				</li>
+
+			</ul>
+		</li>
+
+		<li#if('true' == "#indexOf($!{data.nav_choose}, ',04,')") class='active open'#end>
+			<a href='javascript:;' class="dropdown-toggle">
+				<i class="icon-comments "></i>
+				<span class="menu-text"> 交流中心 </span>
+				<b class="arrow icon-angle-down"></b>
+			</a>
+
+			<ul class="submenu">
+
+				<li#if('true' == "#indexOf($!{data.nav_choose}, ',0401,')") class='active'#end>
+					<a href="$!{conf.html.virtualPath}notice/">
+						<i class="icon-double-angle-right"></i>
+						网站公告
+					</a>
+				</li>
+
+				<li#if('true' == "#indexOf($!{data.nav_choose}, ',0402,')") class='active'#end>
+					<a href="/manage/goods/">
+						<i class="icon-double-angle-right"></i>
+						商品管理
+					</a>
+				</li>
+
+			</ul>
+		</li>
+
+		<li>
+			<a href="$!{conf.html.virtualPath}manager/logout">
+				<i class="icon-lock"></i>
+				<span class="menu-text"> 安全退出 </span>
+			</a>
+		</li>
+
+	</ul><!--/.nav-list-->
+
+	<div class="sidebar-collapse" id="sidebar-collapse">
+		<i class="icon-double-angle-left"></i>
+	</div>
+</div>

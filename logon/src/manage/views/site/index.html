@@ -1,0 +1,67 @@
+#parse('_pagelet/constant.html')
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<title>后台管理 | $!conf.app.name</title>
+		#parse('_pagelet/header2.html')
+	</head>
+
+	<body>
+		#parse('site/_pagelet/nav.html')
+
+		<div class="main-container container-fluid">
+			<a class="menu-toggler" id="menu-toggler" href="#">
+				<span class="menu-text"></span>
+			</a>
+
+			#parse('site/_pagelet/sidebar.html')
+
+			<div class="main-content">
+				<div class="breadcrumbs" id="breadcrumbs">
+					<ul class="breadcrumb">
+						<li>
+							<i class="icon-home home-icon"></i>
+							<a href="$!conf.html.virtualPath">首页</a>
+
+							<!-- <span class="divider">
+								<i class="icon-angle-right arrow-icon"></i>
+							</span> -->
+						</li>
+
+						<!-- <li>
+							<a href="#">Other Pages</a>
+							<span class="divider">
+								<i class="icon-angle-right arrow-icon"></i>
+							</span>
+						</li>
+						<li class="active">Blank Page</li> -->
+					</ul><!--.breadcrumb-->
+
+					<div class="nav-search" id="nav-search">
+						<form class="form-search" />
+							<span class="input-icon">
+								<input type="text" placeholder="搜索" class="input-small nav-search-input" id="nav-search-input" autocomplete="off" />
+								<i class="icon-search nav-search-icon"></i>
+							</span>
+						</form>
+					</div><!--#nav-search-->
+				</div>
+
+				<div class="page-content">
+					<div class="row-fluid">
+						<div class="span12">
+							<!--PAGE CONTENT BEGINS-->
+
+							<!--PAGE CONTENT ENDS-->
+						</div><!--/.span-->
+					</div><!--/.row-fluid-->
+				</div><!--/.page-content-->
+
+				#parse('_pagelet/settings2.html')
+			</div><!--/.main-content-->
+		</div><!--/.main-container-->
+
+		#parse('_pagelet/footer2.html')
+		#parse('_pagelet/js2.html')
+	</body>
+</html>

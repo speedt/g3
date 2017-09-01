@@ -1,0 +1,98 @@
+<script src='$!{CDN}js/ace/1.1.2/assets/js/fuelux/fuelux.spinner.min.js'></script>
+#set($doc=$data.goods)
+<form id='frm' role='form' class='form-horizontal' onsubmit='return push();'>
+	<input type='hidden' name='id' id='frm_id' value='$!doc.id'>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_goods_name'>商品名称</label>
+
+		<div class='controls'>
+			<input type='text' class='input-large' name='goods_name' id='frm_goods_name' value='$!doc.goods_name' />
+		</div>
+	</div>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_goods_desc'>商品描述</label>
+
+		<div class='controls'>
+			<input type='text' class='input-large' name='goods_desc' id='frm_goods_desc' value='$!doc.goods_desc' />
+		</div>
+	</div>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_cost'>¥人民币</label>
+
+		<div class='controls'>
+			<input type='text' class='input-large' name='cost' id='frm_cost' value='$!doc.cost' />
+		</div>
+	</div>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_payment_id'>支付平台ID</label>
+
+		<div class='controls'>
+			<input type='text' class='input-large' name='payment_id' id='frm_payment_id' value='$!doc.payment_id' />
+		</div>
+	</div>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_disposable_1'>一次性</label>
+
+		<div class='controls'>
+			<label>
+				<input name='disposable' value='1' id='frm_disposable_1' type='radio'#if(1 == $!doc.disposable) checked#end />
+				<span class='lbl'> 是</span>
+			</label>
+			<label>
+				<input name='disposable' value='0' id='frm_disposable_0' type='radio'#if(0 == $!doc.disposable) checked#end />
+				<span class='lbl'> 否</span>
+			</label>
+		</div>
+	</div>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_interval_time'>间隔时间（小时）</label>
+
+		<div class='controls'>
+			<input type='text' class='input-large' name='interval_time' id='frm_interval_time' value='$!doc.interval_time' />
+		</div>
+	</div>
+
+	<div class='form-actions'>
+		<button class='btn btn-info' type='submit'>
+			<i class='icon-ok bigger-110'></i>
+			提交
+		</button>
+
+		&nbsp; &nbsp;
+		<button class='btn' type='reset'>
+			<i class='icon-undo bigger-110'></i>
+			重置
+		</button>
+	</div>
+</form>
+<script>
+$(function(){
+  $('#frm_interval_time').ace_spinner({
+    value: #defVal($!doc.interval_time, 0),
+    min: 0,
+    max: 10000,
+    step: 10,
+    icon_up: 'icon-plus',
+    icon_down: 'icon-minus',
+    btn_up_class: 'btn-success' ,
+    btn_down_class: 'btn-danger'
+  });
+
+  $('#frm_cost').ace_spinner({
+    value: #defVal($!doc.cost, 0),
+    min: 0,
+    max: 10000,
+    step: 10,
+    icon_up: 'icon-plus',
+    icon_down: 'icon-minus',
+    btn_up_class: 'btn-success' ,
+    btn_down_class: 'btn-danger'
+  });
+})
+</script>

@@ -1,0 +1,59 @@
+#set($doc=$data.notice)
+<form id='frm' role='form' class='form-horizontal' onsubmit='return push();'>
+	<input type='hidden' name='id' id='frm_id' value='$!doc.id'>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_title'>公告标题</label>
+
+		<div class='controls'>
+			<input type='text' class='input-large' id='frm_title' name='title' value='$!doc.title' />
+		</div>
+	</div>
+
+	<div class='control-group'>
+		<label class='control-label' for='frm_content'>公告内容</label>
+
+		<div class='controls'>
+			<div class='wysiwyg-editor' id='frm_content' name='content'>#formatHtml($!{doc.content})</div>
+		</div>
+	</div>
+
+	<div class='form-actions'>
+		<button class='btn btn-info' type='submit'>
+			<i class='icon-ok bigger-110'></i>
+			提交
+		</button>
+		&nbsp; &nbsp;
+		<button class='btn' type='reset'>
+			<i class='icon-undo bigger-110'></i>
+			重置
+		</button>
+	</div>
+</form>
+<!--page specific plugin scripts-->
+<script src='$!{CDN}js/ace/1.1.2/assets/js/markdown/markdown.min.js'></script>
+<script src='$!{CDN}js/ace/1.1.2/assets/js/markdown/bootstrap-markdown.min.js'></script>
+<script src='$!{CDN}js/ace/1.1.2/assets/js/jquery.hotkeys.min.js'></script>
+<script src='$!{CDN}js/ace/1.1.2/assets/js/bootstrap-wysiwyg.min.js'></script>
+<!--ace scripts-->
+<script src='$!{CDN}js/ace/1.1.2/assets/js/ace-elements.min.js'></script>
+
+<script>
+$(function(){
+  $('#frm_content').ace_wysiwyg({
+    toolbar:
+    [
+      { name: 'bold',          className: 'btn-info'},
+      { name: 'italic',        className: 'btn-info'},
+      { name: 'strikethrough', className: 'btn-info'},
+      { name: 'underline',     className: 'btn-info'},
+      null,
+      'foreColor',
+      null,
+      { name: 'undo', className: 'btn-grey'},
+      { name: 'redo', className: 'btn-grey'}
+    ],
+    'wysiwyg': {}
+  }).prev().addClass('wysiwyg-style2');
+})
+</script>

@@ -1,0 +1,95 @@
+#parse('_pagelet/constant.html')
+<!DOCTYPE html>
+<html lang='zh-CN'>
+	<head>
+		<title>管理登陆 | $!conf.app.name</title>
+		#parse('_pagelet/header.html')
+	</head>
+	<body>
+		<div class='container'>
+			<div class='row'>
+				<div class='col-md-12' style='height:23px'>
+				</div>
+			</div>
+		</div>
+		<header id='header'></header>
+		<div class='container'>
+			<div class='row'>
+				<div class='col-md-12'>
+					<div class='panel panel-default'>
+						<div class='panel-heading'><b>管理登陆</b></div>
+						<div class='panel-body'>
+							<div class='col-md-5 col-sm-6'>
+								<form class='form-horizontal' role='form' id='logFrm' onsubmit='return push();' data-url='login'>
+									<div class='form-group'>
+										<label for='logFrm_user_name' class='col-sm-3 control-label'>帐号</label>
+										<div class='col-sm-9'>
+											<input type='text' class='form-control' name='user_name' id='logFrm_user_name' placeholder='帐号' required data-original-title='帐号不能为空' value=''>
+										</div>
+									</div>
+									<div class='form-group'>
+										<label for='logFrm_user_pass' class='col-sm-3 control-label'>密码</label>
+										<div class='col-sm-9'>
+											<input type='password' class='form-control' name='user_pass' id='logFrm_user_pass' placeholder='密码' required data-original-title='密码不能为空' value=''>
+										</div>
+									</div>
+									<div class='form-group'>
+										<div class='col-sm-offset-3 col-sm-4'>
+											<button type='submit' class='btn btn-primary'>立即登陆</button>
+										</div>
+										<label class='col-sm-5 control-label'><a style='text-decoration:underline' href='javascript:;'>忘记密码？</a></label>
+									</div>
+								</form>
+							</div>
+							<div class='col-md-offset-1 col-sm-offset-1 col-md-6 col-sm-5'>
+								<div><a href='javascript:;' target='_blank'></a> 将获得以下权限：</div>
+								<div class='checkbox'>
+									<label>
+										<input disabled type='checkbox' checked id='select_all'> <span style='font-weight:bold'>全选</span>
+									</label>
+								</div>
+								<div class='checkbox'>
+									<label>
+										<input disabled type='checkbox' checked name='api_choose' id='item_3821' value='3821'> <span style=''>获得您的昵称、头像、性别</span>
+									</label>
+								</div>
+								<div>&nbsp;</div>
+								<div>授权后表明你已同意 <a style='font-weight:bold;text-decoration:underline' href='javascript:;'>协议</a></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		#parse('_pagelet/js.html')
+
+<script type='text/javascript'>
+function ser(frmObj){
+  var _a = frmObj.serializeArray();
+  var _b = _.pluck(_a, 'name');
+  var _c = _.pluck(_a, 'value');
+  var _d = _.object(_b, _c);
+  return _d;
+}
+
+function push(){
+  var data = ser($('#logFrm'));
+  $.ajax({
+    url: '$!{conf.html.virtualPath}manager/login',
+    type: 'POST',
+    dataType: 'JSON',
+    data: data,
+    success: function(data){
+      if(data.error) return alert(data.error.code);
+      location.href = #if('' == $!{data.refererUrl})$!conf.html.virtualPath#else'$!{data.refererUrl}'#end;
+    },
+    error: function(){
+      alert(arguments[2]);
+    }
+  });
+  return false;
+}
+</script>
+
+	</body>
+</html>

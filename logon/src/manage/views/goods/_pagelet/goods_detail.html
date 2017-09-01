@@ -1,0 +1,82 @@
+<table id="table_1" class="table table-striped table-bordered table-hover" data-olx-type='olx.grid' data-current='1' data-pagesize='20' data-count='561'>
+	<thead>
+		<tr>
+			<th class="center">
+				<label>
+					<input type="checkbox" />
+					<span class="lbl"></span>
+				</label>
+			</th>
+
+			<th>道具名称</th>
+			<th>数量</th>
+
+			<th class="hidden-phone">
+				<i class="icon-time bigger-110 hidden-phone"></i>
+				创建时间
+			</th>
+
+			<th>操作</th>
+		</tr>
+	</thead>
+
+	<tbody>
+	#foreach($doc in $!{data.list_goods_detail})
+		<tr>
+			<td class="center">
+				<label>
+					<input type="checkbox" value='$!{doc.id}' />
+					<span class="lbl"></span>
+				</label>
+			</td>
+
+			<td>$!{doc.game_prop_name}</td>
+			<td>#num2Money($!{doc.num})</td>
+
+			<td class="hidden-phone">#formatDate($!{doc.create_time})</td>
+
+			<td>
+				<div class="hidden-phone visible-desktop btn-group">
+
+					<a class="btn btn-mini btn-info" title='编辑' href='javascript:;'>
+						<i class="icon-edit bigger-120"></i>
+					</a>
+
+					<a class="btn btn-mini btn-danger" title='删除' href='javascript:;'>
+						<i class="icon-trash bigger-120"></i>
+					</a>
+
+				</div>
+
+				<div class="hidden-desktop visible-phone">
+					<div class="inline position-relative">
+						<button class="btn btn-minier btn-primary dropdown-toggle" data-toggle="dropdown">
+							<i class="icon-cog icon-only bigger-110"></i>
+						</button>
+
+						<ul class="dropdown-menu dropdown-icon-only dropdown-yellow pull-right dropdown-caret dropdown-close">
+
+							<li>
+								<a href='javascript:;' class="tooltip-success" data-rel="tooltip" title="编辑">
+									<span class="blue">
+										<i class="icon-edit bigger-120"></i>
+									</span>
+								</a>
+							</li>
+
+							<li>
+								<a href='javascript:;' class="tooltip-error" data-rel="tooltip" title="删除">
+									<span class="red">
+										<i class="icon-trash bigger-120"></i>
+									</span>
+								</a>
+							</li>
+
+						</ul>
+					</div>
+				</div>
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table><!-- table -->
