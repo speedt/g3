@@ -35,6 +35,7 @@ res.create = function(room_info){
   if(rooms[room_info.id]) return;
 
   var room = new Room(room_info);
+  room.init();
   rooms[room.id] = room;
   return room;
 };
