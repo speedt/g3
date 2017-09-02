@@ -139,3 +139,50 @@ const _ = require('underscore');
     .catch(p2);
   };
 })();
+
+(() => {
+  function p1(send, data, doc){
+    if(!doc) return;
+
+    var _data = [];
+    _data.push(null);
+    _data.push(JSON.stringify([3012, data.seqId, _.now(), doc[1]]));
+
+    for(let i of _.values(doc[0])){
+      if(!i.server_id || !i.channel_id) continue;
+      _data.splice(0, 1, i.channel_id);
+
+      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
+        if(err) return logger.error('channel ready:', err);
+      });
+    }
+  }
+
+  function p2(err){
+    if('string' !== typeof err) return logger.error('channel ready:', err);
+
+    var _data = [];
+    _data.push(data.channelId);
+    _data.push(JSON.stringify([3012, data.seqId, _.now(), , err]));
+
+    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
+      if(err) return logger.error('channel ready:', err);
+    });
+  }
+
+  /**
+   * 举手
+   *
+   * @return
+   */
+  exports.ready = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('channel ready empty');
+
+    var s = msg.body.split('::');
+    var data = { serverId: s[0], channelId: s[1] };
+
+    biz.user.ready(data.serverId, data.channelId)
+    .then(p1.bind(null, send, data))
+    .catch(p2);
+  };
+})();
