@@ -138,30 +138,27 @@ const logger = require('log4js').getLogger('biz.group');
   function p1(user){
     if(!user.group_id) return Promise.reject('已经退出了');
 
-    var user_info = {
-      group_id: user.group_id,
-      id:       user.id,
-    };
-
-    var room = roomPool.get(user_info.group_id);
+    var room = roomPool.get(user.group_id);
 
     if(!room){
       return new Promise((resolve, reject) => {
-        biz.user.quitGroup(user_info.id)
+        biz.user.quitGroup(user.id)
         .then(() => resolve())
         .catch(reject);
       });
     }
 
-    if(room.quit(user_info.id)){
+    if(room.quit(user.id)){
       return new Promise((resolve, reject) => {
-        biz.user.quitGroup(user_info.id)
+        biz.user.quitGroup(user.id)
         .then(() => {
           if(1 > _.size(room.users)) return resolve();
 
           resolve([
             room.users,
-            user_info,
+            {
+              id: user.id,
+            },
           ]);
         })
         .catch(reject);
@@ -170,7 +167,10 @@ const logger = require('log4js').getLogger('biz.group');
 
     return Promise.resolve([
       room.users,
-      user_info,
+      {
+        id:      user.id,
+        is_quit: room.getUser(user.id).opts.is_quit,
+      },
     ]);
   }
 
