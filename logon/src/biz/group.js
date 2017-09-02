@@ -45,9 +45,11 @@ const logger = require('log4js').getLogger('biz.group');
 
         for(let i of _.values(room.users)){
           users[i.id] = {
-            id:       i.id,
-            nickname: i.nickname,
-            seat:     i.opts.seat,
+            id:         i.id,
+            nickname:   i.nickname,
+            seat:       i.opts.seat,
+            server_id:  i.server_id,
+            channel_id: i.channel_id,
           };
         }
 
@@ -128,7 +130,7 @@ const logger = require('log4js').getLogger('biz.group');
    */
   exports.search = function(server_id, channel_id, group_info){
     return new Promise((resolve, reject) => {
-      formVali(group_info)
+      formVali(server_id, channel_id, group_info)
       .then(doc => resolve(doc))
       .catch(reject);
     });
