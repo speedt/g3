@@ -133,33 +133,33 @@ const roomPool = require('emag.model').roomPool;
       _data.splice(0, 1, i.channel_id);
 
       send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('pushCake crapsBanker:', err);
+        if(err) return logger.error('pushCake bankerCraps:', err);
       });
     }
   }
 
   function p2(send, data, err){
-    if('string' !== typeof err) return logger.error('pushCake crapsBanker:', err);
+    if('string' !== typeof err) return logger.error('pushCake bankerCraps:', err);
 
     var _data = [];
     _data.push(data.channelId);
     _data.push(JSON.stringify([5016, data.seqId, _.now(), , err]));
 
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
-      if(err) return logger.error('pushCake crapsBanker:', err);
+      if(err) return logger.error('pushCake bankerCraps:', err);
     });
   }
 
   /**
    *
    */
-  exports.crapsBanker = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('pushCake crapsBanker empty');
+  exports.bankerCraps = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('pushCake bankerCraps empty');
 
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.pushCake.crapsBanker(data.serverId, data.channelId)
+    biz.pushCake.bankerCraps(data.serverId, data.channelId)
     .then(p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
@@ -233,33 +233,33 @@ const roomPool = require('emag.model').roomPool;
       _data.splice(0, 1, i.channel_id);
 
       send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('pushCake noBankerBet:', err);
+        if(err) return logger.error('pushCake unBankerBet:', err);
       });
     }
   }
 
   function p2(send, data, err){
-    if('string' !== typeof err) return logger.error('pushCake noBankerBet:', err);
+    if('string' !== typeof err) return logger.error('pushCake unBankerBet:', err);
 
     var _data = [];
     _data.push(data.channelId);
     _data.push(JSON.stringify([5020, data.seqId, _.now(), , err]));
 
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
-      if(err) return logger.error('pushCake noBankerBet:', err);
+      if(err) return logger.error('pushCake unBankerBet:', err);
     });
   }
 
   /**
    *
    */
-  exports.noBankerBet = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('pushCake noBankerBet empty');
+  exports.unBankerBet = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('pushCake unBankerBet empty');
 
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.pushCake.noBankerBet(data.serverId, data.channelId, data.data, next.bind(null, send, data))
+    biz.pushCake.unBankerBet(data.serverId, data.channelId, data.data, next.bind(null, send, data))
     .then(p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
@@ -280,7 +280,7 @@ const roomPool = require('emag.model').roomPool;
       _data.splice(0, 1, i.channel_id);
 
       send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('pushCake noBankerBet:', err);
+        if(err) return logger.error('pushCake unBankerBet:', err);
       });
     }
   }
