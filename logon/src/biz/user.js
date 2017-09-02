@@ -283,114 +283,6 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  var sql = 'SELECT a.* FROM s_user a WHERE a.user_name=?';
-
-  /**
-   *
-   * @return
-   */
-  exports.getByName = function(user_name, trans){
-    return new Promise((resolve, reject) => {
-      (trans || mysql).query(sql, [user_name], (err, docs) => {
-        if(err) return reject(err);
-        resolve(mysql.checkOnly(docs) ? docs[0] : null);
-      });
-    });
-  };
-})();
-
-(() => {
-  // 2-10个字符，支持中文，英文大小写、数字、下划线
-  var regex_user_name = /^[\u4E00-\u9FA5a-zA-Z0-9_]{2,10}$/;
-  // 6-16个字符，支持英文大小写、数字、下划线，区分大小写
-  var regex_user_pass = /^[a-zA-Z0-9_]{6,16}$/;
-
-  function formVali(user_info){
-    return new Promise((resolve, reject) => {
-      if(!_.isString(user_info.user_name)) return reject('invalid_params');
-      user_info.user_name = _.trim(user_info.user_name);
-      if(!regex_user_name.test(user_info.user_name)) return reject('invalid_params');
-
-      if(!_.isString(user_info.user_pass)) return reject('invalid_params');
-      user_info.user_pass = _.trim(user_info.user_pass);
-      if(!regex_user_name.test(user_info.user_pass)) return reject('invalid_params');
-
-      resolve(user_info);
-    });
-  }
-
-  function p1(user_info){
-    return new Promise((resolve, reject) => {
-      biz.user.getByName(user_info.user_name)
-      .then(user => {
-        if(user) return reject('用户名已存在');
-        resolve(user_info);
-      })
-      .catch(reject);
-    });
-  }
-
-  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-  function p2(user_info){
-    user_info.id               = utils.replaceAll(uuid.v1(), '-', '');
-    user_info.user_pass        = md5.hex(user_info.user_pass);
-    user_info.status           = 1;
-    user_info.create_time      = new Date();
-    user_info.current_score    = 0;
-    user_info.nickname         = user_info.user_name;
-    user_info.vip              = 0;
-    user_info.consume_count    = 0;
-    user_info.win_count        = 0;
-    user_info.lose_count       = 0;
-    user_info.win_score_count  = 0;
-    user_info.lose_score_count = 0;
-    user_info.line_gone_count  = 0;
-    user_info.gold_count       = 0;  // 元宝
-
-    return new Promise((resolve, reject) => {
-      mysql.query(sql, [
-        user_info.id,
-        user_info.user_name,
-        user_info.user_pass,
-        user_info.status,
-        user_info.create_time,
-        user_info.mobile,
-        user_info.weixin,
-        user_info.current_score,
-        user_info.nickname,
-        user_info.vip,
-        user_info.consume_count,
-        user_info.win_count,
-        user_info.lose_count,
-        user_info.win_score_count,
-        user_info.lose_score_count,
-        user_info.line_gone_count,
-        user_info.gold_count,
-      ], err => {
-        if(err) return reject(err);
-        resolve(user_info);
-      });
-    });
-  }
-
-  /**
-   * 用户注册
-   *
-   * @return
-   */
-  exports.register = function(newInfo){
-    return new Promise((resolve, reject) => {
-      formVali(newInfo)
-      .then(p1)
-      .then(p2)
-      .then(user_info => resolve(user_info))
-      .catch(reject);
-    });
-  };
-})();
-
-(() => {
   /**
    * entry群组
    *
@@ -488,6 +380,107 @@ const logger = require('log4js').getLogger('biz.user');
       ], err => {
         if(err) return reject(err);
         resolve(user_info);
+      });
+    });
+  };
+})();
+
+(() => {
+  // 2-10个字符，支持中文，英文大小写、数字、下划线
+  var regex_user_name = /^[\u4E00-\u9FA5a-zA-Z0-9_]{2,10}$/;
+  // 6-16个字符，支持英文大小写、数字、下划线，区分大小写
+  var regex_user_pass = /^[a-zA-Z0-9_]{6,16}$/;
+
+  function formVali(user_info){
+    if(!_.isString(user_info.user_name)) return Promise.reject('invalid_params');
+    user_info.user_name = _.trim(user_info.user_name);
+    if(!regex_user_name.test(user_info.user_name)) return Promise.reject('invalid_params');
+
+    if(!_.isString(user_info.user_pass)) return Promise.reject('invalid_params');
+    user_info.user_pass = _.trim(user_info.user_pass);
+    if(!regex_user_name.test(user_info.user_pass)) return Promise.reject('invalid_params');
+
+    return new Promise((resolve, reject) => {
+      biz.user.getByName(user_info.user_name)
+      .then(user => {
+        if(user) return reject('用户名已存在');
+        resolve(user_info);
+      })
+      .catch(reject);
+    });
+  }
+
+  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+  function p1(user_info){
+    user_info.id               = utils.replaceAll(uuid.v1(), '-', '');
+    user_info.user_pass        = md5.hex(user_info.user_pass);
+    user_info.status           = 1;
+    user_info.create_time      = new Date();
+    user_info.current_score    = 0;
+    user_info.nickname         = user_info.user_name;
+    user_info.vip              = 0;
+    user_info.consume_count    = 0;
+    user_info.win_count        = 0;
+    user_info.lose_count       = 0;
+    user_info.win_score_count  = 0;
+    user_info.lose_score_count = 0;
+    user_info.line_gone_count  = 0;
+    user_info.gold_count       = 0;  // 元宝
+
+    return new Promise((resolve, reject) => {
+      mysql.query(sql, [
+        user_info.id,
+        user_info.user_name,
+        user_info.user_pass,
+        user_info.status,
+        user_info.create_time,
+        user_info.mobile,
+        user_info.weixin,
+        user_info.current_score,
+        user_info.nickname,
+        user_info.vip,
+        user_info.consume_count,
+        user_info.win_count,
+        user_info.lose_count,
+        user_info.win_score_count,
+        user_info.lose_score_count,
+        user_info.line_gone_count,
+        user_info.gold_count,
+      ], err => {
+        if(err) return reject(err);
+        resolve(user_info);
+      });
+    });
+  }
+
+  /**
+   * 用户注册
+   *
+   * @return
+   */
+  exports.register = function(newInfo){
+    return new Promise((resolve, reject) => {
+      formVali(newInfo)
+      .then(p1)
+      .then(user_info => resolve(user_info))
+      .catch(reject);
+    });
+  };
+})();
+
+(() => {
+  var sql = 'SELECT a.* FROM s_user a WHERE a.user_name=?';
+
+  /**
+   *
+   * @return
+   */
+  exports.getByName = function(user_name, trans){
+    return new Promise((resolve, reject) => {
+      (trans || mysql).query(sql, [user_name], (err, docs) => {
+        if(err) return reject(err);
+        resolve(mysql.checkOnly(docs) ? docs[0] : null);
       });
     });
   };
