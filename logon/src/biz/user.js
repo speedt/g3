@@ -238,51 +238,6 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  function p1(cb, trans){
-    var id = _.random(100000, 999999);
-    biz.user.findAllByGroupId(id, trans)
-    .then(docs => {
-      if(0 < docs.length) return p1(cb, trans);
-      cb(null, id);
-    })
-    .catch(cb);
-  }
-
-  /**
-   * 生成空闲的群组id
-   *
-   * @return
-   */
-  exports.genFreeGroupId = function(trans){
-    return new Promise((resolve, reject) => {
-      p1((err, id) => {
-        if(err) return reject(err);
-        resolve(id);
-      }, trans);
-    });
-  };
-})();
-
-(() => {
-  var sql = 'SELECT a.* FROM s_user a WHERE a.group_id=? ORDER BY a.group_entry_time ASC';
-
-  /**
-   * 获取群组的全部用户
-   *
-   * @param id 群组id
-   * @return
-   */
-  exports.findAllByGroupId = function(id, trans){
-    return new Promise((resolve, reject) => {
-      (trans || mysql).query(sql, [id], (err, docs) => {
-        if(err) return reject(err);
-        resolve(docs);
-      });
-    });
-  };
-})();
-
-(() => {
   const numkeys = 3;
   const sha1    = '6df440fb93a747912f3eae2835c8fec8e90788ca';
 
@@ -483,6 +438,51 @@ const logger = require('log4js').getLogger('biz.user');
       group_id: '',
       id:       user_id,
     }, trans);
+  };
+})();
+
+(() => {
+  function p1(cb, trans){
+    var id = _.random(100000, 999999);
+    biz.user.findAllByGroupId(id, trans)
+    .then(docs => {
+      if(0 < docs.length) return p1(cb, trans);
+      cb(null, id);
+    })
+    .catch(cb);
+  }
+
+  /**
+   * 生成空闲的群组id
+   *
+   * @return
+   */
+  exports.genFreeGroupId = function(trans){
+    return new Promise((resolve, reject) => {
+      p1((err, id) => {
+        if(err) return reject(err);
+        resolve(id);
+      }, trans);
+    });
+  };
+})();
+
+(() => {
+  var sql = 'SELECT a.* FROM s_user a WHERE a.group_id=? ORDER BY a.group_entry_time ASC';
+
+  /**
+   * 获取群组的全部用户
+   *
+   * @param id 群组id
+   * @return
+   */
+  exports.findAllByGroupId = function(id, trans){
+    return new Promise((resolve, reject) => {
+      (trans || mysql).query(sql, [id], (err, docs) => {
+        if(err) return reject(err);
+        resolve(docs);
+      });
+    });
   };
 })();
 

@@ -22,7 +22,7 @@ var res = module.exports = {};
 var rooms = {};
 
 res.create = function(room_info){
-  if(this.get(room_info.id)) return;
+  if(!this.release(room_info.id)) return;
 
   var room = new Room(room_info);
   rooms[room.id] = room;
