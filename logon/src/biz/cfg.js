@@ -85,7 +85,6 @@ exports.findAll = function(status, cb){
    * @return
    */
   exports.editInfo = function(newInfo, cb){
-
     mysql.query(sql, [
       newInfo.value_,
       newInfo.key_,
@@ -110,7 +109,6 @@ exports.findAll = function(status, cb){
  * @return
  */
 exports.init = function(cb){
-
   this.findAll(null, function (err, docs){
     if(err) return cb(err);
 

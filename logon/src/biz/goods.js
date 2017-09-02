@@ -27,8 +27,15 @@ const redis = require('emag.db').redis;
 })();
 
 (() => {
-  var sql = 'SELECT b.prop_name game_prop_name, a.* FROM (SELECT * FROM w_goods_detail WHERE goods_id=?) a LEFT JOIN w_game_prop b ON (a.game_prop_id=b.id) WHERE b.id IS NOT NULL ORDER BY a.create_time DESC';
-
+  var sql = 'SELECT '+
+              'b.prop_name game_prop_name, '+
+              'a.* '+
+            'FROM '+
+              '(SELECT * FROM w_goods_detail WHERE goods_id=?) a '+
+              'LEFT JOIN w_game_prop b ON (a.game_prop_id=b.id) '+
+            'WHERE '+
+              'b.id IS NOT NULL '+
+            'ORDER BY a.create_time DESC';
   /**
    * 获取某一商品的详细道具列表
    *

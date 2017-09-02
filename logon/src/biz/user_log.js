@@ -44,8 +44,8 @@ const redis = require('emag.db').redis;
    * @return
    */
   exports.saveNew = function(newInfo, trans){
-    newInfo.id = utils.replaceAll(uuid.v1(), '-', '');
-    newInfo.log_type = newInfo.log_type || 1;
+    newInfo.id          = utils.replaceAll(uuid.v1(), '-', '');
+    newInfo.log_type    = newInfo.log_type || 1;
     newInfo.create_time = new Date();
 
     return new Promise((resolve, reject) => {

@@ -19,7 +19,15 @@ const mysql = require('emag.db').mysql;
 const redis = require('emag.db').redis;
 
 (() => {
-  var sql = 'SELECT a.*, b.user_name FROM (SELECT * FROM w_notice) a LEFT JOIN s_manager b ON (a.user_id=b.id) WHERE b.id IS NOT NULL ORDER BY a.create_time DESC';
+  var sql = 'SELECT '+
+              'b.user_name, '+
+              'a.* '+
+            'FROM '+
+              '(SELECT * FROM w_notice) a '+
+              'LEFT JOIN s_manager b ON (a.user_id=b.id) '+
+            'WHERE '+
+              'b.id IS NOT NULL '+
+            'ORDER BY a.create_time DESC';
 
   exports.findAll = function(cb){
     mysql.query(sql, null, cb);
