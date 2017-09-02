@@ -153,9 +153,7 @@ const logger = require('log4js').getLogger('biz.group');
 
           resolve([
             room.users,
-            {
-              id: user.id,
-            },
+            [user.id],
           ]);
         })
         .catch(reject);
@@ -164,10 +162,7 @@ const logger = require('log4js').getLogger('biz.group');
 
     return Promise.resolve([
       room.users,
-      {
-        id:      user.id,
-        is_quit: room.getUser(user.id).opts.is_quit,
-      },
+      [user.id, room.getUser(user.id).opts.is_quit],
     ]);
   }
 

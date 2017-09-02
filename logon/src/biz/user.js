@@ -72,24 +72,16 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  function p1(user){
-    if(!user.group_id) return Promise.resolve();
-    var room = roomPool.get(user.group_id);
-    if(!room) return Promise.resolve();
-    room.quit(user.id);
-    return Promise.resolve(user);
-  }
-
   /**
+   * 用户退出
    *
    * @return
    */
   exports.logout = function(server_id, channel_id){
     return new Promise((resolve, reject) => {
       closeChannel(server_id, channel_id)
-      .then(biz.user.getByChannelId.bind(null, server_id, channel_id))
-      .then(p1)
-      .then(user => resolve(user))
+      .then(biz.group.quit.bind(null, server_id, channel_id))
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   };
