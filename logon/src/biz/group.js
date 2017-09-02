@@ -84,24 +84,6 @@ const logger = require('log4js').getLogger('biz.group');
 })();
 
 (() => {
-  function formVali(server_id, channel_id, group_info){
-    if(!_.isNumber(group_info.visitor_count)) return Promise.reject('invalid_params');
-    if(6 < group_info.visitor_count || 0 > group_info.visitor_count) return Promise.reject('invalid_params');
-
-    if(!_.isNumber(group_info.fund)) return Promise.reject('invalid_params');
-    if(999999 < group_info.fund || 0 > group_info.fund) return Promise.reject('invalid_params');
-
-    if(!_.isNumber(group_info.round_count)) return Promise.reject('invalid_params');
-    if(4 < group_info.round_count || 1 > group_info.round_count) return Promise.reject('invalid_params');
-
-    return new Promise((resolve, reject) => {
-      biz.user.getByChannelId(server_id, channel_id)
-      .then(p1.bind(null, group_info))
-      .then(doc => resolve(doc))
-      .catch(reject);
-    });
-  }
-
   function p1(group_info, user){
     if(user.group_id) return Promise.reject('请先退出');
 
@@ -162,8 +144,18 @@ const logger = require('log4js').getLogger('biz.group');
    * @return
    */
   exports.search = function(server_id, channel_id, group_info){
+    if(!_.isNumber(group_info.visitor_count)) return Promise.reject('invalid_params');
+    if(6 < group_info.visitor_count || 0 > group_info.visitor_count) return Promise.reject('invalid_params');
+
+    if(!_.isNumber(group_info.fund)) return Promise.reject('invalid_params');
+    if(999999 < group_info.fund || 0 > group_info.fund) return Promise.reject('invalid_params');
+
+    if(!_.isNumber(group_info.round_count)) return Promise.reject('invalid_params');
+    if(4 < group_info.round_count || 1 > group_info.round_count) return Promise.reject('invalid_params');
+
     return new Promise((resolve, reject) => {
-      formVali(server_id, channel_id, group_info)
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, group_info))
       .then(doc => resolve(doc))
       .catch(reject);
     });

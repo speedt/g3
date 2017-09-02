@@ -378,7 +378,7 @@ pro.ready = function(user_id){
 
     clearAllCraps.call(self);
 
-    user.opts.bet = bet - 0;
+    user.opts.bet = bet;
 
     return user;
   };

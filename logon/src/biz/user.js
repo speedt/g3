@@ -321,14 +321,6 @@ const logger = require('log4js').getLogger('biz.user');
   var regex_user_pass = /^[a-zA-Z0-9_]{6,16}$/;
 
   function formVali(user_info){
-    if(!_.isString(user_info.user_name)) return Promise.reject('invalid_params');
-    user_info.user_name = _.trim(user_info.user_name);
-    if(!regex_user_name.test(user_info.user_name)) return Promise.reject('invalid_params');
-
-    if(!_.isString(user_info.user_pass)) return Promise.reject('invalid_params');
-    user_info.user_pass = _.trim(user_info.user_pass);
-    if(!regex_user_name.test(user_info.user_pass)) return Promise.reject('invalid_params');
-
     return new Promise((resolve, reject) => {
       biz.user.getByName(user_info.user_name)
       .then(user => {
@@ -389,6 +381,14 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.register = function(newInfo){
+    if(!_.isString(user_info.user_name)) return Promise.reject('invalid_params');
+    user_info.user_name = _.trim(user_info.user_name);
+    if(!regex_user_name.test(user_info.user_name)) return Promise.reject('invalid_params');
+
+    if(!_.isString(user_info.user_pass)) return Promise.reject('invalid_params');
+    user_info.user_pass = _.trim(user_info.user_pass);
+    if(!regex_user_name.test(user_info.user_pass)) return Promise.reject('invalid_params');
+
     return new Promise((resolve, reject) => {
       formVali(newInfo)
       .then(p1)

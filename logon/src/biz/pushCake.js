@@ -91,7 +91,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
    * @return
    */
   exports.bankerBet = function(server_id, channel_id, bet){
-    if(!_.isNumber(bet)) return Promise.reject('invalid_params');
+    bet -= 0;
 
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
