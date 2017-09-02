@@ -28,6 +28,7 @@ const ACT_STATUS_CRAPS4       = 1;  // 动作状态：摇骰子
 const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
 const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
 const ACT_STATUS_UNBANKER_BET = 4;  // 动作状态：闲家下注
+const ACT_STATUS_UNBANKER_BET_NEXT = 5;
 
 module.exports = function(opts){
   return new Method(opts);
@@ -379,7 +380,7 @@ pro.ready = function(user_id){
 
     self.act_status  = ACT_STATUS_BANKER_CRAPS;
 
-    clearAllCraps.call(self);
+    clearAll.call(self);
 
     user.opts.bet = getBet.call(self, bet);
 
@@ -396,13 +397,14 @@ pro.ready = function(user_id){
   }
 
   /**
-   * 清理4个人的骰子
+   * 清理4个人的（骰子+注）
    *
    * @return
    */
-  function clearAllCraps(){
+  function clearAll(){
     for(let i of _.values(this.users)){
-      delete i.opts.craps;
+      delete i.opts.craps;  // 骰子
+      delete i.opts.bet;    // 注
     }
   }
 })();
@@ -446,5 +448,51 @@ pro.ready = function(user_id){
     var m = (n - 1 + seat) % 4;
 
     return (0 === m) ? 4 : m;
+  }
+})();
+
+(() => {
+  /**
+   * 动作状态：闲家下注
+   *
+   * @return
+   */
+  pro.unBankerBet = function(user_id, bet){
+    var self = this;
+
+    if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
+
+    var user = self.getUser(user_id);
+    if(!user) return;
+
+    if(user.opts.bet) return;  // 下过注，则返回
+
+    user.opts.bet = getBet.call(self, bet);
+
+    return user;
+  };
+
+  /**
+   * 动作状态：闲家下注（关闭）
+   *
+   * @return
+   */
+  pro.unBankerBetClosure = function(){
+    var self = this;
+
+    if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
+
+    self.act_status  = ACT_STATUS_UNBANKER_BET_NEXT;
+
+    return true;
+  };
+
+  /**
+   * 闲家下注
+   *
+   * @return
+   */
+  function getBet(bet){
+    return bet;
   }
 })();

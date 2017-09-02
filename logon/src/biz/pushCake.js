@@ -63,6 +63,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
   };
 })();
 
+
 (() => {
   function p1(bet, user){
     if(!user.group_id) return Promise.reject('已经退出了');
@@ -102,6 +103,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
   };
 })();
 
+
 (() => {
   function p1(user){
     if(!user.group_id) return Promise.reject('已经退出了');
@@ -139,55 +141,78 @@ const logger = require('log4js').getLogger('biz.pushCake');
   };
 })();
 
+
 (() => {
   function p1(bet, user){
-    if(!user.group_id) return Promise.reject('用户不在任何群组');
+    if(!user.group_id) return Promise.reject('已经退出了');
 
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
-    room.noBankerBet(user.id, bet);
+    var _user = room.unBankerBet(user.id, bet);
 
-    return Promise.resolve(user);
+    if(!_user) return Promise.resolve();
+
+    return Promise.resolve([
+      room.users,
+      [
+        _user.id,
+        _user.opts.seat,
+        _user.opts.bet,  // 闲家下的注
+        _user.group_id,
+      ],
+    ]);
   }
 
   /**
-   * 闲家下注
+   * 动作状态：闲家下注
    *
    * @return
    */
-  exports.noBankerBet = function(server_id, channel_id, bet, next){
+  exports.unBankerBet = function(server_id, channel_id, bet, next){
+    bet -= 0;
+
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1.bind(null, bet))
-      .then(user => {
-        cb(user, next);
-        resolve(user);
+      .then(doc => {
+        if(!doc) return;
+
+        cb(doc[1][3], next);
+        resolve(doc);
       })
       .catch(reject);
     });
   };
 
-  function cb(user, next){
-    if(!user.group_id) return Promise.reject('用户不在任何群组');
-
-    var room = roomPool.get(user.group_id);
+  /**
+   * 30(s)
+   *
+   * @return
+   */
+  function cb(group_id, next){
+    var room = roomPool.get(group_id);
     if(!room) return Promise.reject('房间不存在');
 
-    var count = 0;
+    setTimeout(() => {
+      var result = room.unBankerBetClosure();
+      if(!result) return;
 
-    for(let i of _.values(room.users)){
-      if(0 < i.bet) count++;
-    }
+      var users = [];
 
-    if(!(3 < count)) return;
+      for(let i of _.values(room.users)){
+        users.push([
+          i.id,
+          i.opts.seat,
+          i.opts.bet,
+        ]);
+      }
 
-    setTimeout(function(){
+      next([
+        room.users,
+        users,
+      ]);
 
-      room.liangpai();
-
-      next(user);
-
-    }, 5000);
+    }, 10000);
   }
 })();
