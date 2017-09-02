@@ -27,20 +27,19 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
 (() => {
   function p1(user){
-    if(!user.group_id) return Promise.reject('用户不在任何群组');
+    if(!user.group_id) return Promise.reject('已经退出了');
 
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
-    if(1 !== room.act_status) return Promise.reject('4人摇骰子');
+    var _user = room.craps4(user.id);
 
-    var user = room.users[user.id];
+    if(!_user) return Promise.resolve();
 
-    if(!user) return Promise.reject('你不在此房间');
-
-    room.craps(user.id);
-
-    return Promise.resolve(user);
+    return Promise.resolve([
+      room.users,
+      [_user.id, _user.opts.seat, _user.opts.craps],
+    ]);
   }
 
   /**
@@ -48,11 +47,11 @@ const logger = require('log4js').getLogger('biz.pushCake');
    *
    * @return
    */
-  exports.craps = function(server_id, channel_id, next){
+  exports.craps4 = function(server_id, channel_id, next){
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
-      .then(user => resolve(user))
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   };

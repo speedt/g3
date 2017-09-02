@@ -317,6 +317,8 @@ pro.ready = function(user_id){
     }
 
     self.act_seat++;
+
+    return user;
   };
 
   /**

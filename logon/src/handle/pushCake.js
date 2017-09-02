@@ -19,49 +19,45 @@ const _ = require('underscore');
 const roomPool = require('emag.model').roomPool;
 
 (() => {
-  function p1(send, data, user){
-    if(!user) return;
-
-    var room = roomPool.get(user.group_id);
-    if(!room) return;
-    if(0 === _.size(room.users)) return;
+  function p1(send, data, doc){
+    if(!doc) return;
 
     var _data = [];
     _data.push(null);
-    _data.push(JSON.stringify([5014, data.seqId, _.now(), room]));
+    _data.push(JSON.stringify([5014, data.seqId, _.now(), doc[1]]));
 
-    for(let i of _.values(room.users)){
+    for(let i of _.values(doc[0])){
       if(!i.server_id || !i.channel_id) continue;
       _data.splice(0, 1, i.channel_id);
 
       send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('pushCake craps:', err);
+        if(err) return logger.error('pushCake craps4:', err);
       });
     }
   }
 
   function p2(send, data, err){
-    if('string' !== typeof err) return logger.error('pushCake craps:', err);
+    if('string' !== typeof err) return logger.error('pushCake craps4:', err);
 
     var _data = [];
     _data.push(data.channelId);
     _data.push(JSON.stringify([5014, data.seqId, _.now(), , err]));
 
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
-      if(err) return logger.error('pushCake craps:', err);
+      if(err) return logger.error('pushCake craps4:', err);
     });
   }
 
   /**
    *
    */
-  exports.craps = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('pushCake craps empty');
+  exports.craps4 = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('pushCake craps4 empty');
 
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.pushCake.craps(data.serverId, data.channelId)
+    biz.pushCake.craps4(data.serverId, data.channelId)
     .then(p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
