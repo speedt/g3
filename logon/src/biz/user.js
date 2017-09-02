@@ -283,57 +283,6 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  /**
-   * entry群组
-   *
-   * @return
-   */
-  exports.entryGroup = function(user_info, trans){
-    return editGroup(user_info, trans);
-  };
-
-  /**
-   * 创建群组
-   *
-   * @return
-   */
-  exports.createGroup = function(user_info, trans){
-    return editGroup(user_info, trans);
-  };
-
-  var sql = 'UPDATE s_user SET backend_id=?, group_id=?, group_entry_time=? WHERE id=?';
-
-  function editGroup(user_info, trans){
-    user_info.backend_id = conf.app.id;
-    user_info.group_entry_time = new Date().getTime();
-
-    return new Promise((resolve, reject) => {
-      (trans || mysql).query(sql, [
-        user_info.backend_id,
-        user_info.group_id,
-        user_info.group_entry_time,
-        user_info.id,
-      ], err => {
-        if(err) return reject(err);
-        resolve(user_info);
-      })
-    });
-  }
-
-  /**
-   * 创建群组
-   *
-   * @return
-   */
-  exports.quitGroup = function(user_id, trans){
-    return editGroup({
-      group_id: '',
-      id: user_id,
-    }, trans);
-  };
-})();
-
-(() => {
   const numkeys = 3;
   const sha1    = '6df440fb93a747912f3eae2835c8fec8e90788ca';
 
@@ -483,6 +432,57 @@ const logger = require('log4js').getLogger('biz.user');
         resolve(mysql.checkOnly(docs) ? docs[0] : null);
       });
     });
+  };
+})();
+
+(() => {
+  /**
+   * entry群组
+   *
+   * @return
+   */
+  exports.entryGroup = function(user_info, trans){
+    return editGroup(user_info, trans);
+  };
+
+  /**
+   * 创建群组
+   *
+   * @return
+   */
+  exports.createGroup = function(user_info, trans){
+    return editGroup(user_info, trans);
+  };
+
+  var sql = 'UPDATE s_user SET backend_id=?, group_id=?, group_entry_time=? WHERE id=?';
+
+  function editGroup(user_info, trans){
+    user_info.backend_id       = conf.app.id;
+    user_info.group_entry_time = new Date().getTime();
+
+    return new Promise((resolve, reject) => {
+      (trans || mysql).query(sql, [
+        user_info.backend_id,
+        user_info.group_id,
+        user_info.group_entry_time,
+        user_info.id,
+      ], err => {
+        if(err) return reject(err);
+        resolve(user_info);
+      })
+    });
+  }
+
+  /**
+   * 创建群组
+   *
+   * @return
+   */
+  exports.quitGroup = function(user_id, trans){
+    return editGroup({
+      group_id: '',
+      id:       user_id,
+    }, trans);
   };
 })();
 
