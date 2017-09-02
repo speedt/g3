@@ -16,8 +16,6 @@ const logger = require('log4js').getLogger('handle.group');
 
 const _ = require('underscore');
 
-const roomPool = require('emag.model').roomPool;
-
 (() => {
   function p1(send, data, user){
     var _data = [];

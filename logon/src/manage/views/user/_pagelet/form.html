@@ -19,10 +19,18 @@
 	</div>
 
 	<div class="control-group">
-		<label class="control-label" for='frm_current_score'>金币数（当前）</label>
+		<label class="control-label" for='frm_current_score'>得分（当前）</label>
 
 		<div class="controls">
 			<input type="text" class='input-large' name='current_score' id='frm_current_score' value='$!doc.current_score' />
+		</div>
+	</div>
+
+	<div class="control-group">
+		<label class="control-label" for='frm_current_score'>元宝</label>
+
+		<div class="controls">
+			<input type="text" class='input-large' name='gold_count' id='frm_gold_count' value='$!doc.gold_count' />
 		</div>
 	</div>
 
@@ -42,6 +50,19 @@
 $(function(){
   $('#frm_current_score').ace_spinner({
     value: $!doc.current_score,
+    min:  1,
+    max:  1000000,
+    step: 1000,
+    btn_up_class:   'btn-info',
+    btn_down_class: 'btn-info'
+  }).on('change', function(){
+    // alert(this.value)
+  });
+});
+
+$(function(){
+  $('#frm_gold_count').ace_spinner({
+    value: $!doc.gold_count,
     min:  1,
     max:  1000000,
     step: 1000,

@@ -211,7 +211,7 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  var sql = 'SELECT a.* FROM s_user WHERE id=?';
+  var sql = 'SELECT a.* FROM s_user a WHERE a.id=?';
 
   /**
    * 获取用户
