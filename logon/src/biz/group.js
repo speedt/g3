@@ -85,7 +85,7 @@ const logger = require('log4js').getLogger('biz.group');
     return new Promise((resolve, reject) => {
       biz.user.genFreeGroupId()
       .then(p2.bind(null, group_info, user))
-      .then(() => resolve())
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   }
@@ -99,15 +99,15 @@ const logger = require('log4js').getLogger('biz.group');
     return new Promise((resolve, reject) => {
       biz.user.createGroup(user)
       .then(p3.bind(null, group_info))
-      .then(() => resolve())
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   }
 
-  function p3(group_info, user){
+  function p3(group_info, user_info){
     var room = roomPool.create(group_info);
     if(!room) return Promise.reject('创建群组失败');
-    return room.entry(user);
+    return room.entry(user_info);
   }
 
   /**

@@ -86,7 +86,7 @@ pro.isStart = function(){
  * @return
  */
 pro.release = function(){
-  return !this.isStart();
+  return 1 > _.size(this.users);
 };
 
 /**
@@ -185,9 +185,6 @@ pro.isFull = function(){
  * @return
  */
 pro.entry = function(user_info){
-  assert.notEqual(null, user_info);
-  assert.notEqual(null, user_info.id);
-
   var self = this;
 
   if(self.getUser(user_info.id)) return Promise.reject('已经在房间内');
