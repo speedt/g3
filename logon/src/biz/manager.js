@@ -5,6 +5,8 @@
  */
 'use strict';
 
+const assert = require('assert');
+
 const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
@@ -89,34 +91,29 @@ const logger = require('log4js').getLogger('biz.manager');
 
 (() => {
   function p1(logInfo){
-    return new Promise((resolve, reject) => {
-      if(!_.isString(logInfo.user_pass)) return reject('invalid_params');
-      logInfo.user_pass = _.trim(logInfo.user_pass);
-      if('' === logInfo.user_pass) return reject('invalid_params');
-      resolve(logInfo);
-    });
-  }
+    if(!_.isString(logInfo.user_pass)) return Promise.reject('invalid_params');
+    logInfo.user_pass = _.trim(logInfo.user_pass);
+    if('' === logInfo.user_pass) return Promise.reject('invalid_params');
 
-  function p2(logInfo){
     return new Promise((resolve, reject) => {
       biz.manager.getById(logInfo.id)
+      .then(p2.bind(null, logInfo))
       .then(p3.bind(null, logInfo))
-      .then(p4.bind(null, logInfo))
       .then(() => resolve())
       .catch(reject);
     });
   }
 
-  function p3(logInfo, user){
-    return new Promise((resolve, reject) => {
-      if(!user) return reject('用户不存在');
-      if(md5.hex(logInfo.old_pass) !== user.user_pass)
-        return reject('原始密码错误');
-      resolve();
-    });
+  function p2(logInfo, user){
+    assert.notEqual(null, user);
+
+    if(md5.hex(logInfo.old_pass) !== user.user_pass)
+      return Promise.reject('原始密码错误');
+
+    return Promise.resolve();
   }
 
-  function p4(logInfo){
+  function p3(logInfo){
     logInfo.user_pass = md5.hex(logInfo.user_pass);
 
     return new Promise((resolve, reject) => {
