@@ -5,6 +5,8 @@
  */
 'use strict';
 
+const assert = require('assert');
+
 const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
@@ -53,13 +55,13 @@ var Method = function(opts){
   self.round_id            = utils.replaceAll(uuid.v4(), '-', '');
   self.round_pno           = 1;  // 当前第n局
   self.round_no            = 1;  // 当前第n把
-  self.round_no_first_seat = 1;
+  self.round_no_first_seat = 1;  // 庄家摇骰子确定第一个起牌的人
 
   self.banker_seat         = 1;  // 当前庄家座位
 
-  self.visitor_count       = opts.visitor_count;        // 游客人数
-  self.fund                = opts.fund        || 1000;  // 组局基金
-  self.round_count         = opts.round_count || 4;     // 圈数
+  self.visitor_count       = opts.visitor_count || 0;     // 游客人数
+  self.fund                = opts.fund          || 1000;  // 组局基金
+  self.round_count         = opts.round_count   || 4;     // 圈数
 
   // 创建空闲的座位
   self.free_seats = [];
@@ -76,7 +78,7 @@ var pro = Method.prototype;
  * @return
  */
 pro.isStart = function(){
-  return self.player_count <= self.ready_count;
+  return this.player_count <= this.ready_count;
 };
 
 /**
@@ -84,7 +86,7 @@ pro.isStart = function(){
  * @return
  */
 pro.release = function(){
-  return true;
+  return !this.isStart();
 };
 
 /**
@@ -148,9 +150,7 @@ pro.getUserPrevBySeat = function(seat_no){
 
   assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
 
-  seat_no--;
-
-  if(0 === seat_no) seat_no = this.player_count;
+  if(1 > (--seat_no)) seat_no = this.player_count;
 
   return this.getUserBySeat(seat_no);
 };
@@ -166,9 +166,7 @@ pro.getUserNextBySeat = function(seat_no){
 
   assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
 
-  seat_no++;
-
-  if(this.player_count < seat_no) seat_no = 1;
+  if(this.player_count < (++seat_no)) seat_no = 1;
 
   return this.getUserBySeat(seat_no);
 };
@@ -179,7 +177,7 @@ pro.getUserNextBySeat = function(seat_no){
  * @return boolean
  */
 pro.isFull = function(){
-  return (this.player_count + this.visitor_count) < _.size(this.users)
+  return (this.player_count + this.visitor_count) <= _.size(this.users)
 };
 
 /**
@@ -213,6 +211,7 @@ pro.entry = function(user_info){
 };
 
 /**
+ * 离线时，玩家重新落座，恢复状态
  *
  * @return
  */
@@ -222,11 +221,13 @@ pro.reEntry = function(user_info){
   var user = this.getUser(user_info.id);
   if(!user) return;
 
+  if(1 > user.opts.seat) return;
+
   user.server_id         = user_info.server_id;
   user.channel_id        = user_info.channel_id;
-  user.opts.reEntry_time = new Date().getTime();
 
-  if(0 < user.opts.seat) user.opts.is_quit = 0;
+  user.opts.reEntry_time = new Date().getTime();
+  user.opts.is_quit      = 0;
 }
 
 /**
