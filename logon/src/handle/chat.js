@@ -39,11 +39,9 @@ exports.one_for_one = function(send, msg){
 
 (() => {
   function p1(send, data, user){
-    if(!user) return;
-
     var room = roomPool.get(user.group_id);
     if(!room) return;
-    if(0 === _.size(room.users)) return;
+    if(1 > _.size(room.users)) return;
 
     var _data = [];
     _data.push(null);
@@ -54,7 +52,7 @@ exports.one_for_one = function(send, msg){
       _data.splice(0, 1, i.channel_id);
 
       send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('group entry:', err);
+        if(err) return logger.error('chat one_for_group:', err);
       });
     }
   }

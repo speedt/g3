@@ -20,8 +20,6 @@ const roomPool = require('emag.model').roomPool;
 
 (() => {
   function p1(send, data, user){
-    if(!user) return;
-
     var _data = [];
     _data.push(user.channel_id);
     _data.push(JSON.stringify([3002, data.seqId, _.now(), user]));
