@@ -17,12 +17,12 @@ const logger = require('log4js').getLogger('handle.group');
 const _ = require('underscore');
 
 (() => {
-  function p1(send, data, user){
+  function p1(send, data, doc){
     var _data = [];
-    _data.push(user.channel_id);
-    _data.push(JSON.stringify([3002, data.seqId, _.now(), user]));
+    _data.push(data.channelId);
+    _data.push(JSON.stringify([3002, data.seqId, _.now(), doc]));
 
-    send('/queue/back.send.v3.'+ user.server_id, { priority: 9 }, _data, (err, code) => {
+    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
       if(err) return logger.error('group search:', err);
     });
   }

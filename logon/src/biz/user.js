@@ -41,7 +41,7 @@ const logger = require('log4js').getLogger('biz.user');
 
     return Promise.resolve([
       room.users,
-      [_user.id, _user.opts.seat],
+      [room.ready_count, _user.id, _user.opts.seat],
     ]);
   }
 

@@ -187,8 +187,8 @@ pro.isFull = function(){
 pro.entry = function(user_info){
   var self = this;
 
-  if(self.getUser(user_info.id)) return Promise.reject('已经在房间内');
-  if(self.isFull()) return Promise.reject('房间满员');
+  if(self.getUser(user_info.id)) return;  // 已经在房间内
+  if(self.isFull())              return;  // 房间满员
 
   user_info.opts = {};
 
@@ -204,7 +204,7 @@ pro.entry = function(user_info){
 
   self.users[user_info.id] = user_info;
 
-  return Promise.resolve(user_info);
+  return user_info;
 };
 
 /**

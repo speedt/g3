@@ -39,8 +39,11 @@ const logger = require('log4js').getLogger('biz.group');
 
     return new Promise((resolve, reject) => {
       biz.user.entryGroup(user)
-      .then(room.entry.bind(room))
-      .then(() => {
+      .then(user_info => {
+        var _user = room.entry(user_info);
+
+        if(!_user) return resolve();
+
         var users = [];
 
         for(let i of _.values(room.users)){
@@ -126,8 +129,31 @@ const logger = require('log4js').getLogger('biz.group');
 
   function p3(group_info, user_info){
     var room = roomPool.create(group_info);
-    if(!room) return Promise.reject('创建群组失败');
-    return room.entry(user_info);
+    if(!room) return Promise.reject('创建房间失败');
+
+    var _user = room.entry(user_info);
+
+    if(!_user) return Promise.reject('创建房间失败');
+
+    return Promise.resolve([[
+      room.id,
+      room.name,
+      room.fund,
+      room.round_count,
+      room.visitor_count,        // 游客人数
+      room.banker_seat,          // 当前庄家座位
+      room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
+      room.round_pno,            // 当前第n局
+      room.round_no,             // 当前第n把
+      room.ready_count,          // 举手人数
+      room.act_status,
+      room.act_seat,
+    ], [
+      _user.id,
+      _user.nickname,
+      _user.opts.seat,
+      _user.weixin_avatar,
+    ]]);
   }
 
   /**
