@@ -27,6 +27,7 @@ const ACT_STATUS_INIT         = 0;  // 动作状态：初始化
 const ACT_STATUS_CRAPS4       = 1;  // 动作状态：摇骰子
 const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
 const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
+const ACT_STATUS_UNBANKER_BET = 4;  // 动作状态：闲家下注
 
 module.exports = function(opts){
   return new Method(opts);
@@ -403,5 +404,47 @@ pro.ready = function(user_id){
     for(let i of _.values(this.users)){
       delete i.opts.craps;
     }
+  }
+})();
+
+(() => {
+  /**
+   * 动作状态：庄家摇骰子，确定谁先起牌
+   *
+   * @return
+   */
+  pro.bankerCraps = function(user_id){
+    var self = this;
+
+    if(self.act_status !== ACT_STATUS_BANKER_CRAPS) return;
+
+    var user = self.getUser(user_id);
+    if(!user) return;
+    if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+
+    self.act_status  = ACT_STATUS_UNBANKER_BET;
+
+    user.opts.craps = [
+      _.random(1, 6),  // 骰子1
+      _.random(1, 6),  // 骰子2
+    ];
+
+    self.round_no_first_seat = firstSeat(user.opts.seat, user.opts.craps);
+
+    self.act_seat = self.round_no_first_seat;
+
+    return user;
+  };
+
+  /**
+   * 第一个起牌的位置
+   *
+   * @return
+   */
+  function firstSeat(seat, craps){
+    var n = craps[0] + craps[1];
+    var m = (n - 1 + seat) % 4;
+
+    return (0 === m) ? 4 : m;
   }
 })();

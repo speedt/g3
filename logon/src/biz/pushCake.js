@@ -104,26 +104,36 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
 (() => {
   function p1(user){
-    if(!user.group_id) return Promise.reject('用户不在任何群组');
+    if(!user.group_id) return Promise.reject('已经退出了');
 
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
-    room.crapsBanker(user.id);
+    var _user = room.bankerCraps(user.id);
 
-    return Promise.resolve(user);
+    if(!_user) return Promise.resolve();
+
+    return Promise.resolve([
+      room.users,
+      [
+        _user.id,
+        _user.opts.seat,
+        room.act_seat,     // 下一个行动的座位
+        _user.opts.craps,  // 庄摇的骰子
+      ],
+    ]);
   }
 
   /**
-   * 庄家摇骰子，确定谁先接牌
+   * 动作状态：庄家摇骰子，确定谁先起牌
    *
    * @return
    */
-  exports.crapsBanker = function(server_id, channel_id, next){
+  exports.bankerCraps = function(server_id, channel_id){
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
-      .then(user => resolve(user))
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   };

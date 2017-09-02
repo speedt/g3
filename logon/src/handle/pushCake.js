@@ -109,18 +109,28 @@ const roomPool = require('emag.model').roomPool;
 })();
 
 (() => {
-  function p1(send, data, user){
-    if(!user) return;
+  /**
+   *
+   */
+  exports.bankerCraps = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('pushCake bankerCraps empty');
 
-    var room = roomPool.get(user.group_id);
-    if(!room) return;
-    if(0 === _.size(room.users)) return;
+    try{ var data = JSON.parse(msg.body);
+    }catch(ex){ return; }
+
+    biz.pushCake.bankerCraps(data.serverId, data.channelId)
+    .then(p1.bind(null, send, data))
+    .catch(p2.bind(null, send, data));
+  };
+
+  function p1(send, data, doc){
+    if(!doc) return;
 
     var _data = [];
     _data.push(null);
-    _data.push(JSON.stringify([5016, data.seqId, _.now(), room]));
+    _data.push(JSON.stringify([5016, data.seqId, _.now(), doc[1]]));
 
-    for(let i of _.values(room.users)){
+    for(let i of _.values(doc[0])){
       if(!i.server_id || !i.channel_id) continue;
       _data.splice(0, 1, i.channel_id);
 
@@ -141,20 +151,6 @@ const roomPool = require('emag.model').roomPool;
       if(err) return logger.error('pushCake bankerCraps:', err);
     });
   }
-
-  /**
-   *
-   */
-  exports.bankerCraps = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('pushCake bankerCraps empty');
-
-    try{ var data = JSON.parse(msg.body);
-    }catch(ex){ return; }
-
-    biz.pushCake.bankerCraps(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
-    .catch(p2.bind(null, send, data));
-  };
 })();
 
 (() => {
