@@ -44,10 +44,23 @@ const logger = require('log4js').getLogger('biz.group');
         var users = [];
 
         for(let i of _.values(room.users)){
-          users.push([i.id, i.nickname, i.opts.seat]);
+          users.push([i.id, i.nickname, i.opts.seat, i.weixin_avatar]);
         }
 
-        resolve([room.users, users]);
+        resolve([room.users, [[
+          room.id,
+          room.name,
+          room.fund,
+          room.round_count,
+          room.visitor_count,        // 游客人数
+          room.banker_seat,          // 当前庄家座位
+          room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
+          room.round_pno,            // 当前第n局
+          room.round_no,             // 当前第n把
+          room.ready_count,          // 举手人数
+          room.act_status,
+          room.act_seat,
+        ], users]]);
       })
       .catch(reject);
     });
@@ -153,7 +166,7 @@ const logger = require('log4js').getLogger('biz.group');
 
           resolve([
             room.users,
-            [user.id],
+            [user.id, user.weixin_avatar],
           ]);
         })
         .catch(reject);

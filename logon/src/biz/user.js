@@ -186,7 +186,7 @@ const logger = require('log4js').getLogger('biz.user');
 
     return Promise.resolve([
       room.users,
-      [_user.id, _user.opts.seat]
+      [_user.id, _user.opts.seat, _user.weixin_avatar],
     ]);
   }
 
