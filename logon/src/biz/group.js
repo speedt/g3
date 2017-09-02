@@ -40,7 +40,19 @@ const logger = require('log4js').getLogger('biz.group');
     return new Promise((resolve, reject) => {
       biz.user.entryGroup(user)
       .then(room.entry.bind(room))
-      .then(() => resolve())
+      .then(() => {
+        var users = {};
+
+        for(let i of _.values(room.users)){
+          users[i.id] = {
+            id:       i.id,
+            nickname: i.nickname,
+            seat:     i.opts.seat,
+          };
+        }
+
+        resolve(users);
+      })
       .catch(reject);
     });
   }
@@ -53,8 +65,7 @@ const logger = require('log4js').getLogger('biz.group');
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1.bind(null, group_id))
-      .then(biz.user.getByChannelId.bind(null, server_id, channel_id))
-      .then(user => resolve(user))
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   };

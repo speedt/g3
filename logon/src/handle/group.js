@@ -108,18 +108,14 @@ const roomPool = require('emag.model').roomPool;
 })();
 
 (() => {
-  function p1(send, data, user){
-    if(!user) return;
-
-    var room = roomPool.get(user.group_id);
-    if(!room) return;
-    if(0 === _.size(room.users)) return;
+  function p1(send, data, doc){
+    if(!doc) return;
 
     var _data = [];
     _data.push(null);
-    _data.push(JSON.stringify([3008, data.seqId, _.now(), room.users]));
+    _data.push(JSON.stringify([3008, data.seqId, _.now(), doc]));
 
-    for(let i of _.values(room.users)){
+    for(let i of _.values(doc)){
       if(!i.server_id || !i.channel_id) continue;
       _data.splice(0, 1, i.channel_id);
 
