@@ -158,7 +158,7 @@ const _ = require('underscore');
     }
   }
 
-  function p2(err){
+  function p2(send, data, err){
     if('string' !== typeof err) return logger.error('channel ready:', err);
 
     var _data = [];
@@ -178,11 +178,11 @@ const _ = require('underscore');
   exports.ready = function(send, msg){
     if(!_.isString(msg.body)) return logger.error('channel ready empty');
 
-    var s = msg.body.split('::');
-    var data = { serverId: s[0], channelId: s[1] };
+    try{ var data = JSON.parse(msg.body);
+    }catch(ex){ return; }
 
     biz.user.ready(data.serverId, data.channelId)
     .then(p1.bind(null, send, data))
-    .catch(p2);
+    .catch(p2.bind(null, send, data));
   };
 })();

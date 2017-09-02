@@ -278,7 +278,7 @@ pro.ready = function(user_id){
 
   self.ready_count++;
 
-  if(isStart()){
+  if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
     self.act_seat   = 1;
   }
