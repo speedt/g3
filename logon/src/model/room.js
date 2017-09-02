@@ -57,7 +57,7 @@ var Method = function(opts){
   self.round_no            = 1;  // 当前第n把
   self.round_no_first_seat = 1;  // 庄家摇骰子确定第一个起牌的人
 
-  self.banker_seat         = 1;  // 当前庄家座位
+  self.banker_seat         = 0;  // 当前庄家座位
 
   self.visitor_count       = opts.visitor_count || 0;     // 游客人数
   self.fund                = opts.fund          || 1000;  // 组局基金
@@ -322,6 +322,15 @@ pro.ready = function(user_id){
   };
 
   /**
+   * 清理4个人的骰子
+   *
+   * @return
+   */
+  function clearAllCraps(){
+
+  }
+
+  /**
    * 获取摇过骰子的人数
    *
    * @return
@@ -329,7 +338,7 @@ pro.ready = function(user_id){
   function getCrapsCount(){
     var count = 0;
 
-    for(let i of this.users){
+    for(let i of _.values(this.users)){
       if(i.opts.craps) count++;
     }
 
@@ -344,7 +353,7 @@ pro.ready = function(user_id){
   function maxCraps(){
     var max = 0, seat = 0;
 
-    for(let i of this.users){
+    for(let i of _.values(this.users)){
       let m = i.opts.craps[0] - 0 + i.opts.craps[1];
       if(11 < m) return i.opts.seat;
 

@@ -38,7 +38,13 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
     return Promise.resolve([
       room.users,
-      [_user.id, _user.opts.seat, _user.opts.craps],
+      [
+        _user.id,
+        _user.opts.seat,
+        _user.opts.craps, // 当前摇的骰子
+        room.act_seat,    // 下一个摇骰子的座位
+        room.banker_seat, // 庄家的座位
+      ],
     ]);
   }
 
