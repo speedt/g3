@@ -113,9 +113,9 @@ const roomPool = require('emag.model').roomPool;
 
     var _data = [];
     _data.push(null);
-    _data.push(JSON.stringify([3008, data.seqId, _.now(), doc]));
+    _data.push(JSON.stringify([3008, data.seqId, _.now(), doc[1]]));
 
-    for(let i of _.values(doc)){
+    for(let i of _.values(doc[0])){
       if(!i.server_id || !i.channel_id) continue;
       _data.splice(0, 1, i.channel_id);
 

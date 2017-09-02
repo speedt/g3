@@ -41,19 +41,13 @@ const logger = require('log4js').getLogger('biz.group');
       biz.user.entryGroup(user)
       .then(room.entry.bind(room))
       .then(() => {
-        var users = {};
+        var users = [];
 
         for(let i of _.values(room.users)){
-          users[i.id] = {
-            id:         i.id,
-            nickname:   i.nickname,
-            seat:       i.opts.seat,
-            server_id:  i.server_id,
-            channel_id: i.channel_id,
-          };
+          users.push([i.id, i.nickname, i.opts.seat]);
         }
 
-        resolve(users);
+        resolve([room.users, users]);
       })
       .catch(reject);
     });
