@@ -270,8 +270,8 @@ pro.ready = function(user_id){
   var user = self.getUser(user_id);
   if(!user) return;
 
-  if(0 === user.opts.seat)         return;
-  if(1 === user.opts.ready_status) return;
+  if(1 > user.opts.seat)         return;
+  if(0 < user.opts.ready_status) return;
 
   user.opts.ready_status = 1;
   user.opts.ready_time   = new Date().getTime();

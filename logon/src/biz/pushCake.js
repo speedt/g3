@@ -32,34 +32,6 @@ const logger = require('log4js').getLogger('biz.pushCake');
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
-    var ready_count = room.ready(user.id);
-
-    if(!(3 < ready_count)) return Promise.resolve(user);
-
-    return Promise.resolve(user);
-  }
-
-  /**
-   *
-   * @return
-   */
-  exports.ready = function(server_id, channel_id, next){
-    return new Promise((resolve, reject) => {
-      biz.user.getByChannelId(server_id, channel_id)
-      .then(p1)
-      .then(user => resolve(user))
-      .catch(reject);
-    });
-  };
-})();
-
-(() => {
-  function p1(user){
-    if(!user.group_id) return Promise.reject('用户不在任何群组');
-
-    var room = roomPool.get(user.group_id);
-    if(!room) return Promise.reject('房间不存在');
-
     if(1 !== room.act_status) return Promise.reject('4人摇骰子');
 
     var user = room.users[user.id];
