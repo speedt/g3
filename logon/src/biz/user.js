@@ -72,32 +72,6 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  var sql = 'UPDATE s_user SET nickname=?, current_score=?, vip=? WHERE id=?';
-
-  /**
-   * 基本信息修改
-   *
-   * @return
-   */
-  exports.editInfo = function(user_info, trans){
-    user_info.current_score = user_info.current_score || 0;
-    user_info.vip           = user_info.vip           || 0;
-
-    return new Promise((resolve, reject) => {
-      (trans || mysql).query(sql, [
-        user_info.nickname,
-        user_info.current_score,
-        user_info.vip,
-        user_info.id
-      ], err => {
-        if(err) return reject(err);
-        resolve(user_info);
-      });
-    });
-  };
-})();
-
-(() => {
   function p1(user){
     if(!user.group_id) return Promise.resolve();
     var room = roomPool.get(user.group_id);
@@ -356,7 +330,7 @@ const logger = require('log4js').getLogger('biz.user');
     });
   }
 
-  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   function p2(user_info){
     user_info.id               = utils.replaceAll(uuid.v1(), '-', '');
@@ -372,7 +346,7 @@ const logger = require('log4js').getLogger('biz.user');
     user_info.win_score_count  = 0;
     user_info.lose_score_count = 0;
     user_info.line_gone_count  = 0;
-    user_info.yuanbao          = 0;
+    user_info.gold_count       = 0;  // 元宝
 
     return new Promise((resolve, reject) => {
       mysql.query(sql, [
@@ -392,6 +366,7 @@ const logger = require('log4js').getLogger('biz.user');
         user_info.win_score_count,
         user_info.lose_score_count,
         user_info.line_gone_count,
+        user_info.gold_count,
       ], err => {
         if(err) return reject(err);
         resolve(user_info);
@@ -411,27 +386,6 @@ const logger = require('log4js').getLogger('biz.user');
       .then(p2)
       .then(user_info => resolve(user_info))
       .catch(reject);
-    });
-  };
-})();
-
-(() => {
-  var sql = 'SELECT a.* FROM s_user a WHERE a.server_id=? AND a.channel_id=?';
-
-  /**
-   * 获取用户
-   *
-   * @param server_id
-   * @param channel_id
-   * @return
-   */
-  exports.getByChannelId = function(server_id, channel_id){
-    return new Promise((resolve, reject) => {
-      mysql.query(sql, [server_id, channel_id], (err, docs) => {
-        if(err) return reject(err);
-        if(!mysql.checkOnly(docs)) return reject('通道不存在');
-        resolve(docs[0]);
-      });
     });
   };
 })();
@@ -506,6 +460,55 @@ const logger = require('log4js').getLogger('biz.user');
         if(err) return reject(err);
         if(!_.isArray(code)) return reject(code);
         resolve(utils.arrToObj(code));
+      });
+    });
+  };
+})();
+
+(() => {
+  var sql = 'UPDATE s_user SET nickname=?, current_score=?, vip=?, gold_count=? WHERE id=?';
+
+  /**
+   * 基本信息修改
+   *
+   * @return
+   */
+  exports.editInfo = function(user_info, trans){
+    user_info.current_score = user_info.current_score || 0;
+    user_info.vip           = user_info.vip           || 0;
+    user_info.gold_count    = user_info.gold_count    || 0;
+
+    return new Promise((resolve, reject) => {
+      (trans || mysql).query(sql, [
+        user_info.nickname,
+        user_info.current_score,
+        user_info.vip,
+        user_info.gold_count,
+        user_info.id,
+      ], err => {
+        if(err) return reject(err);
+        resolve(user_info);
+      });
+    });
+  };
+})();
+
+(() => {
+  var sql = 'SELECT a.* FROM s_user a WHERE a.server_id=? AND a.channel_id=?';
+
+  /**
+   * 获取用户
+   *
+   * @param server_id
+   * @param channel_id
+   * @return
+   */
+  exports.getByChannelId = function(server_id, channel_id){
+    return new Promise((resolve, reject) => {
+      mysql.query(sql, [server_id, channel_id], (err, docs) => {
+        if(err) return reject(err);
+        if(!mysql.checkOnly(docs)) return reject('通道不存在');
+        resolve(docs[0]);
       });
     });
   };
