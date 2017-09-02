@@ -192,7 +192,7 @@ const logger = require('log4js').getLogger('biz.group');
 
           resolve([
             room.users,
-            [users.id],
+            [user.id],
           ]);
         })
         .catch(reject);
