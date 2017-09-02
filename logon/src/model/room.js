@@ -58,7 +58,8 @@ var Method = function(opts){
   self.round_no            = 1;  // 当前第n把
   self.round_no_first_seat = 1;  // 庄家摇骰子确定第一个起牌的人
 
-  self.banker_seat         = 0;  // 当前庄家座位
+  self.banker_seat         = 0;               // 当前庄家座位
+  self.banker_bets         = [200, 300, 500]; // 庄家锅底
 
   self.visitor_count       = opts.visitor_count || 0;     // 游客人数
   self.fund                = opts.fund          || 1000;  // 组局基金
@@ -312,6 +313,7 @@ pro.ready = function(user_id){
     if(self.player_count <= getCrapsCount.call(self)){
       // 计算最大的骰子，并设置庄家位置
       self.banker_seat = maxCraps.call(self);
+      self.banker_bets = [200, 300, 500];
       self.act_status  = ACT_STATUS_BANKER_BET;
       self.act_seat    = self.banker_seat;
       return user;
@@ -378,10 +380,19 @@ pro.ready = function(user_id){
 
     clearAllCraps.call(self);
 
-    user.opts.bet = bet;
+    user.opts.bet = getBet.call(self, bet);
 
     return user;
   };
+
+  /**
+   * 获取庄家的锅底
+   *
+   * @return
+   */
+  function getBet(bet){
+    return bet;
+  }
 
   /**
    * 清理4个人的骰子

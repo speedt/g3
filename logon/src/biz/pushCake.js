@@ -80,7 +80,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
         _user.id,
         _user.opts.seat,
         room.act_seat,  // 下一个行动的座位
-        user.opts.bet,  // 庄家的锅底
+        _user.opts.bet,  // 庄家的锅底
       ],
     ]);
   }
