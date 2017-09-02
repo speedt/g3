@@ -103,16 +103,12 @@ const logger = require('log4js').getLogger('biz.user');
 
 (() => {
   function p1(logInfo, user){
-    return new Promise((resolve, reject) => {
-      if(!user) return reject('用户不存在');
-      if(1 !== user.status) return reject('禁用状态');
-      if(md5.hex(logInfo.user_pass) !== user.user_pass)
-        return reject('用户名或密码输入错误');
-      resolve(user);
-    });
-  }
+    if(!user) return Promise.reject('用户不存在');
+    if(1 !== user.status) return Promise.reject('禁用状态');
 
-  function p2(user){
+    if(md5.hex(logInfo.user_pass) !== user.user_pass)
+      return Promise.reject('用户名或密码输入错误');
+
     return new Promise((resolve, reject) => {
       Promise.all([
         authorize(user),
@@ -146,7 +142,6 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getByName(logInfo.user_name)
       .then(p1.bind(null, logInfo))
-      .then(p2)
       .then(token => resolve(token))
       .catch(reject);
     });
@@ -160,7 +155,14 @@ const logger = require('log4js').getLogger('biz.user');
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.resolve();
 
-    return Promise.resolve(room.reEntry(user));
+    var _user = room.reEntry(user);
+
+    if(!_user) return Promise.resolve();
+
+    return Promise.resolve([
+      room.users,
+      [_user.id, _user.opts.seat]
+    ]);
   }
 
   /**
@@ -174,9 +176,8 @@ const logger = require('log4js').getLogger('biz.user');
       .then(editChannel)
       .then(biz.user.getByChannelId.bind(null, server_id, channel_id))
       .then(p1)
-      .then(biz.user.getByChannelId.bind(null, server_id, channel_id))
-      .then(user => resolve(user))
-      .catch(reject)
+      .then(doc => resolve(doc))
+      .catch(reject);
     });
   };
 
@@ -202,9 +203,9 @@ const logger = require('log4js').getLogger('biz.user');
    */
   exports.clearChannel = function(id, trans){
     return editChannel({
-      server_id: '',
+      server_id:  '',
       channel_id: '',
-      id: id,
+      id:         id,
     }, trans);
   };
 })();

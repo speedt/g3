@@ -225,6 +225,8 @@ pro.reEntry = function(user_info){
 
   user.opts.reEntry_time = new Date().getTime();
   user.opts.is_quit      = 0;
+
+  return user;
 }
 
 /**
