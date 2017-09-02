@@ -263,15 +263,15 @@ pro.quit = function(user_id){
 pro.ready = function(user_id){
   var self = this;
 
-  if(self.act_status !== ACT_STATUS_INIT) return;
+  if(self.act_status !== ACT_STATUS_INIT) return Promise.reject('ACT_STATUS_INIT');
 
-  if(self.isStart()) return;
+  if(self.isStart()) return Promise.reject('已经开始');
 
   var user = self.getUser(user_id);
-  if(!user) return;
+  if(!user) return Promise.reject('用户不存在');
 
-  if(1 > user.opts.seat)         return;
-  if(0 < user.opts.ready_status) return;
+  if(1 > user.opts.seat)         return Promise.reject('不能举手');
+  if(0 < user.opts.ready_status) return Promise.reject('已经举手');
 
   user.opts.ready_status = 1;
   user.opts.ready_time   = new Date().getTime();
@@ -283,7 +283,7 @@ pro.ready = function(user_id){
     self.act_seat   = 1;
   }
 
-  return self.ready_count;
+  return Promise.resolve(self.ready_count);
 };
 
 (() => {
