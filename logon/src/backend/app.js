@@ -85,7 +85,7 @@ amq.getClient((err) => {
   amq.injection('/queue/qq.3007', handle.group.entry,  () => {});
 
   amq.injection('/queue/qq.5013', handle.pushCake.craps4,      () => {});
-  amq.injection('/queue/qq.5015', handle.pushCake.bankerCraps, () => {});
   amq.injection('/queue/qq.5017', handle.pushCake.bankerBet,   () => {});
+  amq.injection('/queue/qq.5015', handle.pushCake.bankerCraps, () => {});
   amq.injection('/queue/qq.5019', handle.pushCake.unBankerBet, () => {});
 });

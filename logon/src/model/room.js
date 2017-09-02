@@ -23,9 +23,10 @@ const logger = require('log4js').getLogger('model.room');
 const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
-const ACT_STATUS_INIT       = 0;  // 动作状态：初始化
-const ACT_STATUS_CRAPS4     = 1;  // 动作状态：摇骰子
-const ACT_STATUS_BANKER_BET = 2;  // 动作状态：庄家设置锅底
+const ACT_STATUS_INIT         = 0;  // 动作状态：初始化
+const ACT_STATUS_CRAPS4       = 1;  // 动作状态：摇骰子
+const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
+const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
 
 module.exports = function(opts){
   return new Method(opts);
@@ -313,22 +314,13 @@ pro.ready = function(user_id){
       self.banker_seat = maxCraps.call(self);
       self.act_status  = ACT_STATUS_BANKER_BET;
       self.act_seat    = self.banker_seat;
-      return;
+      return user;
     }
 
     self.act_seat++;
 
     return user;
   };
-
-  /**
-   * 清理4个人的骰子
-   *
-   * @return
-   */
-  function clearAllCraps(){
-
-  }
 
   /**
    * 获取摇过骰子的人数
@@ -367,19 +359,38 @@ pro.ready = function(user_id){
   }
 })();
 
-/**
- * 庄家锅底
- *
- * @return
- */
-pro.bankerBet = function(user_id, bet){
-  var self = this;
+(() => {
+  /**
+   * 庄家锅底
+   *
+   * @return
+   */
+  pro.bankerBet = function(user_id, bet){
+    var self = this;
 
-  if(self.act_status !== ACT_STATUS_BANKER_BET) return;
+    if(self.act_status !== ACT_STATUS_BANKER_BET) return;
 
-  var user = self.getUser(user_id);
-  if(!user) return;
-  if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+    var user = self.getUser(user_id);
+    if(!user) return;
+    if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
 
-  user.opts.bet = bet - 0;
-};
+    self.act_status  = ACT_STATUS_BANKER_CRAPS;
+
+    clearAllCraps.call(self);
+
+    user.opts.bet = bet - 0;
+
+    return user;
+  };
+
+  /**
+   * 清理4个人的骰子
+   *
+   * @return
+   */
+  function clearAllCraps(){
+    for(let i of _.values(this.users)){
+      delete i.opts.craps;
+    }
+  }
+})();

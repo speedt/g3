@@ -42,7 +42,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
         _user.id,
         _user.opts.seat,
         _user.opts.craps, // 当前摇的骰子
-        room.act_seat,    // 下一个摇骰子的座位
+        room.act_seat,    // 下一个行动的座位
         room.banker_seat, // 庄家的座位
       ],
     ]);
@@ -57,6 +57,45 @@ const logger = require('log4js').getLogger('biz.pushCake');
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
+
+(() => {
+  function p1(bet, user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _user = room.bankerBet(user.id, bet);
+
+    if(!_user) return Promise.resolve();
+
+    return Promise.resolve([
+      room.users,
+      [
+        _user.id,
+        _user.opts.seat,
+        room.act_seat,  // 下一个行动的座位
+        user.opts.bet,  // 庄家的锅底
+      ],
+    ]);
+  }
+
+  /**
+   * 庄家下锅底
+   *
+   * @return
+   */
+  exports.bankerBet = function(server_id, channel_id, bet){
+    if(!_.isNumber(bet)) return Promise.reject('invalid_params');
+
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, bet))
       .then(doc => resolve(doc))
       .catch(reject);
     });
@@ -84,35 +123,6 @@ const logger = require('log4js').getLogger('biz.pushCake');
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
-      .then(user => resolve(user))
-      .catch(reject);
-    });
-  };
-})();
-
-(() => {
-  function p1(bet, user){
-    if(!user.group_id) return Promise.reject('用户不在任何群组');
-
-    var room = roomPool.get(user.group_id);
-    if(!room) return Promise.reject('房间不存在');
-
-    console.log(bet)
-
-    room.bankerBet(user.id, bet);
-
-    return Promise.resolve(user);
-  }
-
-  /**
-   * 庄家下注
-   *
-   * @return
-   */
-  exports.bankerBet = function(server_id, channel_id, bet, next){
-    return new Promise((resolve, reject) => {
-      biz.user.getByChannelId(server_id, channel_id)
-      .then(p1.bind(null, bet))
       .then(user => resolve(user))
       .catch(reject);
     });
