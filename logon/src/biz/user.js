@@ -35,7 +35,14 @@ const logger = require('log4js').getLogger('biz.user');
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
-    return room.ready(user.id);
+    var _user = room.ready(user.id);
+
+    if(!_user) return Promise.resolve();
+
+    return Promise.resolve([
+      room.users,
+      [user.id, user.opts.seat],
+    ]);
   }
 
   /**

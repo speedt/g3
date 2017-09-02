@@ -166,7 +166,7 @@ const logger = require('log4js').getLogger('biz.group');
 
           resolve([
             room.users,
-            [user.id, user.weixin_avatar],
+            [users.id],
           ]);
         })
         .catch(reject);

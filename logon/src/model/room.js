@@ -283,7 +283,7 @@ pro.ready = function(user_id){
     self.act_seat   = 1;
   }
 
-  return self.ready_count;
+  return user;
 };
 
 (() => {
