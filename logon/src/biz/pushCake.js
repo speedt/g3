@@ -253,8 +253,6 @@ const logger = require('log4js').getLogger('biz.pushCake');
    * @return
    */
   exports.unBankerBet = function(server_id, channel_id, bet, next){
-    bet -= 0;
-
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1.bind(null, bet))

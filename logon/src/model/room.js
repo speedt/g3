@@ -28,7 +28,7 @@ const ACT_STATUS_CRAPS4       = 1;  // 动作状态：摇骰子
 const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
 const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
 const ACT_STATUS_UNBANKER_BET = 4;  // 动作状态：闲家下注
-const ACT_STATUS_CARD_COMPARE = 5;  // 动作状态：庄家 比大小 闲家
+const ACT_STATUS_CARD_COMPARE = 5;  // 动作状态：庄家 比大小 闲家 钓鱼
 
 module.exports = function(opts){
   return new Method(opts);
@@ -59,6 +59,7 @@ var Method = function(opts){
   self.round_pno           = 1;  // 当前第n局
   self.round_no            = 1;  // 当前第n把
   self.round_no_first_seat = 1;  // 庄家摇骰子确定第一个起牌的人
+  self.round_no_compare    = []; // 牌比对结果
 
   self.banker_seat         = 0;               // 当前庄家座位
   self.banker_bets         = [200, 300, 500]; // 庄家锅底
@@ -338,6 +339,7 @@ pro.ready = function(user_id){
 
   user.opts.ready_status = 1;
   user.opts.ready_time   = new Date().getTime();
+  user.opts.score        = 0;
 
   self.ready_count++;
 
@@ -444,6 +446,8 @@ pro.ready = function(user_id){
 
     user.opts.bet = getBet.call(self, bet);
 
+    if(!user.opts.bet) return;
+
     return user;
   };
 
@@ -453,6 +457,25 @@ pro.ready = function(user_id){
    * @return
    */
   function getBet(bet){
+    var self = this;
+
+    if(1 > self.banker_bets.length) return;
+
+    var _index = self.banker_bets.indexOf(bet);
+
+    if(1 > _index) return self.banker_bets.shift();
+
+    if(1 === _index) {
+      self.banker_bets.shift();
+      return self.banker_bets.shift();
+    }
+
+    if(2 === _index) {
+      self.banker_bets.shift();
+      self.banker_bets.shift();
+      return self.banker_bets.shift();
+    }
+
     return bet;
   }
 
@@ -515,6 +538,7 @@ pro.ready = function(user_id){
   /**
    * 动作状态：闲家下注
    *
+   * @param bet '1,100|2,200'
    * @return
    */
   pro.unBankerBet = function(user_id, bet){
@@ -527,7 +551,24 @@ pro.ready = function(user_id){
 
     if(user.opts.bet) return;  // 下过注，则返回
 
-    user.opts.bet = getBet.call(self, bet);
+    if(-1 === bet.indexOf(',')){
+      bet -= 0;
+      user.opts.bet = getBet.call(self, bet);
+    }else{
+      var arr = bet.split('|');
+
+      if(!user.opts.bet) user.opts.bet = [];
+
+      for(let i of arr){
+        let _val = _.trim(i);
+
+        if('' === _val) continue;
+
+        let _key = _val.split(',');
+
+        user.opts.bet.push([_key[0], getBet.call(self, _key[1])]);
+      }
+    }
 
     return user;
   };
@@ -561,15 +602,110 @@ pro.ready = function(user_id){
   }
 })();
 
-/**
- * 动作状态：庄家 比大小 闲家
- *
- * @return
- */
-pro.cardCompare = function(){
-  var self = this;
+(() => {
+  /**
+   * 动作状态：庄家 比大小 闲家
+   *
+   * @return
+   */
+  pro.cardCompare = function(){
+    var self = this;
 
-  if(self.act_status !== ACT_STATUS_CARD_COMPARE) return;
+    if(self.act_status !== ACT_STATUS_CARD_COMPARE) return;
 
-  return 'cardCompare';
-};
+    // 闲家座位号
+    var _first_seat = getCompareSeat.call(self);
+
+    var banker = {
+      point:      getPoint.call(self, self.banker_seat),
+      bet:        self.getUserBySeat(self.banker_seat).opts.seat,
+      seat:       self.banker_seat,
+      gold_count: self.getUserBySeat(self.banker_seat).gold_count - 0,
+    };
+
+    var unbanker = {
+      point:      getPoint.call(self, _first_seat),
+      bet:        self.getUserBySeat(_first_seat).opts.seat,
+      seat:       self._first_seat,
+      gold_count: self.getUserBySeat(_first_seat).gold_count - 0,
+    };
+
+    // 比较结果
+    var compare_result = checkout(banker, unbanker);
+
+    if(0 !== compare_result[2]){
+      self.getUserBySeat(compare_result[2]).gold_count--;
+    }
+
+    self.getUserBySeat(self.banker_seat).opts.score += compare_result[0];
+    self.getUserBySeat(_first_seat).opts.score      += compare_result[1];
+
+    return 'cardCompare';
+  };
+
+  /**
+   * 获取比较结果
+   *
+   * @return
+   */
+  function checkout(banker, unbanker){
+    var result = [0, 0, 0];
+
+    if(unbanker.point > banker.point){  // 玩家点数大于庄家
+      if(unbanker.point > 10){          // 是否为对
+        if(unbanker.gold_count > 0){    // 是否有元宝
+          result[0] = -unbanker.bet;
+          result[1] = unbanker.bet;
+          result[2] = unbanker.seat;
+        }
+      }else{
+        result[0] = -unbanker.bet;
+        result[1] = unbanker.bet;
+      }
+    }else{
+      if(banker.point > 10){
+        if(banker.gold_count > 0){ //是否有元宝
+          result[0] = unbanker.bet;
+          result[1] = -unbanker.bet;
+          result[2] = banker.seat;
+        }
+      }else{
+        result[0] = unbanker.bet;
+        result[1] = -unbanker.bet;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 获取庄家要比较的闲家的座位号
+   *
+   * @return
+   */
+  function getCompareSeat(){
+    var self = this;
+
+    var size = self.round_no_compare.length;
+    if(2 < size) return;
+
+    if(self.round_no_first_seat === self.banker_seat)
+      self.round_no_first_seat++;
+
+    return (self.player_count < self.round_no_first_seat) ? 1 : self.round_no_first_seat;
+  }
+
+  /**
+   * 获取我的牌点数
+   *
+   * @return
+   */
+  function getPoint(seat){
+    var self = this;
+
+    var c1 = self.cards_8[(seat - 1) * 2];
+    var c2 = self.cards_8[(seat - 1) * 2 + 1];
+
+    return (c1 !== c2) ? ((c1 + c2) % 10) : (10 + c1);
+  }
+})();
