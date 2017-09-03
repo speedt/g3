@@ -32,6 +32,70 @@ const logger = require('log4js').getLogger('biz.pushCake');
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
+    var _user = room.ready(user.id);
+
+    if(!_user) return Promise.resolve();
+
+    return Promise.resolve([
+      room.users,
+      [
+        _user.id,
+        _user.opts.seat,
+        room.ready_count,
+        room.id,
+      ],
+    ]);
+  }
+
+  /**
+   * 准备
+   *
+   * @return
+   */
+  exports.ready = function(server_id, channel_id, next){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1)
+      .then(doc => {
+        if(!doc) return;
+
+        cb(doc[1][3], next);
+        resolve(doc);
+      })
+      .catch(reject);
+    });
+  };
+
+  /**
+   * 10(s)
+   *
+   * @return
+   */
+  function cb(group_id, next){
+
+    ((group_id, next) => {
+
+      var room = roomPool.get(group_id);
+      if(!room) return;  // 房间不存在
+      if(!room.isStart()) return;
+
+      setTimeout(() => {
+        logger.debug('ready next: %s', group_id);
+        next('abc');
+      }, 10000);
+
+    })(group_id, next);
+  }
+})();
+
+
+(() => {
+  function p1(user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
     var _user = room.craps4(user.id);
 
     if(!_user) return Promise.resolve();
@@ -159,7 +223,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
         _user.id,
         _user.opts.seat,
         _user.opts.bet,  // 闲家下的注
-        _user.group_id,
+        room.id,
         room.round_no,
       ],
     ]);

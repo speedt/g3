@@ -29,38 +29,6 @@ const roomPool = require('emag.model').roomPool;
 const logger = require('log4js').getLogger('biz.user');
 
 (() => {
-  function p1(user){
-    if(!user.group_id) return Promise.reject('已经退出了');
-
-    var room = roomPool.get(user.group_id);
-    if(!room) return Promise.reject('房间不存在');
-
-    var _user = room.ready(user.id);
-
-    if(!_user) return Promise.resolve();
-
-    return Promise.resolve([
-      room.users,
-      [_user.id, _user.opts.seat, room.ready_count],
-    ]);
-  }
-
-  /**
-   * 准备
-   *
-   * @return
-   */
-  exports.ready = function(server_id, channel_id){
-    return new Promise((resolve, reject) => {
-      biz.user.getByChannelId(server_id, channel_id)
-      .then(p1)
-      .then(doc => resolve(doc))
-      .catch(reject);
-    });
-  };
-})();
-
-(() => {
   var sql = 'SELECT a.* FROM s_user a WHERE a.status=? ORDER BY a.create_time DESC';
 
   exports.findAll = function(status, cb){

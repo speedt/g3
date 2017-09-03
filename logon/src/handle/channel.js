@@ -181,8 +181,14 @@ const _ = require('underscore');
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.user.ready(data.serverId, data.channelId)
+    biz.pushCake.ready(data.serverId, data.channelId, next.bind(null, send, data))
     .then(p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
+
+  function next(send, data, doc){
+    if(!doc) return;
+
+    logger.debug('ready next: %s', doc);
+  }
 })();
