@@ -72,17 +72,32 @@ const logger = require('log4js').getLogger('biz.pushCake');
    * @return
    */
   function cb(group_id, next){
-
     ((group_id, next) => {
-
       var room = roomPool.get(group_id);
       if(!room) return;  // 房间不存在
       if(!room.isStart()) return;
 
-      setTimeout(() => {
-        logger.debug('ready next: %s', group_id);
-        next('abc');
-      }, 10000);
+      (function schedule(second){
+        second = 1000 * (second || 10);
+
+        var timeout = setTimeout(function(){
+          clearTimeout(timeout);
+
+          if(!room) return;
+
+          if(5 === room.act_status){
+
+            logger.debug('ready next: %s, %s', 3, group_id);
+            next('abc');
+
+            return schedule(3);
+          }
+
+          schedule();
+
+        }, second);
+
+      })();
 
     })(group_id, next);
   }

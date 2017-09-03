@@ -560,3 +560,14 @@ pro.ready = function(user_id){
     return bet;
   }
 })();
+
+/**
+ * 动作状态：庄家 比大小 闲家
+ *
+ * @return
+ */
+pro.cardCompare = function(){
+  var self = this;
+
+  if(self.act_status !== ACT_STATUS_CARD_COMPARE) return;
+};
