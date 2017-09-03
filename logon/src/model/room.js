@@ -77,6 +77,22 @@ var Method = function(opts){
 var pro = Method.prototype;
 
 /**
+ * 获取当前下注的人数
+ *
+ * @return
+ */
+pro.getBetSeatCount = function(){
+  var bet_count = 0;
+
+  for(let i of _.values(this.users)){
+    if(0 < i.opts.bet) ++bet_count;
+  }
+
+  return bet_count;
+};
+
+
+/**
  * 判断是否游戏是否开始
  *
  * @return
@@ -477,8 +493,10 @@ pro.ready = function(user_id){
    *
    * @return
    */
-  pro.unBankerBetClosure = function(){
+  pro.unBankerBetClosure = function(round_no){
     var self = this;
+
+    if(round_no !== room.round_no) return;
 
     if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
 

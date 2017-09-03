@@ -160,6 +160,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
         _user.opts.seat,
         _user.opts.bet,  // 闲家下的注
         _user.group_id,
+        room.round_no,
       ],
     ]);
   }
@@ -178,7 +179,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
       .then(doc => {
         if(!doc) return;
 
-        cb(doc[1][3], next);
+        cb(doc[1][3], doc[1][4], next);
         resolve(doc);
       })
       .catch(reject);
@@ -190,29 +191,33 @@ const logger = require('log4js').getLogger('biz.pushCake');
    *
    * @return
    */
-  function cb(group_id, next){
-    var room = roomPool.get(group_id);
-    if(!room) return Promise.reject('房间不存在');
+  function cb(group_id, round_no, next){
 
-    setTimeout(() => {
-      var result = room.unBankerBetClosure();
-      if(!result) return;
+    ((group_id, round_no, next) => {
+      setTimeout(() => {
+        var room = roomPool.get(group_id);
+        if(!room) return;  // 房间不存在
 
-      var users = [];
+        var result = room.unBankerBetClosure(round_no);
+        if(!result) return;
 
-      for(let i of _.values(room.users)){
-        users.push([
-          i.id,
-          i.opts.seat,
-          i.opts.bet,
+        var users = [];
+
+        for(let i of _.values(room.users)){
+          users.push([
+            i.id,
+            i.opts.seat,
+            i.opts.bet,
+          ]);
+        }
+
+        next([
+          room.users,
+          users,
         ]);
-      }
 
-      next([
-        room.users,
-        users,
-      ]);
+      }, 10000);
 
-    }, 10000);
+    })(group_id, round_no, next);
   }
 })();
