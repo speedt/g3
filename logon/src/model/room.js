@@ -29,44 +29,47 @@ const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
 const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
 const ACT_STATUS_UNBANKER_BET = 4;  // 动作状态：闲家下注
 const ACT_STATUS_CARD_COMPARE = 5;  // 动作状态：庄家 比大小 闲家 钓鱼
+const ACT_STATUS_BANKER_DOWN  = 6;  // 动作状态：庄家下庄
+const ACT_STATUS_BANKER_GO_ON = 7;  // 动作状态：续庄问询
 
 module.exports = function(opts){
   return new Method(opts);
 }
 
 var Method = function(opts){
-  var self                 = this;
-  self.opts                = opts;
+  var self                   = this;
+  self.opts                  = opts;
 
-  self.id                  = opts.id;
-  self.name                = opts.name || ('Room '+ opts.id);
+  self.id                    = opts.id;
+  self.name                  = opts.name || ('Room '+ opts.id);
 
-  self.users               = {};  // 全部用户
-  self.players             = {};  // 玩家列表
+  self.users                 = {};  // 全部用户
+  self.players               = {};  // 玩家列表
 
-  self.player_count        = 4;  // 玩家人数
+  self.player_count          = 4;  // 玩家人数
 
-  self.create_user_id      = opts.user_id;
-  self.create_time         = new Date().getTime();
+  self.create_user_id        = opts.user_id;
+  self.create_time           = new Date().getTime();
 
-  self.act_seat            = 1;
-  self.act_status          = ACT_STATUS_INIT;
-  self.act_direction       = DIRECTION_CLOCKWISE;
+  self.act_seat              = 1;
+  self.act_status            = ACT_STATUS_INIT;
+  self.act_direction         = DIRECTION_CLOCKWISE;
 
-  self.ready_count         = 0;  // 举手人数
+  self.ready_count           = 0;  // 举手人数
 
-  self.round_id            = utils.replaceAll(uuid.v4(), '-', '');
-  self.round_pno           = 1;  // 当前第n局
-  self.round_no            = 1;  // 当前第n把
-  self.round_no_first_seat = 1;  // 庄家摇骰子确定第一个起牌的人
-  self.round_no_compare    = []; // 牌比对结果
+  self.round_id              = utils.replaceAll(uuid.v4(), '-', '');
+  self.round_pno             = 1;  // 当前第n局
+  self.round_no              = 1;  // 当前第n把
+  self.round_no_first_seat   = 1;  // 庄家摇骰子确定第一个起牌的人
+  self.round_no_compare      = []; // 牌比对结果
+  self.round_no_compare_seat = 1;  // 当前比较牌大小的人的位置
 
-  self.banker_seat         = 0;               // 当前庄家座位
-  self.banker_bets         = [200, 300, 500]; // 庄家锅底
+  self.banker_seat           = 0;               // 当前庄家座位
+  self.banker_bets           = [200, 300, 500]; // 庄家锅底
 
-  self.visitor_count       = opts.visitor_count || 0;     // 游客人数
-  self.fund                = opts.fund          || 1000;  // 组局基金
-  self.round_count         = opts.round_count   || 4;     // 圈数
+  self.visitor_count         = opts.visitor_count || 0;     // 游客人数
+  self.fund                  = opts.fund          || 1000;  // 组局基金
+  self.round_count           = opts.round_count   || 4;     // 圈数
 
   // 创建空闲的座位
   self.free_seats = [];
@@ -614,9 +617,10 @@ pro.ready = function(user_id){
     if(self.act_status !== ACT_STATUS_CARD_COMPARE) return;
 
     // 闲家座位号
-    var _first_seat = getCompareSeat.call(self);
+    self.round_no_compare_seat = getCompareSeat.call(self);
 
     var banker = {
+      id:         self.getUserBySeat(self.banker_seat).id,
       point:      getPoint.call(self, self.banker_seat),
       bet:        self.getUserBySeat(self.banker_seat).opts.seat,
       seat:       self.banker_seat,
@@ -624,23 +628,55 @@ pro.ready = function(user_id){
     };
 
     var unbanker = {
-      point:      getPoint.call(self, _first_seat),
-      bet:        self.getUserBySeat(_first_seat).opts.seat,
-      seat:       self._first_seat,
-      gold_count: self.getUserBySeat(_first_seat).gold_count - 0,
+      id:         self.getUserBySeat(self.round_no_compare_seat).id,
+      point:      getPoint.call(self, self.round_no_compare_seat),
+      bet:        self.getUserBySeat(self.round_no_compare_seat).opts.seat,
+      seat:       self.round_no_compare_seat,
+      gold_count: self.getUserBySeat(self.round_no_compare_seat).gold_count - 0,
     };
 
     // 比较结果
     var compare_result = checkout(banker, unbanker);
 
-    if(0 !== compare_result[2]){
+    if(0 < compare_result[2]){
       self.getUserBySeat(compare_result[2]).gold_count--;
     }
 
-    self.getUserBySeat(self.banker_seat).opts.score += compare_result[0];
-    self.getUserBySeat(_first_seat).opts.score      += compare_result[1];
+    self.getUserBySeat(banker.seat).opts.score   += compare_result[0];
+    self.getUserBySeat(unbanker.seat).opts.score += compare_result[1];
 
-    return 'cardCompare';
+    self.round_no_compare.push([[
+      room.id,
+      banker.id,
+      room.round_id,
+      room.round_pno,
+      room.round_no,
+      banker.seat,
+      self.getUserBySeat(banker.seat).opts.score,
+      self.getUserBySeat(banker.seat).gold_count,
+    ], [
+      room.id,
+      unbanker.id,
+      room.round_id,
+      room.round_pno,
+      room.round_no,
+      unbanker.seat,
+      self.getUserBySeat(unbanker.seat).opts.score,
+      self.getUserBySeat(unbanker.seat).gold_count,
+    ]]);
+
+    if(1 > self.getUserBySeat(self.banker_seat).opts.score){
+      if(1 > self.banker_bets.length){  // 结算
+        self.act_status = ACT_STATUS_BANKER_DOWN;
+        return [5024, self.round_no_compare, self.round_no_compare[self.round_no_compare.length - 1]];
+      }else{
+        // 发送是否续庄问询
+        self.act_status = ACT_STATUS_BANKER_GO_ON;
+        return [5026, self.round_no_compare, self.round_no_compare[self.round_no_compare.length - 1]];
+      }
+    }
+
+    return [5028, self.round_no_compare, self.round_no_compare[self.round_no_compare.length - 1]];
   };
 
   /**
