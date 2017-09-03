@@ -198,8 +198,8 @@ const logger = require('log4js').getLogger('biz.pushCake');
         var room = roomPool.get(group_id);
         if(!room) return;  // 房间不存在
 
-        var result = room.unBankerBetClosure(round_no);
-        if(!result) return;
+        var cards_8 = room.unBankerBetClosure(round_no);
+        if(!cards_8) return;
 
         var users = [];
 
@@ -213,7 +213,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
         next([
           room.users,
-          users,
+          [users, cards_8],
         ]);
 
       }, 10000);

@@ -28,7 +28,7 @@ const ACT_STATUS_CRAPS4       = 1;  // 动作状态：摇骰子
 const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
 const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
 const ACT_STATUS_UNBANKER_BET = 4;  // 动作状态：闲家下注
-const ACT_STATUS_UNBANKER_BET_NEXT = 5;
+const ACT_STATUS_CARD_COMPARE = 5;  // 动作状态：庄家 比大小 闲家
 
 module.exports = function(opts){
   return new Method(opts);
@@ -75,6 +75,49 @@ var Method = function(opts){
 };
 
 var pro = Method.prototype;
+
+/**
+ * 生成36张牌
+ *
+ * @return
+ */
+function genCards(num){
+  num = num || 36;
+
+  var cards = [];
+  var p = 1;
+
+  for(let i = 0; i < num; i += 4){
+    cards[i] = cards[i + 1] = cards[i + 2] = cards[i + 3] = p++;
+  }
+
+  var max = num - 1;
+
+  for(let i = 0; i < num; i++){
+    let r = Math.round(Math.random() * max);
+    p = cards[r];
+    cards[r] = cards[max];
+    cards[max--] = p;
+  }
+
+  return cards;
+}
+
+/**
+ * 获取8张牌
+ *
+ * @return
+ */
+function getCards(num, user_id){
+  num = num || 8;
+  var arr = [];
+
+  for(let i = 0; i < num; i++){
+    arr.push(this.cards_36.shift());
+  }
+
+  return arr;
+}
 
 /**
  * 获取当前下注的人数
@@ -301,6 +344,7 @@ pro.ready = function(user_id){
   if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
     self.act_seat   = 1;
+    self.cards_36   = genCards();
   }
 
   return user;
@@ -496,13 +540,15 @@ pro.ready = function(user_id){
   pro.unBankerBetClosure = function(round_no){
     var self = this;
 
-    if(round_no !== room.round_no) return;
+    if(round_no !== self.round_no) return;
 
     if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
 
-    self.act_status  = ACT_STATUS_UNBANKER_BET_NEXT;
+    self.act_status  = ACT_STATUS_CARD_COMPARE;
 
-    return true;
+    self.cards_8 = getCards.call(self);
+
+    return self.cards_8;
   };
 
   /**
