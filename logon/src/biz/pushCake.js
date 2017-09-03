@@ -91,7 +91,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
             var result = room.cardCompare();
             if(!result) return schedule(5);
 
-            next([room.users, result, '5024']);
+            next([room.users, result[1], result[0]]);
 
             return schedule(5);
           }

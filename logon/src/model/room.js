@@ -622,7 +622,7 @@ pro.ready = function(user_id){
     var banker = {
       id:         self.getUserBySeat(self.banker_seat).id,
       point:      getPoint.call(self, self.banker_seat),
-      bet:        self.getUserBySeat(self.banker_seat).opts.seat,
+      bet:        self.getUserBySeat(self.banker_seat).opts.bet,
       seat:       self.banker_seat,
       gold_count: self.getUserBySeat(self.banker_seat).gold_count - 0,
     };
@@ -630,7 +630,7 @@ pro.ready = function(user_id){
     var unbanker = {
       id:         self.getUserBySeat(self.round_no_compare_seat).id,
       point:      getPoint.call(self, self.round_no_compare_seat),
-      bet:        self.getUserBySeat(self.round_no_compare_seat).opts.seat,
+      bet:        self.getUserBySeat(self.round_no_compare_seat).opts.bet,
       seat:       self.round_no_compare_seat,
       gold_count: self.getUserBySeat(self.round_no_compare_seat).gold_count - 0,
     };
@@ -646,20 +646,20 @@ pro.ready = function(user_id){
     self.getUserBySeat(unbanker.seat).opts.score += compare_result[1];
 
     self.round_no_compare.push([[
-      room.id,
+      self.id,
       banker.id,
-      room.round_id,
-      room.round_pno,
-      room.round_no,
+      self.round_id,
+      self.round_pno,
+      self.round_no,
       banker.seat,
       self.getUserBySeat(banker.seat).opts.score,
       self.getUserBySeat(banker.seat).gold_count,
     ], [
-      room.id,
+      self.id,
       unbanker.id,
-      room.round_id,
-      room.round_pno,
-      room.round_no,
+      self.round_id,
+      self.round_pno,
+      self.round_no,
       unbanker.seat,
       self.getUserBySeat(unbanker.seat).opts.score,
       self.getUserBySeat(unbanker.seat).gold_count,
@@ -668,15 +668,15 @@ pro.ready = function(user_id){
     if(1 > self.getUserBySeat(self.banker_seat).opts.score){
       if(1 > self.banker_bets.length){  // 结算
         self.act_status = ACT_STATUS_BANKER_DOWN;
-        return [5024, self.round_no_compare, self.round_no_compare[self.round_no_compare.length - 1]];
+        return [5024, self.round_no_compare];
       }else{
         // 发送是否续庄问询
         self.act_status = ACT_STATUS_BANKER_GO_ON;
-        return [5026, self.round_no_compare, self.round_no_compare[self.round_no_compare.length - 1]];
+        return [5026, self.round_no_compare];
       }
     }
 
-    return [5028, self.round_no_compare, self.round_no_compare[self.round_no_compare.length - 1]];
+    return [5028, self.round_no_compare];
   };
 
   /**
