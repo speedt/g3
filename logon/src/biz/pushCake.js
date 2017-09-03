@@ -86,11 +86,14 @@ const logger = require('log4js').getLogger('biz.pushCake');
           if(!room) return;
 
           if(5 === room.act_status){
-
             logger.debug('ready next: %s, %s', 3, group_id);
-            next('abc');
 
-            return schedule(3);
+            var result = room.cardCompare();
+            if(!result) return schedule(5);
+
+            next([room.users, result, '5024']);
+
+            return schedule(5);
           }
 
           schedule();

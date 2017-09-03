@@ -189,6 +189,17 @@ const _ = require('underscore');
   function next(send, data, doc){
     if(!doc) return;
 
-    logger.debug('ready next: %s', doc);
+    var _data = [];
+    _data.push(null);
+    _data.push(JSON.stringify([doc[2], data.seqId, _.now(), doc[1]]));
+
+    for(let i of _.values(doc[0])){
+      if(!i.server_id || !i.channel_id) continue;
+      _data.splice(0, 1, i.channel_id);
+
+      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
+        if(err) return logger.error('channel ready '+ doc[2] +':', err);
+      });
+    }
   }
 })();
