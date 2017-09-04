@@ -61,7 +61,7 @@ var Method = function(opts){
   self.round_no_first_seat   = 1;  // 庄家摇骰子确定第一个起牌的人
   self.round_no_compare      = []; // 牌比对结果
   self.round_no_compare_seat = 1;  // 当前比较牌大小的人的位置
-  self.round_no_ready        = []; // 每局举手的座位号
+  self.round_no_ready        = {}; // 每局举手的座位号
 
   self.banker_seat           = 0;               // 当前庄家座位
   self.banker_bets           = [200, 300, 500]; // 庄家锅底
@@ -170,7 +170,7 @@ pro.getBetSeatCount = function(){
  * @return
  */
 pro.isStart = function(){
-  return this.player_count <= this.round_no_ready.length;
+  return this.player_count <= _.size(this.round_no_ready);
 };
 
 /**
@@ -290,15 +290,15 @@ pro.reEntry = function(user_info){
   assert.notEqual(null, user_info);
 
   var user = this.getUser(user_info.id);
-  if(!user) return;
+  if(!user)                   return;
+  if(1 >   user.opts.seat)    return;
+  if(1 !== user.opts.is_quit) return;
 
-  if(1 > user.opts.seat) return;
+  user.opts.is_quit      = 0;
+  user.opts.reEntry_time = new Date().getTime();
 
   user.server_id         = user_info.server_id;
   user.channel_id        = user_info.channel_id;
-
-  user.opts.reEntry_time = new Date().getTime();
-  user.opts.is_quit      = 0;
 
   return user;
 }
@@ -320,9 +320,9 @@ pro.quit = function(user_id){
   }
 
   if(0 < user.opts.seat){
-    if(1 === user.opts.ready_status) --self.ready_count;
-    self.free_seats.push(user.opts.seat);
-    delete self.players[user.opts.seat];
+          self.free_seats.push(user.opts.seat);
+    delete self.round_no_ready[user.opts.seat];
+    delete        self.players[user.opts.seat];
   }
 
   delete self.users[user_id];
@@ -341,11 +341,11 @@ pro.ready = function(user_id){
   if(self.isStart())                              return;  // 已经开始
 
   var user = self.getUser(user_id);
-  if(!user)                                            return;  // 用户不存在
-  if( 1 > user.opts.seat)                              return;  // 不能举手
-  if(-1 < self.round_no_ready.indexOf(user.opts.seat)) return;  // 已经举手
+  if(!user)                                return;  // 用户不存在
+  if(1 > user.opts.seat)                   return;  // 不能举手
+  if(!self.round_no_ready[user.opts.seat]) return;  // 已经举手
 
-  self.round_no_ready.push(user.opts.seat);
+  self.round_no_ready[user.opts.seat] = user_id;
 
   if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
