@@ -147,7 +147,7 @@ pro.getBetSeatCount = function(){
  * @return
  */
 pro.isStart = function(){
-  return this.player_count <= this.ready_count;
+  return this.player_count <= this.round_no_ready.length;
 };
 
 /**
@@ -275,7 +275,9 @@ pro.entry = function(user_info){
   if(self.getUser(user_info.id)) return;  // 已经在房间内
   if(self.isFull())              return;  // 房间满员
 
-  user_info.opts = {};
+  user_info.opts = {
+    score: 0,
+  };
 
   var seat_no = self.free_seats.shift();
 
@@ -348,25 +350,19 @@ pro.quit = function(user_id){
 pro.ready = function(user_id){
   var self = this;
 
-  if(self.act_status !== ACT_STATUS_INIT) return;
-
-  if(self.isStart()) return;  // 已经开始
+  if(self.act_status !== ACT_STATUS_PLAYER_READY) return;  // 举手时间
+  if(self.isStart())                              return;  // 已经开始
 
   var user = self.getUser(user_id);
-  if(!user) return;  // 用户不存在
+  if(!user)                                            return;  // 用户不存在
+  if( 1 > user.opts.seat)                              return;  // 不能举手
+  if(-1 < self.round_no_ready.indexOf(user.opts.seat)) return;  // 已经举手
 
-  if(1 > user.opts.seat)         return;  // 不能举手
-  if(0 < user.opts.ready_status) return;  // 已经举手
-
-  user.opts.ready_status = 1;
-  user.opts.ready_time   = new Date().getTime();
-  user.opts.score        = 0;
-
-  self.ready_count++;
+  self.round_no_ready.push(user.opts.seat);
 
   if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
-    self.act_seat   = 1;
+    self.act_seat   = self.banker_seat || 1;
     self.cards_36   = genCards();
   }
 
@@ -385,29 +381,39 @@ pro.ready = function(user_id){
     if(self.act_status !== ACT_STATUS_CRAPS4) return;
 
     var user = self.getUser(user_id);
-    if(!user) return;
+    if(!user)                            return;
     if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
-
-    if(user.opts.craps) return;  // 你已经摇过骰子了
+    if(user.opts.craps)                  return;  // 你已经摇过骰子了
 
     user.opts.craps = [
       _.random(1, 6),  // 骰子1
       _.random(1, 6),  // 骰子2
     ];
 
+    self.act_seat = self.getSeatNextBySeat(self.act_seat);
+
     if(self.player_count <= getCrapsCount.call(self)){
+      self.act_status  = ACT_STATUS_BANKER_BET;
       // 计算最大的骰子，并设置庄家位置
       self.banker_seat = maxCraps.call(self);
       self.banker_bets = [200, 300, 500];
-      self.act_status  = ACT_STATUS_BANKER_BET;
       self.act_seat    = self.banker_seat;
-      return user;
+      clearAllCraps.call(self);
     }
-
-    self.act_seat++;
 
     return user;
   };
+
+  /**
+   * 清理全部人的骰子
+   *
+   * @return
+   */
+  function clearAllCraps(){
+    for(let i of _.values(this.users)){
+      delete i.opts.craps;  // 骰子
+    }
+  }
 
   /**
    * 获取摇过骰子的人数
@@ -446,73 +452,28 @@ pro.ready = function(user_id){
   }
 })();
 
-(() => {
-  /**
-   * 庄家锅底
-   *
-   * @return
-   */
-  pro.bankerBet = function(user_id, bet, token){
-    var self = this;
 
-    if(self.act_status !== ACT_STATUS_BANKER_BET) return;
+/**
+ * 庄家锅底
+ *
+ * @return
+ */
+pro.bankerBet = function(user_id, bet){
+  var self = this;
 
-    var user = self.getUser(user_id);
-    if(!user)                            return;
-    if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+  if(self.act_status !== ACT_STATUS_BANKER_BET) return;
 
-    self.act_status  = ACT_STATUS_BANKER_CRAPS;
+  var user = self.getUser(user_id);
+  if(!user)                            return;
+  if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
 
-    clearAll.call(self);
+  self.act_status  = ACT_STATUS_BANKER_CRAPS;
 
-    user.opts.bet   = self.getBankerBet(bet);
-    user.opts.score = user.opts.bet;
+  user.opts.score = user.opts.bet = self.getBankerBet(bet);
 
-    if(!user.opts.bet) return;
+  return user;
+};
 
-    return user;
-  };
-
-  /**
-   * 获取庄家的锅底
-   *
-   * @return
-   */
-  function getBet(bet){
-    var self = this;
-
-    if(1 > self.banker_bets.length) return;
-
-    var _index = self.banker_bets.indexOf(bet);
-
-    if(1 > _index) return self.banker_bets.shift();
-
-    if(1 === _index) {
-      self.banker_bets.shift();
-      return self.banker_bets.shift();
-    }
-
-    if(2 === _index) {
-      self.banker_bets.shift();
-      self.banker_bets.shift();
-      return self.banker_bets.shift();
-    }
-
-    return bet;
-  }
-
-  /**
-   * 清理4个人的（骰子+注）
-   *
-   * @return
-   */
-  function clearAll(){
-    for(let i of _.values(this.users)){
-      delete i.opts.craps;  // 骰子
-      delete i.opts.bet;    // 注
-    }
-  }
-})();
 
 (() => {
   /**
@@ -536,9 +497,9 @@ pro.ready = function(user_id){
       _.random(1, 6),  // 骰子2
     ];
 
-    self.round_no_first_seat = firstSeat(user.opts.seat, user.opts.craps);
+    self.act_seat = self.round_no_first_seat = firstSeat(user.opts.seat, user.opts.craps);
 
-    self.act_seat = self.round_no_first_seat;
+    delete user.opts.craps;
 
     return user;
   };
@@ -551,7 +512,6 @@ pro.ready = function(user_id){
   function firstSeat(seat, craps){
     var n = craps[0] + craps[1];
     var m = (n - 1 + seat) % 4;
-
     return (0 === m) ? 4 : m;
   }
 })();
