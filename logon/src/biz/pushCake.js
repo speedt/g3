@@ -93,12 +93,45 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
 
             if(result === '5026'){
-              next([room.users, room.compare_result, 5026]);
-            }else{
+              next([room.users, room.round_no_compare, 5026]);
+              return schedule(13);
+            }else if(result === '5028'){
+              next([room.users, null, 5028]);
+              return schedule(5);
+            }else if(!!result){
               next([room.users, result, 5024]);
             }
 
             return schedule(5);
+          }else if(9 === room.act_status){
+            var result = room.roundReady();
+
+            if('GAME_OVER' === result){
+              next([room.users, null, 5040]);
+            }else if('ACT_STATUS_ROUND_NO_READY' === result){
+              next([room.users, [room.round_pno, room.round_no], 5030]);
+              return schedule(5);
+            }
+          }else if(7 === room.act_status){
+
+            var result = room.bankerGoOn();
+
+            if('5038' === result){
+              next([room.users, null, 5038]);
+              return schedule(5);
+            }else if('5024' === result){
+              next([room.users, null, 5024]);
+              return schedule(5);
+            }else if('5032' === result){
+              next([room.users, null, 5032]);
+              return schedule(5);
+            }else if('5034' === result){
+              next([room.users, null, 5034]);
+              return schedule(5);
+            }
+
+            return schedule(5);
+
           }
 
           schedule();

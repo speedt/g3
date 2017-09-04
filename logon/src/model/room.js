@@ -475,11 +475,22 @@ pro.bankerBet = function(user_id, bet){
 
     var user = self.getUser(user_id);
     if(!user)                               return;
+
+
+    console.log(self.banker_seat !== user.opts.seat)
+    console.log(self.banker_seat)
+    console.log(user.opts.seat)
+
     if(self.banker_seat !== user.opts.seat) return;  // 还没轮到你
 
     self.act_status  = ACT_STATUS_UNBANKER_BET;
 
-    self.act_seat = self.round_no_first_seat = firstSeat(user.opts.seat);
+    user.opts.craps = [
+      _.random(1, 6),  // 骰子1
+      _.random(1, 6),  // 骰子2
+    ];
+
+    self.act_seat = self.round_no_first_seat = firstSeat(user.opts.seat, user.opts.craps);
 
     return user;
   };
@@ -489,8 +500,8 @@ pro.bankerBet = function(user_id, bet){
    *
    * @return
    */
-  function firstSeat(seat){
-    var m = (_.random(1, 6) + _.random(1, 6) - 1 + seat) % 4;
+  function firstSeat(seat, craps){
+    var m = (craps[0] + craps[1] - 1 + seat) % 4;
     return (0 === m) ? 4 : m;
   }
 })();
@@ -538,6 +549,8 @@ pro.bankerBet = function(user_id, bet){
     // 没有下注的则自动下注，最少10%
 
     // TODO
+
+    self.round_no_compare.length = 0;
 
     return self.cards_8;
   };
@@ -739,7 +752,7 @@ pro.bankerGoOn = function(user_id, bet, token){
   if(1 > bet){  // 先结算
     self.act_status  = ACT_STATUS_BANKER_BET;
     self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
-    return '5030';
+    return '5038';
   }
 
   var bet = self.getBankerBet(bet);
@@ -747,7 +760,7 @@ pro.bankerGoOn = function(user_id, bet, token){
   if(!bet){
     self.act_status  = ACT_STATUS_BANKER_BET;
     self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
-    return '5030';
+    return '5034';
   }
 
   var _last = self.round_no_compare[self.round_no_compare.length - 1];
@@ -807,6 +820,7 @@ pro.bankerGoOn = function(user_id, bet, token){
     if(4 < self.round_no){
       self.round_pno++;
       self.round_no = 1;
+      self.cards_36 = genCards();
     }
 
     if(4 < self.round_pno) return 'GAME_OVER';
