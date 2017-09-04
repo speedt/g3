@@ -93,7 +93,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
 
             if(result === '5026'){
-
+              next([room.users, room.compare_result, 5026]);
             }else{
               next([room.users, result, 5024]);
             }

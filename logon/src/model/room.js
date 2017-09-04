@@ -570,7 +570,7 @@ pro.bankerBet = function(user_id, bet){
     // 进行下一把
     if(!self.round_no_compare_seat){
       self.act_status = ACT_STATUS_ROUND_NO_READY;  // 下一局准备开始
-      return self.compare_result;
+      return '5026';
     }
 
     var   banker_user = self.getUserBySeat(self.banker_seat);
@@ -608,6 +608,7 @@ pro.bankerBet = function(user_id, bet){
       compare_result[0],           // 赔付
       compare_result[1],           // 实际赔付
       compare_result[1],           // 赔付
+      unbanker_user.gold_count,
     ]);
 
     var _last = self.round_no_compare[self.round_no_compare.length - 1];
@@ -642,7 +643,7 @@ pro.bankerBet = function(user_id, bet){
       // 发送是否续庄问询
       self.act_status = ACT_STATUS_BANKER_GO_ON;
       self.token      = utils.replaceAll(uuid.v4(), '-', '');
-      return '5026';
+      return '5028';
     }
 
     // 设置下一个比对的闲
@@ -816,7 +817,7 @@ pro.bankerGoOn = function(user_id, bet, token){
     if(getOnlineCount.call(self)) return 'GAME_OVER';
 
     self.act_status = ACT_STATUS_BANKER_CRAPS;
-    self.round_no_compare.length = 0;
+    // self.round_no_compare.length = 0;
 
 
     for(let i of _.values(self.users)){
