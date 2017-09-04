@@ -742,6 +742,8 @@ pro.bankerBet = function(user_id, bet){
 pro.bankerGoOn = function(user_id, bet, token){
   var self = this;
 
+  logger.debug(bet);
+
   if(self.act_status !== ACT_STATUS_BANKER_GO_ON) return;
   self.act_status = ACT_STATUS_BANKER_GO_ON_PAUSE;
 

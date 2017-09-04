@@ -100,41 +100,57 @@ const logger = require('log4js').getLogger('biz.pushCake');
               return schedule(5);
             }else if(!!result){
 
+              var group_id_1 = result[0];
+              var round_id = result[5];
+              var round_pno = result[6];
+              var round_no = result[7];
+              var user_id_a = result[1];
+              var user_id_b = result[3];
+              var seat_a = result[2];
+              var seat_b = result[4];
+              var gold_count_a = result[8];
+              var gold_count_b = result[13];
+              var score_a = result[9];
+              var score_b = result[11];
+
               mysql.query('insert into g_group_balance (create_time, group_id, round_id, round_pno, round_no, user_id_a, user_id_b, seat_a, seat_b, gold_count_a, gold_count_b, score_a, score_b) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
                   new Date(),
-                  result[0],
-                  result[5],
-                  result[7],
-                  result[8],
-                  result[1],
-                  result[3],
-                  result[2],
-                  result[4],
-                  result[8],
-                  result[13],
-                  result[9],
-                  result[11],
+                  group_id_1,
+                  round_id,
+                  round_pno,
+                  round_no,
+                  user_id_a,
+                  user_id_b,
+                  seat_a,
+                  seat_b,
+                  gold_count_a,
+                  gold_count_b,
+                  score_a,
+                  score_b,
                 ], function (err){
-                if(err) return;
-                next([room.users, result, 5024]);
+                if(err) return logger.debug(err);
+
+                mysql.query('update s_user set gold_count=? where id=?', [
+                    gold_count_a,
+                    user_id_a,
+                  ], function (err){
+                  if(err) return logger.debug(err);
+
+                  mysql.query('update s_user set gold_count=? where id=?', [
+                      gold_count_b,
+                      user_id_b,
+                    ], function (err){
+                    if(err) return logger.debug(err);
+
+                  });
+                });
               });
 
-              mysql.query('update s_user set gold_count=? where id=?', [
-                  result[8],
-                  result[1],
-                ], function (err){
-                if(err) return;
-              });
+              next([room.users, result, 5024]);
 
-              mysql.query('update s_user set gold_count=? where id=?', [
-                  result[13],
-                  result[3],
-                ], function (err){
-                if(err) return;
-              });
+              return schedule(5);
             }
 
-            return schedule(5);
           }else if(9 === room.act_status){
             var result = room.roundReady();
 
@@ -144,22 +160,22 @@ const logger = require('log4js').getLogger('biz.pushCake');
               next([room.users, [room.round_pno, room.round_no], 5030]);
               return schedule(5);
             }
-          }else if(7 === room.act_status){
+          // }else if(7 === room.act_status){
 
-            var result = room.bankerGoOn();
+          //   var result = room.bankerGoOn();
 
-            if('5038' === result){
-              next([room.users, null, 5038]);
-              return schedule(5);
-            }else if('5028' === result){
-              next([room.users, null, 5028]);
-              return schedule(5);
-            }else if('5034' === result){
-              next([room.users, null, 5034]);
-              return schedule(5);
-            }
+          //   if('5038' === result){
+          //     next([room.users, null, 5038]);
+          //     return schedule(5);
+          //   }else if('5028' === result){
+          //     next([room.users, null, 5028]);
+          //     return schedule(5);
+          //   }else if('5034' === result){
+          //     next([room.users, null, 5034]);
+          //     return schedule(5);
+          //   }
 
-            return schedule(5);
+          //   return schedule(5);
 
           }
 
@@ -376,18 +392,40 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
     if(!_user) return Promise.resolve();
 
+    // logger.debug(_user);
 
     if('5038' === _user){
 
+      return Promise.resolve([
+        room.users,
+        [
+          5038,
+          room.round_no_compare,
+          room.banker_seat,
+        ],
+      ]);
     }else if('5034' === _user){
       
+      return Promise.resolve([
+        room.users,
+        [
+          5034,
+          room.round_no_compare,
+          room.banker_seat,
+        ],
+      ]);
     }else if('5028' === _user){
       
+      return Promise.resolve([
+        room.users,
+        [5028],
+      ]);
     }else{
       
       return Promise.resolve([
         room.users,
         [
+          0,
           _user.id,
           _user.opts.seat,
           _user.opts.bet,  // 闲家下的注
