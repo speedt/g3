@@ -23,14 +23,17 @@ const logger = require('log4js').getLogger('model.room');
 const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
-const ACT_STATUS_INIT         = 0;  // 动作状态：初始化
-const ACT_STATUS_CRAPS4       = 1;  // 动作状态：摇骰子
-const ACT_STATUS_BANKER_BET   = 2;  // 动作状态：庄家设置锅底
-const ACT_STATUS_BANKER_CRAPS = 3;  // 动作状态：庄家摇骰子，确定谁先起牌
-const ACT_STATUS_UNBANKER_BET = 4;  // 动作状态：闲家下注
-const ACT_STATUS_CARD_COMPARE = 5;  // 动作状态：庄家 比大小 闲家 钓鱼
-const ACT_STATUS_BANKER_DOWN  = 6;  // 动作状态：庄家下庄
-const ACT_STATUS_BANKER_GO_ON = 7;  // 动作状态：续庄问询
+const ACT_STATUS_PLAYER_READY       = 0;  // 动作：初始化
+const ACT_STATUS_CRAPS4             = 1;  // 动作：摇骰子
+const ACT_STATUS_BANKER_BET         = 2;  // 动作：庄家设置锅底
+const ACT_STATUS_BANKER_CRAPS       = 3;  // 动作：庄家摇骰子，确定谁先起牌
+const ACT_STATUS_UNBANKER_BET       = 4;  // 动作：闲家下注
+const ACT_STATUS_CARD_COMPARE       = 5;  // 动作：庄家 比大小 闲家 钓鱼
+const ACT_STATUS_CARD_COMPARE_PAUSE = 10;
+const ACT_STATUS_BANKER_DOWN        = 6;  // 动作：庄家下庄
+const ACT_STATUS_BANKER_GO_ON       = 7;  // 动作：续庄问询
+const ACT_STATUS_BANKER_GO_ON_PAUSE = 8;  // 动作：庄家续庄的问询等待
+const ACT_STATUS_ROUND_NO_READY     = 9;  // 动作：下一局前的准备工作
 
 module.exports = function(opts){
   return new Method(opts);
@@ -52,7 +55,7 @@ var Method = function(opts){
   self.create_time           = new Date().getTime();
 
   self.act_seat              = 1;
-  self.act_status            = ACT_STATUS_INIT;
+  self.act_status            = ACT_STATUS_PLAYER_READY;
   self.act_direction         = DIRECTION_CLOCKWISE;
 
   self.round_id              = utils.replaceAll(uuid.v4(), '-', '');
@@ -66,9 +69,9 @@ var Method = function(opts){
   self.banker_seat           = 0;               // 当前庄家座位
   self.banker_bets           = [200, 300, 500]; // 庄家锅底
 
-  self.visitor_count         = opts.visitor_count || 0;     // 游客人数
-  self.fund                  = opts.fund          || 1000;  // 组局基金
-  self.round_count           = opts.round_count   || 4;     // 圈数
+  self.visitor_count         = 0;                         // 游客人数
+  self.fund                  = opts.fund        || 1000;  // 组局基金
+  self.round_count           = opts.round_count || 4;     // 圈数
 
   // 创建空闲的座位
   self.free_seats = [];
@@ -397,10 +400,6 @@ pro.ready = function(user_id){
    * @return
    */
   function clearAllCraps(){
-    for(let i of _.values(this.users)){
-      delete i.opts.craps;  // 骰子
-      delete i.opts.bet;    // 注
-    }
   }
 
   /**
@@ -571,8 +570,7 @@ pro.bankerBet = function(user_id, bet){
     // 进行下一把
     if(!self.round_no_compare_seat){
       self.act_status = ACT_STATUS_ROUND_NO_READY;  // 下一局准备开始
-      self.round_no++;
-      return '5028';
+      return self.compare_result;
     }
 
     var   banker_user = self.getUserBySeat(self.banker_seat);
@@ -596,7 +594,7 @@ pro.bankerBet = function(user_id, bet){
     }
 
     // 保存比较结果
-    self.round_no_compare.push([[
+    self.round_no_compare.push([
       self.id,
       banker_user.id,
       self.banker_seat,            // 庄
@@ -610,7 +608,7 @@ pro.bankerBet = function(user_id, bet){
       compare_result[0],           // 赔付
       compare_result[1],           // 实际赔付
       compare_result[1],           // 赔付
-    ]]);
+    ]);
 
     var _last = self.round_no_compare[self.round_no_compare.length - 1];
 
@@ -644,13 +642,13 @@ pro.bankerBet = function(user_id, bet){
       // 发送是否续庄问询
       self.act_status = ACT_STATUS_BANKER_GO_ON;
       self.token      = utils.replaceAll(uuid.v4(), '-', '');
-      return '5024';
+      return '5026';
     }
 
     // 设置下一个比对的闲
     self.round_no_first_seat = self.getSeatNextBySeat(self.round_no_compare_seat);
     self.act_status          = ACT_STATUS_CARD_COMPARE;
-    return '5026';
+    return self.round_no_compare[self.round_no_compare.length - 1];
   };
 
   /**
@@ -723,7 +721,7 @@ pro.bankerBet = function(user_id, bet){
 
 
 /**
- * 庄家继庄
+ * 庄家续庄
  *
  * @return
  */
@@ -792,24 +790,60 @@ pro.bankerGoOn = function(user_id, bet, token){
   return '5032';
 };
 
-/**
- * 下一局之前的准备工作
- *
- * @return
- */
-pro.roundReady = function(){
-  var self = this;
+(() => {
+  /**
+   * 下一局之前的准备工作
+   *
+   * @return
+   */
+  pro.roundReady = function(){
+    var self = this;
 
-  if(self.act_status !== ACT_STATUS_ROUND_NO_READY) return;
+    if(self.act_status !== ACT_STATUS_ROUND_NO_READY) return;
 
-  if(3 < self.round_pno) return;
+    self.round_no++;
 
-  if(4 < self.round_no) self.round_no = 1;
+    if(4 < self.round_no){
+      self.round_pno++;
+      self.round_no = 1;
+    }
 
-  // TODO
-  // 如果有人离线，则删除他，并随机从钓鱼人中选择一个
+    if(4 < self.round_pno) return 'GAME_OVER';
 
-  self.act_status = ACT_STATUS_BANKER_CRAPS;
+    // TODO
+    // 如果有人离线，则删除他，并随机从钓鱼人中选择一个
 
-  return true;
-};
+    if(getOnlineCount.call(self)) return 'GAME_OVER';
+
+    self.act_status = ACT_STATUS_BANKER_CRAPS;
+    self.round_no_compare.length = 0;
+
+
+    for(let i of _.values(self.users)){
+      delete i.opts.craps;  // 骰子
+      delete i.opts.bet;    // 注
+    }
+
+    return 'ACT_STATUS_ROUND_NO_READY';
+  };
+
+  /**
+   * 随机从钓鱼人中选择一个，做为玩家
+   *
+   * @return
+   */
+  function randomChooseUser(){
+    var self = this;
+  }
+
+  /**
+   * 如果有人离线，则返回true
+   *
+   * @return
+   */
+  function getOnlineCount(){
+    for(let i of _.values(this.users)){
+      if(0 < i.opts.is_quit) return true;
+    }
+  }
+})();

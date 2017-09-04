@@ -120,7 +120,7 @@ const roomPool = require('emag.model').roomPool;
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.pushCake.bankerCraps(data.serverId, data.channelId)
+    biz.pushCake.bankerCraps(data.serverId, data.channelId, next.bind(null, send, data))
     .then(p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
@@ -153,6 +153,23 @@ const roomPool = require('emag.model').roomPool;
       if(err) return logger.error('pushCake bankerCraps:', err);
     });
   }
+
+  function next(send, data, doc){
+    if(!doc) return;
+
+    var _data = [];
+    _data.push(null);
+    _data.push(JSON.stringify([5022, data.seqId, _.now(), doc[1]]));
+
+    for(let i of _.values(doc[0])){
+      if(!i.server_id || !i.channel_id) continue;
+      _data.splice(0, 1, i.channel_id);
+
+      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
+        if(err) return logger.error('pushCake unBankerBetClosure:', err);
+      });
+    }
+  }
 })();
 
 
@@ -166,7 +183,7 @@ const roomPool = require('emag.model').roomPool;
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.pushCake.unBankerBet(data.serverId, data.channelId, data.data, next.bind(null, send, data))
+    biz.pushCake.unBankerBet(data.serverId, data.channelId, data.data)
     .then(p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
@@ -198,22 +215,5 @@ const roomPool = require('emag.model').roomPool;
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
       if(err) return logger.error('pushCake unBankerBet:', err);
     });
-  }
-
-  function next(send, data, doc){
-    if(!doc) return;
-
-    var _data = [];
-    _data.push(null);
-    _data.push(JSON.stringify([5022, data.seqId, _.now(), doc[1]]));
-
-    for(let i of _.values(doc[0])){
-      if(!i.server_id || !i.channel_id) continue;
-      _data.splice(0, 1, i.channel_id);
-
-      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('pushCake unBankerBetClosure:', err);
-      });
-    }
   }
 })();

@@ -41,7 +41,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
       [
         _user.id,
         _user.opts.seat,
-        room.ready_count,
+        _.size(room.round_no_ready),
         room.id,
       ],
     ]);
@@ -91,7 +91,12 @@ const logger = require('log4js').getLogger('biz.pushCake');
             var result = room.cardCompare();
             if(!result) return schedule(5);
 
-            next([room.users, result[1], result[0]]);
+
+            if(result === '5026'){
+
+            }else{
+              next([room.users, result, 5024]);
+            }
 
             return schedule(5);
           }
@@ -204,6 +209,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
         _user.opts.seat,
         room.act_seat,     // 下一个行动的座位
         _user.opts.craps,  // 庄摇的骰子
+        room.id,
       ],
     ]);
   }
@@ -213,14 +219,50 @@ const logger = require('log4js').getLogger('biz.pushCake');
    *
    * @return
    */
-  exports.bankerCraps = function(server_id, channel_id){
+  exports.bankerCraps = function(server_id, channel_id, next){
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
-      .then(doc => resolve(doc))
+      .then(doc => {
+        if(!doc) return;
+
+        cb(doc[1][4], next);
+        resolve(doc);
+      })
       .catch(reject);
     });
   };
+
+  /**
+   * 30(s)
+   *
+   * @return
+   */
+  function cb(group_id, next){
+    setTimeout(() => {
+      var room = roomPool.get(group_id);
+      if(!room) return;  // 房间不存在
+
+      var cards_8 = room.unBankerBetClosure();
+      if(!cards_8) return;
+
+      var users = [];
+
+      for(let i of _.values(room.users)){
+        users.push([
+          i.id,
+          i.opts.seat,
+          i.opts.bet,
+        ]);
+      }
+
+      next([
+        room.users,
+        [users, cards_8],
+      ]);
+
+    }, 15000);
+  }
 })();
 
 
@@ -241,8 +283,6 @@ const logger = require('log4js').getLogger('biz.pushCake');
         _user.id,
         _user.opts.seat,
         _user.opts.bet,  // 闲家下的注
-        room.id,
-        room.round_no,
       ],
     ]);
   }
@@ -252,52 +292,12 @@ const logger = require('log4js').getLogger('biz.pushCake');
    *
    * @return
    */
-  exports.unBankerBet = function(server_id, channel_id, bet, next){
+  exports.unBankerBet = function(server_id, channel_id, bet){
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1.bind(null, bet))
-      .then(doc => {
-        if(!doc) return;
-
-        cb(doc[1][3], doc[1][4], next);
-        resolve(doc);
-      })
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   };
-
-  /**
-   * 30(s)
-   *
-   * @return
-   */
-  function cb(group_id, round_no, next){
-
-    ((group_id, round_no, next) => {
-      setTimeout(() => {
-        var room = roomPool.get(group_id);
-        if(!room) return;  // 房间不存在
-
-        var cards_8 = room.unBankerBetClosure(round_no);
-        if(!cards_8) return;
-
-        var users = [];
-
-        for(let i of _.values(room.users)){
-          users.push([
-            i.id,
-            i.opts.seat,
-            i.opts.bet,
-          ]);
-        }
-
-        next([
-          room.users,
-          [users, cards_8],
-        ]);
-
-      }, 10000);
-
-    })(group_id, round_no, next);
-  }
 })();
