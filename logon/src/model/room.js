@@ -648,31 +648,22 @@ pro.ready = function(user_id){
     var   banker_user = self.getUserBySeat(self.banker_seat);
     var unbanker_user = self.getUserBySeat(self.round_no_compare_seat);
 
-    var banker = {
+    // 比较结果
+    var compare_result = checkout({
       point:      getPoint.call(self, self.banker_seat),
       bet:        banker_user.opts.bet,
       seat:       self.banker_seat,
       gold_count: banker_user.gold_count - 0,
-    };
-
-    var unbanker = {
+    }, {
       point:      getPoint.call(self, self.round_no_compare_seat),
       bet:        unbanker_user.opts.bet,
       seat:       self.round_no_compare_seat,
       gold_count: unbanker_user.gold_count - 0,
-    };
-
-    // 比较结果
-    var compare_result = checkout(banker, unbanker);
+    });
 
     if(0 < compare_result[2]){
       self.getUserBySeat(compare_result[2]).gold_count--;
     }
-
-      banker_user.opts.score         += compare_result[0];
-      banker_user.opts.score_original =   banker_user.opts.score;  // 原始
-    unbanker_user.opts.score         += compare_result[1];
-    unbanker_user.opts.score_original = unbanker_user.opts.score;  // 原始
 
     // 保存比较结果
     self.round_no_compare.push([[
@@ -683,7 +674,8 @@ pro.ready = function(user_id){
       self.round_no,
       self.banker_seat,
       banker_user.gold_count,
-      banker_user.opts.score,  // 实际赔付
+      compare_result[0],  // 实际赔付
+      compare_result[0],  // 赔付
     ], [
       self.id,
       unbanker_user.id,
@@ -692,8 +684,37 @@ pro.ready = function(user_id){
       self.round_no,
       self.round_no_compare_seat,
       unbanker_user.gold_count,
-      unbanker_user.opts.score,  // 实际赔付
+      compare_result[1],  // 实际赔付
+      compare_result[1],  // 赔付
     ]]);
+
+    var _last = self.round_no_compare[self.round_no_compare.length - 1];
+
+    var banker_user_score_payment = _last[0][8];
+
+    if(0 > banker_user_score_payment){
+
+      var _count = banker_user.opts.score + banker_user_score_payment;
+
+      if(0 > _count){
+        _last[0][7] = -banker_user.opts.score;
+        _last[1][7] =  banker_user.opts.score;
+
+        _last[1][8] =   _last[1][8] - banker_user.opts.score;
+        _last[0][8] = -(_last[1][8]);
+
+        banker_user.opts.score = 0;
+      }else if(0 === _count){
+        _last[0][7] = -banker_user.opts.score;
+        _last[1][7] =  banker_user.opts.score;
+
+        banker_user.opts.score = 0;
+      }else{
+        banker_user.opts.score += banker_user_score_payment;
+      }
+    }else if(0 < banker_user_score_payment){
+      banker_user.opts.score += banker_user_score_payment;
+    }
 
     if(1 > banker_user.opts.score){
       // 发送是否续庄问询
@@ -863,6 +884,8 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   var bet = self.getBankBet(bet);
 
+  var _last = self.round_no_compare[self.round_no_compare.length - 1];
+
   if(!bet){
     self.act_status  = ACT_STATUS_BANKER_BET;
     self.banker_bets = [200, 300, 500];
@@ -874,6 +897,7 @@ pro.bankerGoOn = function(user_id, bet, token){
   user.opts.score += bet;
 
   if(1 > user.opts.score){
+    _last[0][7]     = -user.opts.score;
     // 发送是否续庄问询
     self.act_status = ACT_STATUS_BANKER_GO_ON;
     self.token      = utils.replaceAll(uuid.v4(), '-', '');
