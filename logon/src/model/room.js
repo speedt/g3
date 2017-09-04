@@ -83,6 +83,32 @@ var Method = function(opts){
 var pro = Method.prototype;
 
 /**
+ * 获取庄家的锅底
+ *
+ * @return
+ */
+pro.getBankerBet = function(bet){
+  var self = this;
+
+  if(1 > self.banker_bets.length) return;
+
+  var _index = self.banker_bets.indexOf(bet);
+
+  if(1 > _index) return self.banker_bets.shift();
+
+  if(1 === _index) {
+    self.banker_bets.shift();
+    return self.banker_bets.shift();
+  }
+
+  if(2 === _index) {
+    self.banker_bets.shift();
+    self.banker_bets.shift();
+    return self.banker_bets.shift();
+  }
+}
+
+/**
  * 生成36张牌
  *
  * @return
@@ -114,7 +140,7 @@ function genCards(num){
  *
  * @return
  */
-function getCards(num, user_id){
+function getCards(num){
   num = num || 8;
   var arr = [];
 
@@ -412,6 +438,7 @@ pro.ready = function(user_id){
   function clearAllCraps(){
     for(let i of _.values(this.users)){
       delete i.opts.craps;  // 骰子
+      delete i.opts.bet;    // 注
     }
   }
 
@@ -492,14 +519,7 @@ pro.bankerBet = function(user_id, bet){
 
     self.act_status  = ACT_STATUS_UNBANKER_BET;
 
-    user.opts.craps = [
-      _.random(1, 6),  // 骰子1
-      _.random(1, 6),  // 骰子2
-    ];
-
-    self.act_seat = self.round_no_first_seat = firstSeat(user.opts.seat, user.opts.craps);
-
-    delete user.opts.craps;
+    self.act_seat = self.round_no_first_seat = firstSeat(user.opts.seat);
 
     return user;
   };
@@ -509,9 +529,8 @@ pro.bankerBet = function(user_id, bet){
    *
    * @return
    */
-  function firstSeat(seat, craps){
-    var n = craps[0] + craps[1];
-    var m = (n - 1 + seat) % 4;
+  function firstSeat(seat){
+    var m = (_.random(1, 6) + _.random(1, 6) - 1 + seat) % 4;
     return (0 === m) ? 4 : m;
   }
 })();
@@ -529,27 +548,14 @@ pro.bankerBet = function(user_id, bet){
     if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
 
     var user = self.getUser(user_id);
-    if(!user) return;
-
+    if(!user)         return;
     if(user.opts.bet) return;  // 下过注，则返回
 
-    if(-1 === bet.indexOf(',')){
+    if(-1 < bet.indexOf(',')){
+      // TODO
+    }else{
       bet -= 0;
       user.opts.bet = getBet.call(self, bet);
-    }else{
-      var arr = bet.split('|');
-
-      if(!user.opts.bet) user.opts.bet = [];
-
-      for(let i of arr){
-        let _val = _.trim(i);
-
-        if('' === _val) continue;
-
-        let _key = _val.split(',');
-
-        user.opts.bet.push([_key[0], getBet.call(self, _key[1])]);
-      }
     }
 
     return user;
@@ -560,16 +566,18 @@ pro.bankerBet = function(user_id, bet){
    *
    * @return
    */
-  pro.unBankerBetClosure = function(round_no){
+  pro.unBankerBetClosure = function(){
     var self = this;
-
-    if(round_no !== self.round_no) return;
 
     if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
 
     self.act_status  = ACT_STATUS_CARD_COMPARE;
 
     self.cards_8 = getCards.call(self);
+
+    // 没有下注的则自动下注，最少10%
+
+    // TODO
 
     return self.cards_8;
   };
@@ -759,61 +767,6 @@ pro.bankerBet = function(user_id, bet){
   }
 })();
 
-/**
- * 4人举手，满足4人后，让庄摇骰子，确认谁先起牌
- *
- * @return
- */
-pro.readyNext_1 = function(user_id, token){
-  var self = this;
-
-  if(self.token      !== token)                        return;
-  if(self.act_status !== ACT_STATUS_READY_NEXT_1)      return;
-  if(!self.isStart())                                  return;  // 没有开始
-
-  var user = self.getUser(user_id);
-  if(!user)                                            return;  // 用户不存在
-  if( 1 > user.opts.seat)                              return;  // 不能举手
-  if(-1 < self.round_no_ready.indexOf(user.opts.seat)) return;  // 已经举手
-
-  self.round_no_ready.push(user.opts.seat);
-
-  if(4 > self.round_no_ready.length) return user;
-
-  self.act_status            = ACT_STATUS_BANKER_CRAPS;
-  self.round_no_ready.length = 0;
-
-  return user;
-};
-
-/**
- * 4人举手，满足4人后，下一家做庄，庄下锅底
- *
- * @return
- */
-pro.readyNext_2 = function(user_id, token){
-  var self = this;
-
-  if(self.token      !== token)                        return;
-  if(self.act_status !== ACT_STATUS_READY_NEXT_2)      return;
-  if(!self.isStart())                                  return;  // 没有开始
-
-  var user = self.getUser(user_id);
-  if(!user)                                            return;  // 用户不存在
-  if( 1 > user.opts.seat)                              return;  // 不能举手
-  if(-1 < self.round_no_ready.indexOf(user.opts.seat)) return;  // 已经举手
-
-  self.round_no_ready.push(user.opts.seat);
-
-  if(4 > self.round_no_ready.length) return user;
-
-  self.act_status            = ACT_STATUS_BANKER_BET;
-  self.round_no_ready.length = 0;
-  self.act_seat              = self.getSeatNextBySeat(self.banker_seat);
-  self.banker_seat           = self.act_seat;
-
-  return user;
-};
 
 /**
  * 庄家继庄
@@ -886,29 +839,3 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   return '5032';
 };
-
-/**
- * 获取庄家的锅底
- *
- * @return
- */
-pro.getBankerBet = function(bet){
-  var self = this;
-
-  if(1 > self.banker_bets.length) return;
-
-  var _index = self.banker_bets.indexOf(bet);
-
-  if(1 > _index) return self.banker_bets.shift();
-
-  if(1 === _index) {
-    self.banker_bets.shift();
-    return self.banker_bets.shift();
-  }
-
-  if(2 === _index) {
-    self.banker_bets.shift();
-    self.banker_bets.shift();
-    return self.banker_bets.shift();
-  }
-}
