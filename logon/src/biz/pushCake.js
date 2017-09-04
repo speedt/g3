@@ -113,7 +113,8 @@ const logger = require('log4js').getLogger('biz.pushCake');
               var score_a = result[9];
               var score_b = result[11];
 
-              mysql.query('insert into g_group_balance (create_time, group_id, round_id, round_pno, round_no, user_id_a, user_id_b, seat_a, seat_b, gold_count_a, gold_count_b, score_a, score_b) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+              mysql.query('insert into g_group_balance (id, create_time, group_id, round_id, round_pno, round_no, user_id_a, user_id_b, seat_a, seat_b, gold_count_a, gold_count_b, score_a, score_b) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+                  utils.replaceAll(uuid.v4(), '-', ''),
                   new Date(),
                   group_id_1,
                   round_id,
@@ -430,6 +431,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
           _user.opts.seat,
           _user.opts.bet,  // 闲家下的注
           _user.opts.score,  //　赔了之后剩下的钱
+          room.round_no_compare[room.round_no_compare.length - 1],
         ],
       ]);
     }
