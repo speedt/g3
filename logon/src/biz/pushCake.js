@@ -99,7 +99,39 @@ const logger = require('log4js').getLogger('biz.pushCake');
               next([room.users, null, 5028]);
               return schedule(5);
             }else if(!!result){
-              next([room.users, result, 5024]);
+
+              mysql.query('insert into g_group_balance (create_time, group_id, round_id, round_pno, round_no, user_id_a, user_id_b, seat_a, seat_b, gold_count_a, gold_count_b, score_a, score_b) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+                  new Date(),
+                  result[0],
+                  result[5],
+                  result[7],
+                  result[8],
+                  result[1],
+                  result[3],
+                  result[2],
+                  result[4],
+                  result[8],
+                  result[13],
+                  result[9],
+                  result[11],
+                ], function (err){
+                if(err) return;
+                next([room.users, result, 5024]);
+              });
+
+              mysql.query('update s_user set gold_count=? where id=?', [
+                  result[8],
+                  result[1],
+                ], function (err){
+                if(err) return;
+              });
+
+              mysql.query('update s_user set gold_count=? where id=?', [
+                  result[13],
+                  result[3],
+                ], function (err){
+                if(err) return;
+              });
             }
 
             return schedule(5);
@@ -119,11 +151,8 @@ const logger = require('log4js').getLogger('biz.pushCake');
             if('5038' === result){
               next([room.users, null, 5038]);
               return schedule(5);
-            }else if('5024' === result){
-              next([room.users, null, 5024]);
-              return schedule(5);
-            }else if('5032' === result){
-              next([room.users, null, 5032]);
+            }else if('5028' === result){
+              next([room.users, null, 5028]);
               return schedule(5);
             }else if('5034' === result){
               next([room.users, null, 5034]);
@@ -334,3 +363,53 @@ const logger = require('log4js').getLogger('biz.pushCake');
     });
   };
 })();
+
+
+(() => {
+  function p1(bet, user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _user = room.bankerGoOn(user.id, bet);
+
+    if(!_user) return Promise.resolve();
+
+
+    if('5038' === _user){
+
+    }else if('5034' === _user){
+      
+    }else if('5028' === _user){
+      
+    }else{
+      
+      return Promise.resolve([
+        room.users,
+        [
+          _user.id,
+          _user.opts.seat,
+          _user.opts.bet,  // 闲家下的注
+          _user.opts.score,  //　赔了之后剩下的钱
+        ],
+      ]);
+    }
+
+  }
+
+  /**
+   * 动作状态：闲家下注
+   *
+   * @return
+   */
+  exports.bankerGoOn = function(server_id, channel_id, bet){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, bet))
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
+

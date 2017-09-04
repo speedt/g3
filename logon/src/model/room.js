@@ -798,10 +798,10 @@ pro.bankerGoOn = function(user_id, bet, token){
     // 发送是否续庄问询
     self.act_status = ACT_STATUS_BANKER_GO_ON;
     self.token      = utils.replaceAll(uuid.v4(), '-', '');
-    return '5024';
+    return '5028';
   }
 
-  return '5032';
+  return banker_user;
 };
 
 (() => {
@@ -838,6 +838,8 @@ pro.bankerGoOn = function(user_id, bet, token){
       delete i.opts.craps;  // 骰子
       delete i.opts.bet;    // 注
     }
+
+    // return '5060';  // 是否继续当庄
 
     return 'ACT_STATUS_ROUND_NO_READY';
   };
