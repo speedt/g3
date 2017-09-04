@@ -700,14 +700,7 @@ pro.bankerBet = function(user_id, bet){
     if(2 < size) return;
 
     if(self.round_no_first_seat === self.banker_seat){
-
-      self.round_no_first_seat++;
-
-      if((self.player_count < self.round_no_first_seat)){
-        self.round_no_first_seat = 1;
-      }
-
-      return self.round_no_first_seat;
+      self.round_no_first_seat = self.getSeatNextBySeat(self.round_no_first_seat);
     }
 
     return self.round_no_first_seat;
@@ -746,7 +739,6 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   if(1 > bet){  // 先结算
     self.act_status  = ACT_STATUS_BANKER_BET;
-    self.banker_bets = [200, 300, 500];
     self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
     return '5030';
   }
@@ -755,7 +747,6 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   if(!bet){
     self.act_status  = ACT_STATUS_BANKER_BET;
-    self.banker_bets = [200, 300, 500];
     self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
     return '5030';
   }
@@ -799,4 +790,26 @@ pro.bankerGoOn = function(user_id, bet, token){
   }
 
   return '5032';
+};
+
+/**
+ * 下一局之前的准备工作
+ *
+ * @return
+ */
+pro.roundReady = function(){
+  var self = this;
+
+  if(self.act_status !== ACT_STATUS_ROUND_NO_READY) return;
+
+  if(3 < self.round_pno) return;
+
+  if(4 < self.round_no) self.round_no = 1;
+
+  // TODO
+  // 如果有人离线，则删除他，并随机从钓鱼人中选择一个
+
+  self.act_status = ACT_STATUS_BANKER_CRAPS;
+
+  return true;
 };
