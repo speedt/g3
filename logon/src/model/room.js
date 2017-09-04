@@ -55,9 +55,6 @@ var Method = function(opts){
   self.act_status            = ACT_STATUS_INIT;
   self.act_direction         = DIRECTION_CLOCKWISE;
 
-  self.ready_count           = 0;  // 举手人数
-  self.ready                 = []; // 整个房间举手的座位号
-
   self.round_id              = utils.replaceAll(uuid.v4(), '-', '');
   self.round_pno             = 1;  // 当前第n局
   self.round_no              = 1;  // 当前第n把
@@ -160,7 +157,7 @@ pro.getBetSeatCount = function(){
   var bet_count = 0;
 
   for(let i of _.values(this.users)){
-    if(0 < i.opts.bet) ++bet_count;
+    if(!!i.opts.bet) ++bet_count;
   }
 
   return bet_count;
@@ -201,38 +198,8 @@ pro.getUser = function(id){
  * @return
  */
 pro.getUserBySeat = function(seat_no){
-  var user_id = this.players[seat_no];
-  if(!user_id) return;
-  return this.getUser(user_id);
+  return this.getUser(this.players[seat_no]);
 }
-
-/**
- * 获取用户上家
- *
- * @param user_id
- * @return
- */
-pro.getUserPrev = function(user_id){
-  var user = this.getUser(user_id);
-  if(!user) return;
-  if(0 < user.opts.seat) return;
-
-  return this.getUserPrevBySeat(user.opts.seat);
-};
-
-/**
- * 获取用户下家
- *
- * @param user_id
- * @return
- */
-pro.getUserNext = function(user_id){
-  var user = this.getUser(user_id);
-  if(!user) return;
-  if(0 < user.opts.seat) return;
-
-  return this.getUserNextBySeat(user.opts.seat);
-};
 
 /**
  * 获取用户上家
@@ -242,20 +209,6 @@ pro.getUserNext = function(user_id){
  */
 pro.getUserPrevBySeat = function(seat_no){
   return this.getUserBySeat(this.getSeatPrevBySeat(seat_no));
-};
-
-/**
- * 获取用户上家
- *
- * @param seat_no
- * @return
- */
-pro.getSeatPrevBySeat = function(seat_no){
-  seat_no -= 0;
-
-  assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
-
-  return (1 > (--seat_no)) ? this.player_count : seat_no;
 };
 
 /**
@@ -269,6 +222,17 @@ pro.getUserNextBySeat = function(seat_no){
 };
 
 /**
+ * 获取用户上家
+ *
+ * @param seat_no
+ * @return
+ */
+pro.getSeatPrevBySeat = function(seat_no){
+  seat_no -= 0;
+  return (1 > (--seat_no)) ? this.player_count : seat_no;
+};
+
+/**
  * 获取用户下家
  *
  * @param seat_no
@@ -276,9 +240,6 @@ pro.getUserNextBySeat = function(seat_no){
  */
 pro.getSeatNextBySeat = function(seat_no){
   seat_no -= 0;
-
-  assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
-
   return (this.player_count < (++seat_no)) ? 1 : seat_no;
 };
 
