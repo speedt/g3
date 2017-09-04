@@ -697,8 +697,8 @@ pro.ready = function(user_id){
       var _count = banker_user.opts.score + banker_user_score_payment;
 
       if(0 > _count){
-        _last[0][7] = -banker_user.opts.score;
         _last[1][7] =  banker_user.opts.score;
+        _last[0][7] = -(_last[1][7]);
 
         _last[1][8] =   _last[1][8] - banker_user.opts.score;
         _last[0][8] = -(_last[1][8]);
@@ -871,9 +871,9 @@ pro.bankerGoOn = function(user_id, bet, token){
   if(self.act_status !== ACT_STATUS_BANKER_GO_ON) return;
   self.act_status = ACT_STATUS_BANKER_GO_ON_PAUSE;
 
-  var user = self.getUser(user_id);
-  if(!user)                               return;
-  if(self.banker_seat !== user.opts.seat) return;  // 你不是庄
+  var banker_user = self.getUser(user_id);
+  if(!banker_user)                               return;
+  if(self.banker_seat !== banker_user.opts.seat) return;  // 你不是庄
 
   if(1 > bet){  // 先结算
     self.act_status  = ACT_STATUS_BANKER_BET;
@@ -884,8 +884,6 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   var bet = self.getBankBet(bet);
 
-  var _last = self.round_no_compare[self.round_no_compare.length - 1];
-
   if(!bet){
     self.act_status  = ACT_STATUS_BANKER_BET;
     self.banker_bets = [200, 300, 500];
@@ -893,11 +891,38 @@ pro.bankerGoOn = function(user_id, bet, token){
     return '5030';
   }
 
-  user.opts.bet    = bet;
-  user.opts.score += bet;
+  banker_user.opts.bet    = bet;
+  banker_user.opts.score += bet;
 
-  if(1 > user.opts.score){
-    _last[0][7]     = -user.opts.score;
+  var _last = self.round_no_compare[self.round_no_compare.length - 1];
+
+  var banker_user_score_payment = _last[0][8];
+
+  if(0 > banker_user_score_payment){
+
+    var _count = banker_user.opts.score + banker_user_score_payment;
+
+    if(0 > _count){
+      _last[1][7] =  banker_user.opts.score;
+      _last[0][7] = -(_last[1][7]);
+
+      _last[1][8] =   _last[1][8] - banker_user.opts.score;
+      _last[0][8] = -(_last[1][8]);
+
+      banker_user.opts.score = 0;
+    }else if(0 === _count){
+      _last[0][7] = -banker_user.opts.score;
+      _last[1][7] =  banker_user.opts.score;
+
+      banker_user.opts.score = 0;
+    }else{
+      banker_user.opts.score += banker_user_score_payment;
+    }
+  }else if(0 < banker_user_score_payment){
+    banker_user.opts.score += banker_user_score_payment;
+  }
+
+  if(1 > banker_user.opts.score){
     // 发送是否续庄问询
     self.act_status = ACT_STATUS_BANKER_GO_ON;
     self.token      = utils.replaceAll(uuid.v4(), '-', '');
