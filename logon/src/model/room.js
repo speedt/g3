@@ -341,9 +341,9 @@ pro.ready = function(user_id){
   if(self.isStart())                              return;  // 已经开始
 
   var user = self.getUser(user_id);
-  if(!user)                                return;  // 用户不存在
-  if(1 > user.opts.seat)                   return;  // 不能举手
-  if(!self.round_no_ready[user.opts.seat]) return;  // 已经举手
+  if(!user)                               return;  // 用户不存在
+  if(1 > user.opts.seat)                  return;  // 不能举手
+  if(self.round_no_ready[user.opts.seat]) return;  // 已经举手
 
   self.round_no_ready[user.opts.seat] = user_id;
 
@@ -452,8 +452,8 @@ pro.bankerBet = function(user_id, bet){
   if(self.act_status !== ACT_STATUS_BANKER_BET) return;
 
   var user = self.getUser(user_id);
-  if(!user)                            return;
-  if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+  if(!user)                               return;
+  if(self.banker_seat !== user.opts.seat) return;  // 还没轮到你
 
   self.act_status  = ACT_STATUS_BANKER_CRAPS;
 
@@ -475,8 +475,8 @@ pro.bankerBet = function(user_id, bet){
     if(self.act_status !== ACT_STATUS_BANKER_CRAPS) return;
 
     var user = self.getUser(user_id);
-    if(!user)                            return;
-    if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
+    if(!user)                               return;
+    if(self.banker_seat !== user.opts.seat) return;  // 还没轮到你
 
     self.act_status  = ACT_STATUS_UNBANKER_BET;
 
