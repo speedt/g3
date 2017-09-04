@@ -669,44 +669,38 @@ pro.ready = function(user_id){
     self.round_no_compare.push([[
       self.id,
       banker_user.id,
-      self.round_id,
-      self.round_pno,
-      self.round_no,
-      self.banker_seat,
-      banker_user.gold_count,
-      compare_result[0],  // 实际赔付
-      compare_result[0],  // 赔付
-    ], [
-      self.id,
+      self.banker_seat,            // 庄
       unbanker_user.id,
+      self.round_no_compare_seat,  // 闲
       self.round_id,
       self.round_pno,
       self.round_no,
-      self.round_no_compare_seat,
-      unbanker_user.gold_count,
-      compare_result[1],  // 实际赔付
-      compare_result[1],  // 赔付
+      banker_user.gold_count,
+      compare_result[0],           // 实际赔付
+      compare_result[0],           // 赔付
+      compare_result[1],           // 实际赔付
+      compare_result[1],           // 赔付
     ]]);
 
     var _last = self.round_no_compare[self.round_no_compare.length - 1];
 
-    var banker_user_score_payment = _last[0][8];
+    var banker_user_score_payment = _last[10];
 
     if(0 > banker_user_score_payment){
 
       var _count = banker_user.opts.score + banker_user_score_payment;
 
       if(0 > _count){
-        _last[1][7] =  banker_user.opts.score;
-        _last[0][7] = -(_last[1][7]);
+        _last[11] =  banker_user.opts.score;
+        _last[9] = -(_last[11]);
 
-        _last[1][8] =   _last[1][8] - banker_user.opts.score;
-        _last[0][8] = -(_last[1][8]);
+        _last[12] =   _last[12] - banker_user.opts.score;
+        _last[10] = -(_last[12]);
 
         banker_user.opts.score = 0;
       }else if(0 === _count){
-        _last[0][7] = -banker_user.opts.score;
-        _last[1][7] =  banker_user.opts.score;
+        _last[11] =  banker_user.opts.score;
+        _last[9]  = -banker_user.opts.score;
 
         banker_user.opts.score = 0;
       }else{
@@ -891,28 +885,28 @@ pro.bankerGoOn = function(user_id, bet, token){
     return '5030';
   }
 
-  banker_user.opts.bet    = bet;
-  banker_user.opts.score += bet;
-
   var _last = self.round_no_compare[self.round_no_compare.length - 1];
 
-  var banker_user_score_payment = _last[0][8];
+  var banker_user_score_payment = _last[10];
+
+  banker_user.opts.bet    = bet;
+  banker_user.opts.score  = bet + banker_user_score_payment;
 
   if(0 > banker_user_score_payment){
 
     var _count = banker_user.opts.score + banker_user_score_payment;
 
     if(0 > _count){
-      _last[1][7] =  banker_user.opts.score;
-      _last[0][7] = -(_last[1][7]);
+      _last[11] =  banker_user.opts.score;
+      _last[9] = -(_last[11]);
 
-      _last[1][8] =   _last[1][8] - banker_user.opts.score;
-      _last[0][8] = -(_last[1][8]);
+      _last[12] =   _last[12] - banker_user.opts.score;
+      _last[10] = -(_last[12]);
 
       banker_user.opts.score = 0;
     }else if(0 === _count){
-      _last[0][7] = -banker_user.opts.score;
-      _last[1][7] =  banker_user.opts.score;
+      _last[11] =  banker_user.opts.score;
+      _last[9]  = -banker_user.opts.score;
 
       banker_user.opts.score = 0;
     }else{
