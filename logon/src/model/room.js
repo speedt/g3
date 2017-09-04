@@ -465,7 +465,8 @@ pro.ready = function(user_id){
 
     clearAll.call(self);
 
-    user.opts.bet = getBet.call(self, bet);
+    user.opts.bet   = self.getBankerBet(bet);
+    user.opts.score = user.opts.bet;
 
     if(!user.opts.bet) return;
 
@@ -876,7 +877,7 @@ pro.bankerGoOn = function(user_id, bet, token){
     return '5030';
   }
 
-  var bet = self.getBankBet(bet);
+  var bet = self.getBankerBet(bet);
 
   if(!bet){
     self.act_status  = ACT_STATUS_BANKER_BET;
@@ -931,7 +932,7 @@ pro.bankerGoOn = function(user_id, bet, token){
  *
  * @return
  */
-pro.getBankBet = function(bet){
+pro.getBankerBet = function(bet){
   var self = this;
 
   if(1 > self.banker_bets.length) return;
