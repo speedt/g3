@@ -56,6 +56,7 @@ var Method = function(opts){
   self.act_direction         = DIRECTION_CLOCKWISE;
 
   self.ready_count           = 0;  // 举手人数
+  self.ready                 = []; // 整个房间举手的座位号
 
   self.round_id              = utils.replaceAll(uuid.v4(), '-', '');
   self.round_pno             = 1;  // 当前第n局
@@ -63,6 +64,7 @@ var Method = function(opts){
   self.round_no_first_seat   = 1;  // 庄家摇骰子确定第一个起牌的人
   self.round_no_compare      = []; // 牌比对结果
   self.round_no_compare_seat = 1;  // 当前比较牌大小的人的位置
+  self.round_no_ready        = []; // 每局举手的座位号
 
   self.banker_seat           = 0;               // 当前庄家座位
   self.banker_bets           = [200, 300, 500]; // 庄家锅底
@@ -213,13 +215,21 @@ pro.getUserNext = function(user_id){
  * @return
  */
 pro.getUserPrevBySeat = function(seat_no){
+  return this.getUserBySeat(this.getSeatPrevBySeat(seat_no));
+};
+
+/**
+ * 获取用户上家
+ *
+ * @param seat_no
+ * @return
+ */
+pro.getSeatPrevBySeat = function(seat_no){
   seat_no -= 0;
 
   assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
 
-  if(1 > (--seat_no)) seat_no = this.player_count;
-
-  return this.getUserBySeat(seat_no);
+  return (1 > (--seat_no)) ? this.player_count : seat_no;
 };
 
 /**
@@ -229,13 +239,21 @@ pro.getUserPrevBySeat = function(seat_no){
  * @return
  */
 pro.getUserNextBySeat = function(seat_no){
+  return this.getUserBySeat(this.getSeatNextBySeat(seat_no));
+};
+
+/**
+ * 获取用户下家
+ *
+ * @param seat_no
+ * @return
+ */
+pro.getSeatNextBySeat = function(seat_no){
   seat_no -= 0;
 
   assert.equal(true, (0 < seat_no && seat_no <= this.player_count));
 
-  if(this.player_count < (++seat_no)) seat_no = 1;
-
-  return this.getUserBySeat(seat_no);
+  return (this.player_count < (++seat_no)) ? 1 : seat_no;
 };
 
 /**
@@ -434,13 +452,13 @@ pro.ready = function(user_id){
    *
    * @return
    */
-  pro.bankerBet = function(user_id, bet){
+  pro.bankerBet = function(user_id, bet, token){
     var self = this;
 
     if(self.act_status !== ACT_STATUS_BANKER_BET) return;
 
     var user = self.getUser(user_id);
-    if(!user) return;
+    if(!user)                            return;
     if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
 
     self.act_status  = ACT_STATUS_BANKER_CRAPS;
@@ -507,7 +525,7 @@ pro.ready = function(user_id){
     if(self.act_status !== ACT_STATUS_BANKER_CRAPS) return;
 
     var user = self.getUser(user_id);
-    if(!user) return;
+    if(!user)                            return;
     if(self.act_seat !== user.opts.seat) return;  // 还没轮到你
 
     self.act_status  = ACT_STATUS_UNBANKER_BET;
@@ -615,24 +633,33 @@ pro.ready = function(user_id){
     var self = this;
 
     if(self.act_status !== ACT_STATUS_CARD_COMPARE) return;
+    self.act_status = ACT_STATUS_CARD_COMPARE_PAUSE;  // 暂停
 
-    // 闲家座位号
+    // 待比牌的闲家座位号
     self.round_no_compare_seat = getCompareSeat.call(self);
 
+    // 进行下一把
+    if(!self.round_no_compare_seat){
+      self.act_status = ACT_STATUS_ROUND_NO_READY;  // 下一局准备开始
+      self.round_no++;
+      return '5028';
+    }
+
+    var   banker_user = self.getUserBySeat(self.banker_seat);
+    var unbanker_user = self.getUserBySeat(self.round_no_compare_seat);
+
     var banker = {
-      id:         self.getUserBySeat(self.banker_seat).id,
       point:      getPoint.call(self, self.banker_seat),
-      bet:        self.getUserBySeat(self.banker_seat).opts.bet,
+      bet:        banker_user.opts.bet,
       seat:       self.banker_seat,
-      gold_count: self.getUserBySeat(self.banker_seat).gold_count - 0,
+      gold_count: banker_user.gold_count - 0,
     };
 
     var unbanker = {
-      id:         self.getUserBySeat(self.round_no_compare_seat).id,
       point:      getPoint.call(self, self.round_no_compare_seat),
-      bet:        self.getUserBySeat(self.round_no_compare_seat).opts.bet,
+      bet:        unbanker_user.opts.bet,
       seat:       self.round_no_compare_seat,
-      gold_count: self.getUserBySeat(self.round_no_compare_seat).gold_count - 0,
+      gold_count: unbanker_user.gold_count - 0,
     };
 
     // 比较结果
@@ -642,41 +669,43 @@ pro.ready = function(user_id){
       self.getUserBySeat(compare_result[2]).gold_count--;
     }
 
-    self.getUserBySeat(banker.seat).opts.score   += compare_result[0];
-    self.getUserBySeat(unbanker.seat).opts.score += compare_result[1];
+      banker_user.opts.score         += compare_result[0];
+      banker_user.opts.score_original =   banker_user.opts.score;  // 原始
+    unbanker_user.opts.score         += compare_result[1];
+    unbanker_user.opts.score_original = unbanker_user.opts.score;  // 原始
 
+    // 保存比较结果
     self.round_no_compare.push([[
       self.id,
-      banker.id,
+      banker_user.id,
       self.round_id,
       self.round_pno,
       self.round_no,
-      banker.seat,
-      self.getUserBySeat(banker.seat).opts.score,
-      self.getUserBySeat(banker.seat).gold_count,
+      self.banker_seat,
+      banker_user.gold_count,
+      banker_user.opts.score,  // 实际赔付
     ], [
       self.id,
-      unbanker.id,
+      unbanker_user.id,
       self.round_id,
       self.round_pno,
       self.round_no,
-      unbanker.seat,
-      self.getUserBySeat(unbanker.seat).opts.score,
-      self.getUserBySeat(unbanker.seat).gold_count,
+      self.round_no_compare_seat,
+      unbanker_user.gold_count,
+      unbanker_user.opts.score,  // 实际赔付
     ]]);
 
-    if(1 > self.getUserBySeat(self.banker_seat).opts.score){
-      if(1 > self.banker_bets.length){  // 结算
-        self.act_status = ACT_STATUS_BANKER_DOWN;
-        return [5024, self.round_no_compare];
-      }else{
-        // 发送是否续庄问询
-        self.act_status = ACT_STATUS_BANKER_GO_ON;
-        return [5026, self.round_no_compare];
-      }
+    if(1 > banker_user.opts.score){
+      // 发送是否续庄问询
+      self.act_status = ACT_STATUS_BANKER_GO_ON;
+      self.token      = utils.replaceAll(uuid.v4(), '-', '');
+      return '5024';
     }
 
-    return [5028, self.round_no_compare];
+    // 设置下一个比对的闲
+    self.round_no_first_seat = self.getSeatNextBySeat(self.round_no_compare_seat);
+    self.act_status          = ACT_STATUS_CARD_COMPARE;
+    return '5026';
   };
 
   /**
@@ -725,10 +754,18 @@ pro.ready = function(user_id){
     var size = self.round_no_compare.length;
     if(2 < size) return;
 
-    if(self.round_no_first_seat === self.banker_seat)
+    if(self.round_no_first_seat === self.banker_seat){
+
       self.round_no_first_seat++;
 
-    return (self.player_count < self.round_no_first_seat) ? 1 : self.round_no_first_seat;
+      if((self.player_count < self.round_no_first_seat)){
+        self.round_no_first_seat = 1;
+      }
+
+      return self.round_no_first_seat;
+    }
+
+    return self.round_no_first_seat;
   }
 
   /**
@@ -745,3 +782,129 @@ pro.ready = function(user_id){
     return (c1 !== c2) ? ((c1 + c2) % 10) : (10 + c1);
   }
 })();
+
+/**
+ * 4人举手，满足4人后，让庄摇骰子，确认谁先起牌
+ *
+ * @return
+ */
+pro.readyNext_1 = function(user_id, token){
+  var self = this;
+
+  if(self.token      !== token)                        return;
+  if(self.act_status !== ACT_STATUS_READY_NEXT_1)      return;
+  if(!self.isStart())                                  return;  // 没有开始
+
+  var user = self.getUser(user_id);
+  if(!user)                                            return;  // 用户不存在
+  if( 1 > user.opts.seat)                              return;  // 不能举手
+  if(-1 < self.round_no_ready.indexOf(user.opts.seat)) return;  // 已经举手
+
+  self.round_no_ready.push(user.opts.seat);
+
+  if(4 > self.round_no_ready.length) return user;
+
+  self.act_status            = ACT_STATUS_BANKER_CRAPS;
+  self.round_no_ready.length = 0;
+
+  return user;
+};
+
+/**
+ * 4人举手，满足4人后，下一家做庄，庄下锅底
+ *
+ * @return
+ */
+pro.readyNext_2 = function(user_id, token){
+  var self = this;
+
+  if(self.token      !== token)                        return;
+  if(self.act_status !== ACT_STATUS_READY_NEXT_2)      return;
+  if(!self.isStart())                                  return;  // 没有开始
+
+  var user = self.getUser(user_id);
+  if(!user)                                            return;  // 用户不存在
+  if( 1 > user.opts.seat)                              return;  // 不能举手
+  if(-1 < self.round_no_ready.indexOf(user.opts.seat)) return;  // 已经举手
+
+  self.round_no_ready.push(user.opts.seat);
+
+  if(4 > self.round_no_ready.length) return user;
+
+  self.act_status            = ACT_STATUS_BANKER_BET;
+  self.round_no_ready.length = 0;
+  self.act_seat              = self.getSeatNextBySeat(self.banker_seat);
+  self.banker_seat           = self.act_seat;
+
+  return user;
+};
+
+/**
+ * 庄家继庄
+ *
+ * @return
+ */
+pro.bankerGoOn = function(user_id, bet, token){
+  var self = this;
+
+  if(self.act_status !== ACT_STATUS_BANKER_GO_ON) return;
+  self.act_status = ACT_STATUS_BANKER_GO_ON_PAUSE;
+
+  var user = self.getUser(user_id);
+  if(!user)                               return;
+  if(self.banker_seat !== user.opts.seat) return;  // 你不是庄
+
+  if(1 > bet){  // 先结算
+    self.act_status  = ACT_STATUS_BANKER_BET;
+    self.banker_bets = [200, 300, 500];
+    self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
+    return '5030';
+  }
+
+  var bet = self.getBankBet(bet);
+
+  if(!bet){
+    self.act_status  = ACT_STATUS_BANKER_BET;
+    self.banker_bets = [200, 300, 500];
+    self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
+    return '5030';
+  }
+
+  user.opts.bet    = bet;
+  user.opts.score += bet;
+
+  if(1 > user.opts.score){
+    // 发送是否续庄问询
+    self.act_status = ACT_STATUS_BANKER_GO_ON;
+    self.token      = utils.replaceAll(uuid.v4(), '-', '');
+    return '5024';
+  }
+
+  return '5032';
+};
+
+/**
+ * 获取庄家的锅底
+ *
+ * @return
+ */
+pro.getBankBet = function(bet){
+  var self = this;
+
+  if(1 > self.banker_bets.length) return;
+
+  var _index = self.banker_bets.indexOf(bet);
+
+  if(1 > _index) return self.banker_bets.shift();
+
+  if(1 === _index) {
+    self.banker_bets.shift();
+    return self.banker_bets.shift();
+  }
+
+  if(2 === _index) {
+    self.banker_bets.shift();
+    self.banker_bets.shift();
+    return self.banker_bets.shift();
+  }
+}
