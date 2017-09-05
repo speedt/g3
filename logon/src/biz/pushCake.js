@@ -430,7 +430,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
       logger.debug('10--------- %s', _user);
 
 
-      return Promise.resolve([room.users, [5024, _user, room.round_no_compare[room.round_no_compare.length - 1]]]);
+      return Promise.resolve([room.users, [5024, _user]]);
       
       // return Promise.resolve([
       //   room.users,
