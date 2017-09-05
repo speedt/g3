@@ -422,18 +422,21 @@ const logger = require('log4js').getLogger('biz.pushCake');
         [5028],
       ]);
     }else{
+
+
+      return Promise.resolve([room.users, result, 5024]);
       
-      return Promise.resolve([
-        room.users,
-        [
-          0,
-          _user.id,
-          _user.opts.seat,
-          _user.opts.bet,  // 闲家下的注
-          _user.opts.score,  //　赔了之后剩下的钱
-          room.round_no_compare[room.round_no_compare.length - 1],
-        ],
-      ]);
+      // return Promise.resolve([
+      //   room.users,
+      //   [
+      //     0,
+      //     _user.id,
+      //     _user.opts.seat,
+      //     _user.opts.bet,  // 闲家下的注
+      //     _user.opts.score,  //　赔了之后剩下的钱
+      //     room.round_no_compare[room.round_no_compare.length - 1],
+      //   ],
+      // ]);
     }
 
   }

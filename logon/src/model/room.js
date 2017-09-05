@@ -803,7 +803,9 @@ pro.bankerGoOn = function(user_id, bet, token){
     return '5028';
   }
 
-  return banker_user;
+  // return banker_user;
+
+  return self.round_no_compare[self.round_no_compare.length - 1];
 };
 
 (() => {
