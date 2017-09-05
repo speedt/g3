@@ -95,9 +95,9 @@ const logger = require('log4js').getLogger('biz.pushCake');
             if(result === '5026'){
               next([room.users, room.round_no_compare, 5026]);
               return schedule(13);
-            }else if(result === '5028'){
-              next([room.users, null, 5028]);
-              return schedule(5);
+            // }else if(result === '5028'){
+            //   next([room.users, null, 5028]);
+            //   return schedule(5);
             }else if(!!result){
 
               logger.debug(result);

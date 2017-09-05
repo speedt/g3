@@ -657,13 +657,14 @@ pro.bankerBet = function(user_id, bet){
     if(1 > banker_user.opts.score){
       // 发送是否续庄问询
       self.act_status = ACT_STATUS_BANKER_GO_ON;
-      self.token      = utils.replaceAll(uuid.v4(), '-', '');
-      return '5028';
+      // self.token      = utils.replaceAll(uuid.v4(), '-', '');
+      // return '5028';
+    }else{
+      self.act_status = ACT_STATUS_CARD_COMPARE;
     }
 
     // 设置下一个比对的闲
     self.round_no_first_seat = self.getSeatNextBySeat(self.round_no_compare_seat);
-    self.act_status          = ACT_STATUS_CARD_COMPARE;
     return self.round_no_compare[self.round_no_compare.length - 1];
   };
 
@@ -811,9 +812,11 @@ pro.bankerGoOn = function(user_id, bet, token){
   if(1 > banker_user.opts.score){
     // 发送是否续庄问询
     self.act_status = ACT_STATUS_BANKER_GO_ON;
-    self.token      = utils.replaceAll(uuid.v4(), '-', '');
-    logger.debug('5--- %s', banker_user.opts.score);
-    return '5028';
+    // self.token      = utils.replaceAll(uuid.v4(), '-', '');
+    // logger.debug('5--- %s', banker_user.opts.score);
+    // return '5028';
+  }else{
+    self.act_status = ACT_STATUS_CARD_COMPARE;
   }
 
   logger.debug('2--- %s', banker_user.opts.score);
