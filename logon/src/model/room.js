@@ -791,7 +791,7 @@ pro.bankerGoOn = function(user_id, bet, token){
 
       logger.debug('7--- %s', _count);
 
-      banker_user.opts.score = 0;
+      banker_user.opts.score = _count;
     }else if(0 === _count){
       _last[11] =  banker_user.opts.score;
       _last[9]  = -banker_user.opts.score;
