@@ -3,9 +3,53 @@
   <head>
     <title>FOREWORLD 洪荒</title>
     <meta charset='utf-8' />
+    <style>
+    html, body{
+      font-size: 9px;
+    }
+    </style>
 	</head>
 	<body>
+
+    <p>
+      <button id='create_room'>创建房间</button>
+      <button id='see_room'>查看房间</button>
+      <button id='see_player'>查看玩家</button>
+    </p>
+
+    <p>
+      刘一：
+      <button onClick='entry_room("123456", "刘一")'>进入房间</button>
+    </p>
+
+    <p>
+      陈二：
+      <button onClick='entry_room("234567", "陈二")'>进入房间</button>
+    </p>
+
+    <p>
+      张三：
+      <button onClick='entry_room("345678", "张三")'>进入房间</button>
+    </p>
+
+    <p>
+      李四：
+      <button onClick='entry_room("456789", "李四")'>进入房间</button>
+    </p>
+
+    <p>
+      王五：
+      <button onClick='entry_room("567890", "王五")'>进入房间</button>
+    </p>
+
+    <p>
+      赵六：
+      <button onClick='entry_room("678901", "赵六")'>进入房间</button>
+    </p>
+
   </body>
+
+  <script type='text/javascript' src='http://www.foreworld.net/js/jquery/2.0.2/jquery.min.js?v2.0.2'></script>
   <script type='text/javascript' src='http://www.foreworld.net/js/underscore/1.5.1/underscore.min.js'></script>
   <script type='text/javascript' src='./room.js'></script>
   <script>
@@ -15,12 +59,23 @@
     name: '张三的房间',
   });
 
-  var _entry = room.entry({
-    id: '123456',
-    user_name: 'hx',
+  $(function(){
+    $('#see_room').click(function(){
+      console.info(room);
+    });
+
+    $('#see_player').click(function(){
+      console.info(room._players);
+    });
   });
 
-  console.log(_entry);
+  function entry_room(id, user_name){
+    var _entry = room.entry({
+      id:        id,
+      user_name: user_name,
+    });
+    console.log(_entry);
+  }
 
   console.log(room);
   </script>

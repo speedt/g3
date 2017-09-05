@@ -67,7 +67,7 @@ pro.isFull = function(){
 
     self._users[user.id] = user;
 
-    user.opts.score = 0;
+    user.opts.score      = 0;
     user.opts.entry_time = new Date().getTime();
 
     return user;
