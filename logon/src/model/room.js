@@ -828,9 +828,9 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   logger.debug('2--- %s', banker_user.opts.score);
 
-  // return banker_user;
+  return banker_user;
 
-  return self.round_no_compare[self.round_no_compare.length - 1];
+  // return self.round_no_compare[self.round_no_compare.length - 1];
 };
 
 (() => {

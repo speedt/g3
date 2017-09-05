@@ -430,7 +430,12 @@ const logger = require('log4js').getLogger('biz.pushCake');
       logger.debug('10--------- %s', _user);
 
 
-      return Promise.resolve([room.users, [5024, _user]]);
+      return Promise.resolve([room.users, [5024, room.round_no_compare[room.round_no_compare.length - 1], [
+        _user.id,
+        _user.opts.seat,
+        _user.opts.bet,
+        _user.opts.score,
+        ]]]);
       
       // return Promise.resolve([
       //   room.users,
