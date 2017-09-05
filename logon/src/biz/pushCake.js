@@ -417,13 +417,15 @@ const logger = require('log4js').getLogger('biz.pushCake');
           room.banker_seat,
         ],
       ]);
-    }else if('5028' === _user){
+    // }else if('5028' === _user){
       
-      return Promise.resolve([
-        room.users,
-        [5028],
-      ]);
+    //   return Promise.resolve([
+    //     room.users,
+    //     [5028],
+    //   ]);
     }else{
+
+      logger.debug('10--------- %s', _user);
 
 
       return Promise.resolve([room.users, [5024, _user]]);
