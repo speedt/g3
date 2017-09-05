@@ -648,7 +648,7 @@ pro.bankerBet = function(user_id, bet){
 
         banker_user.opts.score = 0;
       }else{
-        banker_user.opts.score += banker_user_score_payment;
+        banker_user.opts.score = _count;
       }
     }else if(0 < banker_user_score_payment){
       banker_user.opts.score += banker_user_score_payment;
@@ -801,7 +801,7 @@ pro.bankerGoOn = function(user_id, bet, token){
 
       banker_user.opts.score = 0;
     }else{
-      banker_user.opts.score += banker_user_score_payment;
+      banker_user.opts.score = _count;
     }
   }else if(0 < banker_user_score_payment){
     banker_user.opts.score += banker_user_score_payment;
@@ -821,9 +821,9 @@ pro.bankerGoOn = function(user_id, bet, token){
 
   logger.debug('2--- %s', banker_user.opts.score);
 
-  // return banker_user;
+  return banker_user;
 
-  return self.round_no_compare[self.round_no_compare.length - 1];
+  // return self.round_no_compare[self.round_no_compare.length - 1];
 };
 
 (() => {
