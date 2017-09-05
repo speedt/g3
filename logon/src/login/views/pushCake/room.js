@@ -46,7 +46,7 @@ pro.getUsers = function(){
  * @return boolean
  */
 pro.isFull = function(){
-  return this._sum_player <= _.size(this._users);
+  return this._sum_user <= _.size(this._users);
 };
 
 (function(){
