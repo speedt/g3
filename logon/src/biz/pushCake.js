@@ -145,14 +145,14 @@ const logger = require('log4js').getLogger('biz.pushCake');
                     ], function (err){
                     if(err) return logger.debug(err);
 
+                    next([room.users, result, 5024]);
+                    return schedule(5);
                   });
                 });
               });
-
-              next([room.users, result, 5024]);
-
-              return schedule(5);
             }
+
+            return;
 
           }else if(9 === room.act_status){
             var result = room.roundReady();
