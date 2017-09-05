@@ -393,7 +393,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
     if(!_user) return Promise.resolve();
 
-    // logger.debug(_user);
+    logger.debug(_user);
 
     if('5038' === _user){
 
@@ -424,7 +424,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
     }else{
 
 
-      return Promise.resolve([room.users, result, 5024]);
+      return Promise.resolve([room.users, _user, 5024]);
       
       // return Promise.resolve([
       //   room.users,

@@ -754,6 +754,7 @@ pro.bankerGoOn = function(user_id, bet, token){
   if(1 > bet){  // 先结算
     self.act_status  = ACT_STATUS_BANKER_BET;
     self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
+    logger.debug('3--- %s', self.banker_seat);
     return '5038';
   }
 
@@ -762,6 +763,7 @@ pro.bankerGoOn = function(user_id, bet, token){
   if(!bet){
     self.act_status  = ACT_STATUS_BANKER_BET;
     self.banker_seat = self.getSeatNextBySeat(self.banker_seat);
+    logger.debug('4--- %s', self.banker_seat);
     return '5034';
   }
 
@@ -796,12 +798,17 @@ pro.bankerGoOn = function(user_id, bet, token){
     banker_user.opts.score += banker_user_score_payment;
   }
 
+  logger.debug('1--- %s', banker_user.opts.score);
+
   if(1 > banker_user.opts.score){
     // 发送是否续庄问询
     self.act_status = ACT_STATUS_BANKER_GO_ON;
     self.token      = utils.replaceAll(uuid.v4(), '-', '');
+    logger.debug('5--- %s', banker_user.opts.score);
     return '5028';
   }
+
+  logger.debug('2--- %s', banker_user.opts.score);
 
   // return banker_user;
 
