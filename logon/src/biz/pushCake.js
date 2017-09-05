@@ -430,73 +430,73 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
       logger.debug('10--------- %s', _user);
 
-      var aaa = room.round_no_compare[room.round_no_compare.length - 1];
+      // var aaa = room.round_no_compare[room.round_no_compare.length - 1];
 
-      return new Promise((resolve, reject) => {
+      // return new Promise((resolve, reject) => {
 
-          var group_id_1 = aaa[0];
-          var round_id = aaa[5];
-          var round_pno = aaa[6];
-          var round_no = aaa[7];
-          var user_id_a = aaa[1];
-          var user_id_b = aaa[3];
-          var seat_a = aaa[2];
-          var seat_b = aaa[4];
-          var gold_count_a = aaa[8];
-          var gold_count_b = aaa[13];
-          var score_a = aaa[9];
-          var score_b = aaa[11];
+      //     var group_id_1 = aaa[0];
+      //     var round_id = aaa[5];
+      //     var round_pno = aaa[6];
+      //     var round_no = aaa[7];
+      //     var user_id_a = aaa[1];
+      //     var user_id_b = aaa[3];
+      //     var seat_a = aaa[2];
+      //     var seat_b = aaa[4];
+      //     var gold_count_a = aaa[8];
+      //     var gold_count_b = aaa[13];
+      //     var score_a = aaa[9];
+      //     var score_b = aaa[11];
 
-          mysql.query('insert into g_group_balance (id, create_time, group_id, round_id, round_pno, round_no, user_id_a, user_id_b, seat_a, seat_b, gold_count_a, gold_count_b, score_a, score_b) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
-              utils.replaceAll(uuid.v4(), '-', ''),
-              new Date(),
-              group_id_1,
-              round_id,
-              round_pno,
-              round_no,
-              user_id_a,
-              user_id_b,
-              seat_a,
-              seat_b,
-              gold_count_a,
-              gold_count_b,
-              score_a,
-              score_b,
-            ], function (err){
-            if(err) return logger.debug(err);
+      //     mysql.query('insert into g_group_balance (id, create_time, group_id, round_id, round_pno, round_no, user_id_a, user_id_b, seat_a, seat_b, gold_count_a, gold_count_b, score_a, score_b) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+      //         utils.replaceAll(uuid.v4(), '-', ''),
+      //         new Date(),
+      //         group_id_1,
+      //         round_id,
+      //         round_pno,
+      //         round_no,
+      //         user_id_a,
+      //         user_id_b,
+      //         seat_a,
+      //         seat_b,
+      //         gold_count_a,
+      //         gold_count_b,
+      //         score_a,
+      //         score_b,
+      //       ], function (err){
+      //       if(err) return logger.debug(err);
 
-            mysql.query('update s_user set gold_count=? where id=?', [
-                gold_count_a,
-                user_id_a,
-              ], function (err){
-              if(err) return logger.debug(err);
+      //       mysql.query('update s_user set gold_count=? where id=?', [
+      //           gold_count_a,
+      //           user_id_a,
+      //         ], function (err){
+      //         if(err) return logger.debug(err);
 
-              mysql.query('update s_user set gold_count=? where id=?', [
-                  gold_count_b,
-                  user_id_b,
-                ], function (err){
-                if(err) return logger.debug(err);
+      //         mysql.query('update s_user set gold_count=? where id=?', [
+      //             gold_count_b,
+      //             user_id_b,
+      //           ], function (err){
+      //           if(err) return logger.debug(err);
 
-                resolve([room.users, [5024, aaa, [
-                  _user.id,
-                  _user.opts.seat,
-                  _user.opts.bet,
-                  _user.opts.score,
-                  ]]]);
-              });
-            });
-          });
-        }
+      //           resolve([room.users, [5024, aaa, [
+      //             _user.id,
+      //             _user.opts.seat,
+      //             _user.opts.bet,
+      //             _user.opts.score,
+      //             ]]]);
+      //         });
+      //       });
+      //     });
+      //   }
 
-      });
+      // });
 
 
-      // return Promise.resolve([room.users, [5024, room.round_no_compare[room.round_no_compare.length - 1], [
-      //   _user.id,
-      //   _user.opts.seat,
-      //   _user.opts.bet,
-      //   _user.opts.score,
-      //   ]]]);
+      return Promise.resolve([room.users, [5024, room.round_no_compare[room.round_no_compare.length - 1], [
+        _user.id,
+        _user.opts.seat,
+        _user.opts.bet,
+        _user.opts.score,
+        ]]]);
       
       // return Promise.resolve([
       //   room.users,
