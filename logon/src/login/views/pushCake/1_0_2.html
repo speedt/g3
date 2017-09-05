@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+  <head>
+    <title>FOREWORLD 洪荒</title>
+    <meta charset='utf-8' />
+	</head>
+	<body>
+  </body>
+  <script type='text/javascript' src='http://www.foreworld.net/js/underscore/1.5.1/underscore.min.js'></script>
+  <script type='text/javascript' src='./room.js'></script>
+  <script>
+
+  var room = new Room({
+    id:   '129321',
+    name: '张三的房间',
+  });
+
+  var _entry = room.entry({
+    id: '123456',
+    user_name: 'hx',
+  });
+
+  console.log(_entry);
+
+  console.log(room);
+  </script>
+</html>
