@@ -609,19 +609,19 @@ pro.bankerBet = function(user_id, bet){
     // 保存比较结果
     self.round_no_compare.push([
       self.id,
-      banker_user.id,
-      self.banker_seat,            // 庄
-      unbanker_user.id,
-      self.round_no_compare_seat,  // 闲
-      self.round_id,
-      self.round_pno,
-      self.round_no,
-      banker_user.gold_count,
-      compare_result[0],           // 实际赔付
-      compare_result[0],           // 赔付
-      compare_result[1],           // 实际赔付
-      compare_result[1],           // 赔付
-      unbanker_user.gold_count,
+      banker_user.id +'',
+      self.banker_seat - 0,            // 庄
+      unbanker_user.id +'',
+      self.round_no_compare_seat - 0,  // 闲
+      self.round_id +'',
+      self.round_pno - 0,
+      self.round_no - 0,
+      banker_user.gold_count - 0,
+      compare_result[0] - 0,           // 实际赔付
+      compare_result[0] - 0,           // 赔付
+      compare_result[1] - 0,           // 实际赔付
+      compare_result[1] - 0,           // 赔付
+      unbanker_user.gold_count - 0,
     ]);
 
     var _last = self.round_no_compare[self.round_no_compare.length - 1];
@@ -778,6 +778,8 @@ pro.bankerGoOn = function(user_id, bet, token){
 
     var _count = banker_user.opts.score + banker_user_score_payment;
 
+    logger.debug('6--- %s', _count);
+
     if(0 > _count){
       _last[11] =  banker_user.opts.score;
       _last[9] = -(_last[11]);
@@ -785,10 +787,14 @@ pro.bankerGoOn = function(user_id, bet, token){
       _last[12] =   _last[12] - banker_user.opts.score;
       _last[10] = -(_last[12]);
 
+      logger.debug('7--- %s', _count);
+
       banker_user.opts.score = 0;
     }else if(0 === _count){
       _last[11] =  banker_user.opts.score;
       _last[9]  = -banker_user.opts.score;
+
+      logger.debug('8--- %s', _count);
 
       banker_user.opts.score = 0;
     }else{
