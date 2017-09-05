@@ -10,6 +10,8 @@ const biz = require('emag.biz');
 const conf  = require('../settings');
 const utils = require('speedt-utils').utils;
 
+const logger = require('log4js').getLogger('controllers.user');
+
 (() => {
   function p1(res, user){
     res.send({});
@@ -35,6 +37,14 @@ exports.loginUI = function(req, res, next){
     conf: conf,
     data: {}
   });
+};
+
+exports.wxUI = function(req, res, next){
+  var query = req.body;
+
+  logger.debug(query)
+
+  res.send('OK');
 };
 
 (() => {
