@@ -624,6 +624,8 @@ pro.bankerBet = function(user_id, bet){
       unbanker_user.gold_count - 0,
     ]);
 
+    logger.debug(self.round_no_compare)
+
     var _last = self.round_no_compare[self.round_no_compare.length - 1];
 
     var banker_user_score_payment = _last[10];
@@ -778,7 +780,7 @@ pro.bankerGoOn = function(user_id, bet, token){
 
     var _count = banker_user.opts.score + banker_user_score_payment;
 
-    logger.debug('6--- %s', _count);
+    logger.debug('6--- %s %s %s', _count, banker_user.opts.score, banker_user_score_payment);
 
     if(0 > _count){
       _last[11] =  banker_user.opts.score;
