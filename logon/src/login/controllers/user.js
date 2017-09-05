@@ -42,7 +42,7 @@ exports.loginUI = function(req, res, next){
 exports.wxUI = function(req, res, next){
   var query = req.body;
 
-  logger.debug(query)
+  logger.debug(req)
 
   res.send('OK');
 };
