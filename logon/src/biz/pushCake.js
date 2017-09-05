@@ -84,6 +84,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
           clearTimeout(timeout);
 
           if(!room) return;
+          if(!room.act_status) return;
 
           if(5 === room.act_status){
             logger.debug('ready next: %s, %s', 3, group_id);
@@ -144,22 +145,19 @@ const logger = require('log4js').getLogger('biz.pushCake');
                     ], function (err){
                     if(err) return logger.debug(err);
 
-                    next([room.users, result, 5024]);
-                    return schedule(5);
                   });
                 });
               });
-
-              return;
             }
 
-            schedule();
+            next([room.users, result, 5024]);
+            return schedule(5);
 
           }else if(9 === room.act_status){
             var result = room.roundReady();
 
             if('GAME_OVER' === result){
-              next([room.users, null, 5040]);
+              return next([room.users, null, 5040]);
             }else if('ACT_STATUS_ROUND_NO_READY' === result){
               next([room.users, [room.round_pno, room.round_no], 5030]);
               return schedule(5);
@@ -179,7 +177,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
           //     return schedule(5);
           //   }
 
-          //   return schedule(5);
+            return schedule(10);
           }else if(11 === room.act_status){
             room.cardCompareBefore();
             return schedule(6);
