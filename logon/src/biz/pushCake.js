@@ -179,7 +179,9 @@ const logger = require('log4js').getLogger('biz.pushCake');
           //   }
 
           //   return schedule(5);
-
+          }else if(11 === room.act_status){
+            room.cardCompareBefore();
+            return schedule(6);
           }
 
           schedule();

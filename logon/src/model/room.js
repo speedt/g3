@@ -23,17 +23,18 @@ const logger = require('log4js').getLogger('model.room');
 const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
-const ACT_STATUS_PLAYER_READY       = 0;  // 动作：初始化
-const ACT_STATUS_CRAPS4             = 1;  // 动作：摇骰子
-const ACT_STATUS_BANKER_BET         = 2;  // 动作：庄家设置锅底
-const ACT_STATUS_BANKER_CRAPS       = 3;  // 动作：庄家摇骰子，确定谁先起牌
-const ACT_STATUS_UNBANKER_BET       = 4;  // 动作：闲家下注
-const ACT_STATUS_CARD_COMPARE       = 5;  // 动作：庄家 比大小 闲家 钓鱼
-const ACT_STATUS_CARD_COMPARE_PAUSE = 10;
-const ACT_STATUS_BANKER_DOWN        = 6;  // 动作：庄家下庄
-const ACT_STATUS_BANKER_GO_ON       = 7;  // 动作：续庄问询
-const ACT_STATUS_BANKER_GO_ON_PAUSE = 8;  // 动作：庄家续庄的问询等待
-const ACT_STATUS_ROUND_NO_READY     = 9;  // 动作：下一局前的准备工作
+const ACT_STATUS_PLAYER_READY        = 0;  // 动作：初始化
+const ACT_STATUS_CRAPS4              = 1;  // 动作：摇骰子
+const ACT_STATUS_BANKER_BET          = 2;  // 动作：庄家设置锅底
+const ACT_STATUS_BANKER_CRAPS        = 3;  // 动作：庄家摇骰子，确定谁先起牌
+const ACT_STATUS_UNBANKER_BET        = 4;  // 动作：闲家下注
+const ACT_STATUS_CARD_COMPARE        = 5;  // 动作：庄家 比大小 闲家 钓鱼
+const ACT_STATUS_CARD_COMPARE_BEFORE = 11;
+const ACT_STATUS_CARD_COMPARE_PAUSE  = 10;
+const ACT_STATUS_BANKER_DOWN         = 6;  // 动作：庄家下庄
+const ACT_STATUS_BANKER_GO_ON        = 7;  // 动作：续庄问询
+const ACT_STATUS_BANKER_GO_ON_PAUSE  = 8;  // 动作：庄家续庄的问询等待
+const ACT_STATUS_ROUND_NO_READY      = 9;  // 动作：下一局前的准备工作
 
 module.exports = function(opts){
   return new Method(opts);
@@ -542,7 +543,7 @@ pro.bankerBet = function(user_id, bet){
 
     if(self.act_status !== ACT_STATUS_UNBANKER_BET) return;
 
-    self.act_status  = ACT_STATUS_CARD_COMPARE;
+    self.act_status  = ACT_STATUS_CARD_COMPARE_BEFORE;
 
     self.cards_8 = getCards.call(self);
 
@@ -564,6 +565,12 @@ pro.bankerBet = function(user_id, bet){
     return bet;
   }
 })();
+
+pro.cardCompareBefore = function(){
+  var self = this;
+  if(self.act_status !== ACT_STATUS_CARD_COMPARE_BEFORE) return;
+  self.act_status = ACT_STATUS_CARD_COMPARE;  // 暂停
+}
 
 (() => {
   /**
