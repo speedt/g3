@@ -337,3 +337,77 @@ pro.ready = function(user_id){
     return seat;
   }
 })();
+
+/**
+ *
+ * @return
+ */
+pro.bankerBet = function(user_id, bet){
+  var self = this;
+};
+
+(function(){
+  /**
+   *
+   * @return
+   */
+  pro.bankerCraps = function(user_id){
+    var self = this;
+  };
+
+  /**
+   * 第一个起牌的位置
+   *
+   * @return
+   */
+  function firstSeat(seat, craps){
+    var m = (craps[0] + craps[1] - 1 + seat) % 4;
+    return (0 === m) ? 4 : m;
+  }
+})();
+
+(function(){
+  /**
+   *
+   * @param bet '1,100'
+   * @return
+   */
+  pro.unBankerBet = function(user_id, bet){
+    var self = this;
+  };
+
+  function getBet(bet){
+    return bet;
+  }
+})();
+
+(function(){
+  /**
+   *
+   * @return
+   */
+  pro.compareCard = function(){
+    var self = this;
+  };
+
+  function getPoint(seat){
+    var self = this;
+
+    var c1 = self._cards_8[(seat - 1) * 2];
+    var c2 = self._cards_8[(seat - 1) * 2 + 1];
+
+    return (c1 !== c2) ? ((c1 + c2) % 10) : (10 + c1);
+  }
+
+  function getCompareSeat(){
+    var self = this;
+  }
+})();
+
+/**
+ *
+ * @return
+ */
+pro.bankerGoOn = function(){
+  var self = this;
+};
