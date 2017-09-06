@@ -11,7 +11,6 @@ const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
-const EventProxy = require('eventproxy');
 const uuid       = require('node-uuid');
 
 const md5   = require('speedt-utils').md5;
@@ -64,16 +63,6 @@ const logger = require('log4js').getLogger('biz.manager');
 })();
 
 (() => {
-  function p1(logInfo, user){
-    return new Promise((resolve, reject) => {
-      if(!user) return reject('用户不存在');
-      if(1 !== user.status) return reject('禁用状态');
-      if(md5.hex(logInfo.user_pass) !== user.user_pass)
-        return reject('用户名或密码输入错误');
-      resolve(user);
-    });
-  }
-
   /**
    * 用户登陆
    *
@@ -83,17 +72,30 @@ const logger = require('log4js').getLogger('biz.manager');
     return new Promise((resolve, reject) => {
       biz.manager.getByName(logInfo.user_name)
       .then(p1.bind(null, logInfo))
-      .then(user => resolve(user))
+      .then(doc => resolve(doc))
       .catch(reject);
     });
   };
+
+  function p1(logInfo, user){
+    if(!user)             return Promise.reject('用户不存在');
+    if(1 !== user.status) return Promise.reject('禁用状态');
+    if(md5.hex(logInfo.user_pass) !== user.user_pass)
+      return Promise.reject('用户名或密码输入错误');
+
+    return Promise.resolve(user);
+  }
 })();
 
 (() => {
-  function p1(logInfo){
-    if(!_.isString(logInfo.user_pass)) return Promise.reject('invalid_params');
+  function formVali(logInfo){
+    if(!_.isString(logInfo.user_pass))
+      return Promise.reject('INVALID_PARAMS');
+
     logInfo.user_pass = _.trim(logInfo.user_pass);
-    if('' === logInfo.user_pass) return Promise.reject('invalid_params');
+
+    if('' === logInfo.user_pass)
+      return Promise.reject('INVALID_PARAMS');
 
     return new Promise((resolve, reject) => {
       biz.manager.getById(logInfo.id)
@@ -136,7 +138,7 @@ const logger = require('log4js').getLogger('biz.manager');
    */
   exports.changePwd = function(logInfo){
     return new Promise((resolve, reject) => {
-      p1(logInfo)
+      formVali(logInfo)
       .then(p2)
       .then(() => resolve())
       .catch(reject);

@@ -9,8 +9,6 @@ const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
-const EventProxy = require('eventproxy');
-
 const utils = require('speedt-utils').utils;
 const _     = require('underscore');
 const uuid  = require('node-uuid');
@@ -42,11 +40,14 @@ const redis = require('emag.db').redis;
    * @return
    */
   exports.saveNew = function(newInfo, cb){
+    newInfo.id          = utils.replaceAll(uuid.v1(), '-', '');
+    newInfo.create_time = new Date();
+
     mysql.query(sql, [
-      utils.replaceAll(uuid.v1(), '-', ''),
+      newInfo.id,
       newInfo.title,
       newInfo.content,
-      new Date(),
+      newInfo.create_time,
       newInfo.user_id,
     ], cb);
   };
@@ -64,22 +65,6 @@ const redis = require('emag.db').redis;
       newInfo.title,
       newInfo.content,
       newInfo.id,
-    ], cb);
-  };
-})();
-
-(() => {
-  const sql = 'UPDATE w_notice SET last_time=? WHERE id=?';
-
-  /**
-   * 编辑本次发送消息时间
-   *
-   * @return
-   */
-  exports.editLastTime = function(id, cb){
-    mysql.query(sql, [
-      new Date(),
-      id,
     ], cb);
   };
 })();
