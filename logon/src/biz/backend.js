@@ -8,9 +8,11 @@
 const path  = require('path');
 const cwd   = process.cwd();
 const conf  = require(path.join(cwd, 'settings'));
+
 const utils = require('speedt-utils').utils;
-const redis = require('emag.db').redis;
 const _     = require('underscore');
+
+const redis = require('emag.db').redis;
 
 (() => {
   const numkeys = 2;

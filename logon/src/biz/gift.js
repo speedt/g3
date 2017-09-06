@@ -9,7 +9,6 @@ const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
-const EventProxy = require('eventproxy');
 const uuid       = require('node-uuid');
 const _          = require('underscore');
 
