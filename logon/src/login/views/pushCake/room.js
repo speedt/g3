@@ -8,8 +8,15 @@
 const DIRECTION_CLOCKWISE     = 1;  // 顺时针
 const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
 
-const ACT_STATUS_READY  = 0;  // 动作：举手
-const ACT_STATUS_CRAPS4 = 1;  // 动作：
+const ACT_STATUS_READY  = 'ACT_STATUS_READY';
+
+const ACT_STATUS_CRAPS4_BEFORE = 'ACT_STATUS_CRAPS4_BEFORE';
+const ACT_STATUS_CRAPS4        = 'ACT_STATUS_CRAPS4';
+const ACT_STATUS_CRAPS4_AFTER  = 'ACT_STATUS_CRAPS4_AFTER';
+
+const ACT_STATUS_BANKER_BET_BEFORE = 'ACT_STATUS_BANKER_BET_BEFORE';
+const ACT_STATUS_BANKER_BET        = 'ACT_STATUS_BANKER_BET';
+const ACT_STATUS_BANKER_BET_AFTER  = 'ACT_STATUS_BANKER_BET_AFTER';
 
 var Room = function(opts){
   var self  = this;
@@ -64,6 +71,16 @@ function genCards(num){
 
   return cards;
 }
+
+/**
+ *
+ * @param seat_no
+ * @return
+ */
+pro.getNextSeatBySeat = function(seat_no){
+  seat_no -= 0;
+  return (this._player_count < (++seat_no)) ? 1 : seat_no;
+};
 
 /**
  *
@@ -241,10 +258,92 @@ pro.ready = function(user_id){
   user.opts.is_ready = true;
 
   if(self.isStart()){
-    self.act_status = ACT_STATUS_CRAPS4;
+    self.act_status = ACT_STATUS_CRAPS4_BEFORE;
     self.act_seat   = self.banker_seat || 1;
     self._cards_36  = genCards();
   }
 
   return user;
 };
+
+(() => {
+  /**
+   *
+   * @return
+   */
+  pro.craps4_before = function(){
+    var self = this;
+    if(self.act_status !== ACT_STATUS_CRAPS4_BEFORE) return 'ACT_STATUS_CRAPS4_BEFORE';
+    self.act_status = ACT_STATUS_CRAPS4;
+    return self;
+  }
+
+  /**
+   *
+   * @return
+   */
+  pro.craps4 = function(user_id){
+    var self = this;
+
+    if(self.act_status !== ACT_STATUS_CRAPS4) return 'ACT_STATUS_CRAPS4';
+
+    var user = self.getUser(user_id);
+    if(!user)                            return '用户不存在';
+    if(self.act_seat !== user.opts.seat) return '还没轮到你';
+    if(user.opts.craps)                  return 'craps';
+
+    user.opts.craps = [ _.random(1, 6), _.random(1, 6) ];
+
+    if(self._player_count <= getCrapsCount.call(self)){
+      self.act_status  = ACT_STATUS_CRAPS4_AFTER;
+      self.banker_bets = [200, 300, 500];
+      self.banker_seat = maxCraps.call(self);
+      self.act_seat    = self.banker_seat;
+    }else{
+      self.act_seat = self.getNextSeatBySeat(self.act_seat);
+    }
+
+    return user;
+  };
+  /**
+   *
+   * @return
+   */
+  pro.craps4_after = function(){
+    var self = this;
+    if(self.act_status !== ACT_STATUS_CRAPS4_AFTER) return 'ACT_STATUS_CRAPS4_AFTER';
+    self.act_status = ACT_STATUS_BANKER_BET_BEFORE;
+    return self;
+  }
+
+  function getCrapsCount(){
+    var count = 0;
+
+    for(let i of _.values(this._users)){
+      if(i.opts.craps) count++;
+    }
+
+    return count;
+  }
+
+  /**
+   * 计算最大的
+   *
+   * @return seat
+   */
+  function maxCraps(){
+    var max = 0, seat = 0;
+
+    for(let i of _.values(this._users)){
+      let m = i.opts.craps[0] - 0 + i.opts.craps[1];
+      if(11 < m) return i.opts.seat;
+
+      if(max <= m){
+        max  = m;
+        seat = i.opts.seat;
+      }
+    }
+
+    return seat;
+  }
+})();
