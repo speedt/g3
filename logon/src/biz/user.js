@@ -24,8 +24,6 @@ const _  = require('underscore');
 _.str    = require('underscore.string');
 _.mixin(_.str.exports());
 
-const roomPool = require('emag.model').roomPool;
-
 const logger = require('log4js').getLogger('biz.user');
 
 (() => {
@@ -43,19 +41,14 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.del = function(id, cb){
-    this.editStatus(id, 0, cb);
+    editStatus(id, 0, cb);
   };
 
   var sql = 'UPDATE s_user SET status=?, status_time=? WHERE id=?';
 
-  /**
-   * 编辑用户状态
-   *
-   * @return
-   */
-  exports.editStatus = function(id, status, cb){
+  function editStatus(id, status, cb){
     mysql.query(sql, [status, new Date(), id], cb);
-  };
+  }
 })();
 
 (() => {
