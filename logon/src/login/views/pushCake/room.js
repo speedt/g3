@@ -18,8 +18,7 @@ var Room = function(opts){
   self.id   = opts.id;
   self.name = opts.name || ('Room '+ opts.id);
 
-  self._users   = {};
-  self._players = {};
+  self._users = {};
 
   self.create_user_id = opts.user_id;
   self.create_time    = new Date().getTime();
@@ -28,11 +27,12 @@ var Room = function(opts){
   self.act_status     = ACT_STATUS_READY;
   self._act_direction = DIRECTION_CLOCKWISE;
 
-  self._free_seat = [1, 2, 3, 4];
+  self._free_seat    = [1, 2, 3, 4];
+  self._player_count = self._free_seat.length;
 
-  self.visitor_count = self.visitor_count || 6;     // 游客人数
-  self.fund          = opts.fund          || 1000;  // 组局基金
-  self.round_count   = opts.round_count   || 4;     // 圈数
+  self.visitor_count = self.visitor_count || 0;  // 游客人数
+  self.fund          = opts.fund          || 1000;
+  self.round_count   = opts.round_count   || 4;
 };
 
 var pro = Room.prototype;
@@ -73,6 +73,25 @@ pro.getUser = function(id){
 };
 
 /**
+ * 获取所有用户
+ *
+ * @return
+ */
+pro.getUsers = function(){
+  return this._users;
+};
+
+pro.getPlayers = function(){
+  var _players = {};
+
+  for(let i of _.values(this._users)){
+    if(0 < i.opts.seat) _players[i.opts.seat] = i;
+  }
+
+  return _players;
+};
+
+/**
  * 判断是否是
  *
  * @return
@@ -90,21 +109,12 @@ pro.isReady = function(user_id){
 };
 
 /**
- * 获取所有用户
- *
- * @return
- */
-pro.getUsers = function(){
-  return this._users;
-};
-
-/**
  * 判断是否游戏是否开始
  *
  * @return
  */
 pro.isStart = function(){
-  return this._free_seat.length <= this.getReadyCount();
+  return this._player_count <= this.getReadyCount();
 };
 
 /**
@@ -115,8 +125,8 @@ pro.isStart = function(){
 pro.getReadyCount = function(){
   var count = 0;
 
-  for(let i of _.values(this._players)){
-    if(!!i.opts.ready) ++count;
+  for(let i of _.values(this._users)){
+    if(0 < i.opts.ready) ++count;
   }
 
   return count;
@@ -136,7 +146,7 @@ pro.release = function(){
  * @return boolean
  */
 pro.isFull = function(){
-  return (this._free_seat.length + self.visitor_count) <= _.size(this._users);
+  return (this._player_count + self.visitor_count) <= _.size(this._users);
 };
 
 (function(){
