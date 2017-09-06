@@ -166,7 +166,11 @@ function push(){
     dataType: 'JSON',
     data: data,
     success: function(data){
-      if(data.error) return alert(data.error.code);
+      if(data.error){
+        if(data.error.code) return alert(data.error.code);
+        if(data.error.msg) return alert(data.error.msg);
+      }
+
       alert('修改密码成功');
     },
     error: function(){

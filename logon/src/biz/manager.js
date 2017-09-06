@@ -88,6 +88,22 @@ const logger = require('log4js').getLogger('biz.manager');
 })();
 
 (() => {
+  /**
+   * 修改密码
+   *
+   * @return
+   */
+  exports.changePwd = function(logInfo){
+    return new Promise((resolve, reject) => {
+      formVali(logInfo)
+      .then(biz.manager.getById.bind(null, logInfo.id))
+      .then(p1.bind(null, logInfo))
+      .then(p2.bind(null, logInfo))
+      .then(() => resolve(logInfo))
+      .catch(reject);
+    });
+  };
+
   function formVali(logInfo){
     if(!_.isString(logInfo.user_pass))
       return Promise.reject('INVALID_PARAMS');
@@ -97,16 +113,10 @@ const logger = require('log4js').getLogger('biz.manager');
     if('' === logInfo.user_pass)
       return Promise.reject('INVALID_PARAMS');
 
-    return new Promise((resolve, reject) => {
-      biz.manager.getById(logInfo.id)
-      .then(p2.bind(null, logInfo))
-      .then(p3.bind(null, logInfo))
-      .then(() => resolve())
-      .catch(reject);
-    });
+    return Promise.resolve();
   }
 
-  function p2(logInfo, user){
+  function p1(logInfo, user){
     assert.notEqual(null, user);
 
     if(md5.hex(logInfo.old_pass) !== user.user_pass)
@@ -115,7 +125,9 @@ const logger = require('log4js').getLogger('biz.manager');
     return Promise.resolve();
   }
 
-  function p3(logInfo){
+  var sql = 'UPDATE s_manager set user_pass=? WHERE id=?';
+
+  function p2(logInfo){
     logInfo.user_pass = md5.hex(logInfo.user_pass);
 
     return new Promise((resolve, reject) => {
@@ -128,20 +140,4 @@ const logger = require('log4js').getLogger('biz.manager');
       });
     });
   }
-
-  var sql = 'UPDATE s_manager set user_pass=? WHERE id=?';
-
-  /**
-   * 修改密码
-   *
-   * @return
-   */
-  exports.changePwd = function(logInfo){
-    return new Promise((resolve, reject) => {
-      formVali(logInfo)
-      .then(p2)
-      .then(() => resolve())
-      .catch(reject);
-    });
-  };
 })();
