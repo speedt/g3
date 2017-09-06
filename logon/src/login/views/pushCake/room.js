@@ -5,6 +5,12 @@
  */
 'use strict';
 
+const DIRECTION_CLOCKWISE     = 1;  // 顺时针
+const DIRECTION_ANTICLOCKWISE = 0;  // 逆时针
+
+const ACT_STATUS_READY  = 0;  // 动作：举手
+const ACT_STATUS_CRAPS4 = 1;  // 动作：
+
 var Room = function(opts){
   var self  = this;
   self.opts = opts;
@@ -14,6 +20,13 @@ var Room = function(opts){
 
   self._users   = {};
   self._players = {};
+
+  self.create_user_id = opts.user_id;
+  self.create_time    = new Date().getTime();
+
+  self.act_seat       = 1;
+  self.act_status     = ACT_STATUS_READY;
+  self._act_direction = DIRECTION_CLOCKWISE;
 
   self._free_seat = [1, 2, 3, 4];
 
@@ -25,6 +38,33 @@ var Room = function(opts){
 var pro = Room.prototype;
 
 /**
+ * 生成36
+ *
+ * @return
+ */
+function genCards(num){
+  num = num || 36;
+
+  var cards = [];
+  var p     = 1;
+
+  for(let i = 0; i < num; i += 4){
+    cards[i] = cards[i + 1] = cards[i + 2] = cards[i + 3] = p++;
+  }
+
+  var max = num - 1;
+
+  for(let i = 0; i < num; i++){
+    let r        = Math.round(Math.random() * max);
+    p            = cards[r];
+    cards[r]     = cards[max];
+    cards[max--] = p;
+  }
+
+  return cards;
+}
+
+/**
  *
  * @return
  */
@@ -33,7 +73,7 @@ pro.getUser = function(id){
 };
 
 /**
- * 判断是否是玩家
+ * 判断是否是
  *
  * @return
  */
@@ -41,6 +81,12 @@ pro.isPlayer = function(user_id){
   var user = this.getUser(user_id);
   if(!user) return;
   return 0 < user.opts.seat;
+};
+
+pro.isReady = function(user_id){
+  var user = this.getUser(user_id);
+  if(!user) return;
+  return 0 < user.opts.ready;
 };
 
 /**
@@ -137,13 +183,13 @@ pro.quit = function(user_id){
   var user = self.getUser(user_id);
   if(!user) return true;
 
-  if(self.isStart() && (0 < user.opts.seat)){
+  if(self.isStart() && self.isPlayer(user_id)){
     user.opts.quit_time = new Date().getTime();
     user.opts.is_quit   = 1;
     return false;
   }
 
-  if(0 < user.opts.seat){
+  if(self.isPlayer(user_id)){
     self._free_seat.push(user.opts.seat);
     delete self._players[user.opts.seat];
   }
@@ -158,14 +204,40 @@ pro.quit = function(user_id){
 pro.ready = function(user_id){
   var self = this;
 
-  if(self.isStart())     return '已经开始';
+  if(self.act_status !== ACT_STATUS_READY) return;  // 举手时间
+  if(self.isStart())                       return '已经开始';
 
   var user = self.getUser(user_id);
-  if(!user)               return '用户不存在';
-  if(1 > user.opts.seat)  return '不能举手';
-  if(0 < user.opts.ready) return '已经举手';
+  if(!user)                   return '用户不存在';
+  if(!self.isPlayer(user_id)) return '不能举手';
+  if(!self.isReady (user_id)) return '已经举手';
 
   user.opts.ready = 1;
 
+  if(self.isStart()){
+    self.act_status = ACT_STATUS_CRAPS4;
+    self.act_seat   = self.banker_seat || 1;
+    self._cards_36  = genCards();
+  }
+
   return user;
 };
+
+/**
+ *
+ * @return
+ */
+pro.re_entry = function(user){
+  var _user = this.getUser(user.id);
+  if(!_user)                   return;
+  if(!this.isPlayer(_user.id)) return;
+  if(1 > _user.opts.is_quit)   return;
+
+  _user.opts.re_entry_time = new Date().getTime();
+  _user.opts.is_quit       = 0;
+
+  _user.server_id  = user.server_id;
+  _user.channel_id = user.channel_id;
+
+  return _user;
+}
