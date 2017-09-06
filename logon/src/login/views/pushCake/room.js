@@ -18,19 +18,20 @@ var Room = function(opts){
   self.id   = opts.id;
   self.name = opts.name || ('Room '+ opts.id);
 
-  self._users = {};
+  self._users   = {};
+  self._players = {};
 
   self.create_user_id = opts.user_id;
   self.create_time    = new Date().getTime();
 
-  self.act_seat       = 1;
-  self.act_status     = ACT_STATUS_READY;
+  self. act_seat      = 1;
+  self. act_status    = ACT_STATUS_READY;
   self._act_direction = DIRECTION_CLOCKWISE;
 
   self._free_seat    = [1, 2, 3, 4];
   self._player_count = self._free_seat.length;
 
-  self.visitor_count = self.visitor_count || 0;  // 游客人数
+  self.visitor_count = opts.visitor_count || 0;  // 游客人数
   self.fund          = opts.fund          || 1000;
   self.round_count   = opts.round_count   || 4;
 };
@@ -81,16 +82,6 @@ pro.getUsers = function(){
   return this._users;
 };
 
-pro.getPlayers = function(){
-  var _players = {};
-
-  for(let i of _.values(this._users)){
-    if(0 < i.opts.seat) _players[i.opts.seat] = i;
-  }
-
-  return _players;
-};
-
 /**
  * 判断是否是
  *
@@ -102,10 +93,14 @@ pro.isPlayer = function(user_id){
   return 0 < user.opts.seat;
 };
 
+/**
+ *
+ * @return
+ */
 pro.isReady = function(user_id){
   var user = this.getUser(user_id);
   if(!user) return;
-  return 0 < user.opts.ready;
+  return user.opts.is_ready;
 };
 
 /**
@@ -125,8 +120,8 @@ pro.isStart = function(){
 pro.getReadyCount = function(){
   var count = 0;
 
-  for(let i of _.values(this._users)){
-    if(0 < i.opts.ready) ++count;
+  for(let i of _.values(this._players)){
+    if(i.opts.is_ready) ++count;
   }
 
   return count;
@@ -146,7 +141,7 @@ pro.release = function(){
  * @return boolean
  */
 pro.isFull = function(){
-  return (this._player_count + self.visitor_count) <= _.size(this._users);
+  return (this._player_count + this.visitor_count) <= _.size(this._users);
 };
 
 (function(){
@@ -167,8 +162,10 @@ pro.isFull = function(){
 
     self._users[user.id] = user;
 
-    user.opts.score      = 0;
     user.opts.entry_time = new Date().getTime();
+    user.opts.score      = 0;
+    user.opts.is_quit    = false;
+    user.opts.is_ready   = false;
 
     return user;
   };
@@ -183,6 +180,25 @@ pro.isFull = function(){
 })();
 
 /**
+ *
+ * @return
+ */
+pro.re_entry = function(user){
+  var _user = this.getUser(user.id);
+  if(!_user)                   return;
+  if(!this.isPlayer(_user.id)) return;
+  if(1 > _user.opts.is_quit)   return;
+
+  _user.opts.re_entry_time = new Date().getTime();
+  _user.opts.is_quit       = false;
+
+  _user.server_id  = user.server_id;
+  _user.channel_id = user.channel_id;
+
+  return _user;
+}
+
+/**
  * 退出群组
  *
  * @return
@@ -195,7 +211,7 @@ pro.quit = function(user_id){
 
   if(self.isStart() && self.isPlayer(user_id)){
     user.opts.quit_time = new Date().getTime();
-    user.opts.is_quit   = 1;
+    user.opts.is_quit   = true;
     return false;
   }
 
@@ -214,15 +230,15 @@ pro.quit = function(user_id){
 pro.ready = function(user_id){
   var self = this;
 
-  if(self.act_status !== ACT_STATUS_READY) return;  // 举手时间
+  if(self.act_status !== ACT_STATUS_READY) return '动作：举手';
   if(self.isStart())                       return '已经开始';
 
   var user = self.getUser(user_id);
   if(!user)                   return '用户不存在';
   if(!self.isPlayer(user_id)) return '不能举手';
-  if(!self.isReady (user_id)) return '已经举手';
+  if( self.isReady (user_id)) return '已经举手';
 
-  user.opts.ready = 1;
+  user.opts.is_ready = true;
 
   if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
@@ -232,22 +248,3 @@ pro.ready = function(user_id){
 
   return user;
 };
-
-/**
- *
- * @return
- */
-pro.re_entry = function(user){
-  var _user = this.getUser(user.id);
-  if(!_user)                   return;
-  if(!this.isPlayer(_user.id)) return;
-  if(1 > _user.opts.is_quit)   return;
-
-  _user.opts.re_entry_time = new Date().getTime();
-  _user.opts.is_quit       = 0;
-
-  _user.server_id  = user.server_id;
-  _user.channel_id = user.channel_id;
-
-  return _user;
-}
