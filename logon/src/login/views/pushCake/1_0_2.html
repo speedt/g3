@@ -20,32 +20,37 @@
     <p>
       刘一：
       <button onClick='room_entry("123456", "刘一", 1)'>进入</button>
-      <button onClick='room_quit("123456", "刘一", 1)'>退出</button>
+      <button onClick='room_quit("123456")'>退出</button>
     </p>
 
     <p>
       陈二：
       <button onClick='room_entry("234567", "陈二", 2)'>进入</button>
+      <button onClick='room_quit("234567")'>退出</button>
     </p>
 
     <p>
       张三：
       <button onClick='room_entry("345678", "张三", 3)'>进入</button>
+      <button onClick='room_quit("345678")'>退出</button>
     </p>
 
     <p>
       李四：
       <button onClick='room_entry("456789", "李四", 4)'>进入</button>
+      <button onClick='room_quit("456789")'>退出</button>
     </p>
 
     <p>
       王五：
       <button onClick='room_entry("567890", "王五", 5)'>进入</button>
+      <button onClick='room_quit("567890")'>退出</button>
     </p>
 
     <p>
       赵六：
       <button onClick='room_entry("678901", "赵六", 6)'>进入</button>
+      <button onClick='room_quit("678901")'>退出</button>
     </p>
 
   </body>
@@ -77,6 +82,10 @@
       gold_count: gold_count,
     });
     console.log(_entry);
+  }
+
+  function room_quit(id){
+    console.log(room.quit(id));
   }
 
   console.log(room);

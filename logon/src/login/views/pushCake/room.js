@@ -33,6 +33,17 @@ pro.getUser = function(id){
 };
 
 /**
+ * 判断是否是玩家
+ *
+ * @return
+ */
+pro.isPlayer = function(user_id){
+  var user = this.getUser(user_id);
+  if(!user) return;
+  return 0 < user.opts.seat;
+};
+
+/**
  * 获取所有用户
  *
  * @return
@@ -138,4 +149,23 @@ pro.quit = function(user_id){
   }
 
   return (delete self._users[user_id]);
+};
+
+/**
+ *
+ * @return
+ */
+pro.ready = function(user_id){
+  var self = this;
+
+  if(self.isStart())     return '已经开始';
+
+  var user = self.getUser(user_id);
+  if(!user)               return '用户不存在';
+  if(1 > user.opts.seat)  return '不能举手';
+  if(0 < user.opts.ready) return '已经举手';
+
+  user.opts.ready = 1;
+
+  return user;
 };
