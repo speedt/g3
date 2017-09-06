@@ -258,7 +258,7 @@ pro.ready = function(user_id){
   user.opts.is_ready = true;
 
   if(self.isStart()){
-    self.act_status = ACT_STATUS_CRAPS4_BEFORE;
+    self.act_status = ACT_STATUS_CRAPS4;
     self.act_seat   = self.banker_seat || 1;
     self._cards_36  = genCards();
   }
@@ -266,18 +266,7 @@ pro.ready = function(user_id){
   return user;
 };
 
-(() => {
-  /**
-   *
-   * @return
-   */
-  pro.craps4_before = function(){
-    var self = this;
-    if(self.act_status !== ACT_STATUS_CRAPS4_BEFORE) return 'ACT_STATUS_CRAPS4_BEFORE';
-    self.act_status = ACT_STATUS_CRAPS4;
-    return self;
-  }
-
+(function(){
   /**
    *
    * @return
@@ -305,6 +294,7 @@ pro.ready = function(user_id){
 
     return user;
   };
+
   /**
    *
    * @return
@@ -319,7 +309,7 @@ pro.ready = function(user_id){
   function getCrapsCount(){
     var count = 0;
 
-    for(let i of _.values(this._users)){
+    for(let i of _.values(this._players)){
       if(i.opts.craps) count++;
     }
 
@@ -334,7 +324,7 @@ pro.ready = function(user_id){
   function maxCraps(){
     var max = 0, seat = 0;
 
-    for(let i of _.values(this._users)){
+    for(let i of _.values(this._players)){
       let m = i.opts.craps[0] - 0 + i.opts.craps[1];
       if(11 < m) return i.opts.seat;
 

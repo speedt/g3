@@ -22,6 +22,7 @@
       <button onClick='room_entry("123456", "刘一", 1)'>进入</button>
       <button onClick='room_quit("123456")'>退出</button>
       <button onClick='room_ready("123456")'>举手</button>
+      <button onClick='room_craps("123456")'>craps</button>
     </p>
 
     <p>
@@ -29,6 +30,7 @@
       <button onClick='room_entry("234567", "陈二", 2)'>进入</button>
       <button onClick='room_quit("234567")'>退出</button>
       <button onClick='room_ready("234567")'>举手</button>
+      <button onClick='room_craps("234567")'>craps</button>
     </p>
 
     <p>
@@ -36,6 +38,7 @@
       <button onClick='room_entry("345678", "张三", 3)'>进入</button>
       <button onClick='room_quit("345678")'>退出</button>
       <button onClick='room_ready("345678")'>举手</button>
+      <button onClick='room_craps("345678")'>craps</button>
     </p>
 
     <p>
@@ -43,6 +46,7 @@
       <button onClick='room_entry("456789", "李四", 4)'>进入</button>
       <button onClick='room_quit("456789")'>退出</button>
       <button onClick='room_ready("456789")'>举手</button>
+      <button onClick='room_craps("456789")'>craps</button>
     </p>
 
     <p>
@@ -50,6 +54,7 @@
       <button onClick='room_entry("567890", "王五", 5)'>进入</button>
       <button onClick='room_quit("567890")'>退出</button>
       <button onClick='room_ready("567890")'>举手</button>
+      <button onClick='room_craps("567890")'>craps</button>
     </p>
 
     <p>
@@ -57,6 +62,7 @@
       <button onClick='room_entry("678901", "赵六", 6)'>进入</button>
       <button onClick='room_quit("678901")'>退出</button>
       <button onClick='room_ready("678901")'>举手</button>
+      <button onClick='room_craps("678901")'>craps</button>
     </p>
 
   </body>
@@ -100,6 +106,10 @@
 
   function room_ready(id){
     console.log(room.ready(id));
+  }
+
+  function room_craps(id){
+    console.log(room.craps4(id));
   }
 
   console.log(room);
