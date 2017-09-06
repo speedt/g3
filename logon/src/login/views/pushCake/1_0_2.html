@@ -19,32 +19,33 @@
 
     <p>
       刘一：
-      <button onClick='entry_room("123456", "刘一", 1)'>进入房间</button>
+      <button onClick='room_entry("123456", "刘一", 1)'>进入</button>
+      <button onClick='room_quit("123456", "刘一", 1)'>退出</button>
     </p>
 
     <p>
       陈二：
-      <button onClick='entry_room("234567", "陈二", 2)'>进入房间</button>
+      <button onClick='room_entry("234567", "陈二", 2)'>进入</button>
     </p>
 
     <p>
       张三：
-      <button onClick='entry_room("345678", "张三", 3)'>进入房间</button>
+      <button onClick='room_entry("345678", "张三", 3)'>进入</button>
     </p>
 
     <p>
       李四：
-      <button onClick='entry_room("456789", "李四", 4)'>进入房间</button>
+      <button onClick='room_entry("456789", "李四", 4)'>进入</button>
     </p>
 
     <p>
       王五：
-      <button onClick='entry_room("567890", "王五", 5)'>进入房间</button>
+      <button onClick='room_entry("567890", "王五", 5)'>进入</button>
     </p>
 
     <p>
       赵六：
-      <button onClick='entry_room("678901", "赵六", 6)'>进入房间</button>
+      <button onClick='room_entry("678901", "赵六", 6)'>进入</button>
     </p>
 
   </body>
@@ -69,7 +70,7 @@
     });
   });
 
-  function entry_room(id, user_name, gold_count){
+  function room_entry(id, user_name, gold_count){
     var _entry = room.entry({
       id:         id,
       user_name:  user_name,
