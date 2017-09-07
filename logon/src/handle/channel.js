@@ -74,7 +74,7 @@ const _ = require('underscore');
   function p2(err){
     if('string' !== typeof err) return logger.error('channel close:', err);
     switch(err){
-      case 'invalid_user_id': return logger.error('channel close:', err);
+      case 'invalid_user_id': return logger.debug('channel close:', err);
       default: logger.debug('channel close:', err);
     }
   }
@@ -105,7 +105,7 @@ const _ = require('underscore');
   function p2(err){
     if('string' !== typeof err) return logger.error('channel info:', err);
     switch(err){
-      case 'invalid_user_id': return logger.error('channel info:', err);
+      case 'invalid_user_id': return logger.debug('channel info:', err);
       default: logger.debug('channel info:', err);
     }
   }

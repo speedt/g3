@@ -41,13 +41,13 @@ exports.one_for_one = function(send, msg){
   function p1(send, data, user){
     var room = roomPool.get(user.group_id);
     if(!room) return;
-    if(1 > _.size(room.users)) return;
+    if(1 > _.size(room.getUsers())) return;
 
     var _data = [];
     _data.push(null);
     _data.push(JSON.stringify([2004, data.seqId, _.now(), [user.id, data.data]]));
 
-    for(let i of _.values(room.users)){
+    for(let i of _.values(room.getUsers())){
       if(!i.server_id || !i.channel_id) continue;
       _data.splice(0, 1, i.channel_id);
 
