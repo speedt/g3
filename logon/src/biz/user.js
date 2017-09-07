@@ -398,8 +398,8 @@ const logger = require('log4js').getLogger('biz.user');
   var sql = 'UPDATE s_user SET backend_id=?, group_id=?, group_entry_time=? WHERE id=?';
 
   function editGroup(user_info, trans){
-    user_info.backend_id       = conf.app.id;
     user_info.group_entry_time = new Date().getTime();
+    user_info.backend_id       = conf.app.id;
 
     return new Promise((resolve, reject) => {
       (trans || mysql).query(sql, [

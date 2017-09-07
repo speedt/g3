@@ -29,25 +29,20 @@ const roomPool = require('emag.model').roomPool;
 const logger = require('log4js').getLogger('biz.group');
 
 (() => {
-  function p1(group_id, user){
+  function p1(room, user){
     if(user.group_id) return Promise.reject('请先退出');
-
-    var room = roomPool.get(group_id);
-    if(!room) return Promise.reject('房间不存在');
-
-    user.group_id = group_id;
+    user.group_id = room.id;
 
     return new Promise((resolve, reject) => {
       biz.user.entryGroup(user)
       .then(user_info => {
-        var _user = room.entry(user_info);
+        var _entry = room.entry(user_info);
+        if('string' === typeof _entry) return reject(_entry);
 
-        if(!_user) return resolve();
-
-        var users = [];
+        var _users = [];
 
         for(let i of _.values(room.users)){
-          users.push([i.id, i.nickname, i.opts.seat, i.weixin_avatar]);
+          _users.push([i.id, i.nickname, i.opts.seat, i.weixin_avatar]);
         }
 
         resolve([room.users, [[
@@ -60,10 +55,10 @@ const logger = require('log4js').getLogger('biz.group');
           room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
           room.round_pno,            // 当前第n局
           room.round_no,             // 当前第n把
-          room.ready_count,          // 举手人数
+          room.getReadyCount(),      // 举手人数
           room.act_status,
           room.act_seat,
-        ], users]]);
+        ], _users]]);
       })
       .catch(reject);
     });
@@ -74,9 +69,12 @@ const logger = require('log4js').getLogger('biz.group');
    * @return
    */
   exports.entry = function(server_id, channel_id, group_id){
+    var room = roomPool.get(group_id);
+    if(!room) return Promise.reject('房间不存在');
+
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
-      .then(p1.bind(null, group_id))
+      .then(p1.bind(null, room))
       .then(doc => resolve(doc))
       .catch(reject);
     });
