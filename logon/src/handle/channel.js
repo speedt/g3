@@ -24,21 +24,6 @@ const _ = require('underscore');
     ], (err, code) => {
       if(err) return logger.error('channel open:', err);
     });
-
-    if(!doc) return;
-
-    var _data = [];
-    _data.push(null);
-    _data.push(JSON.stringify([3010, data.seqId, _.now(), doc[1]]));
-
-    for(let i of _.values(doc[0])){
-      if(!i.server_id || !i.channel_id) continue;
-      _data.splice(0, 1, i.channel_id);
-
-      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
-        if(err) return logger.error('group entry:', err);
-      });
-    }
   }
 
   function p2(send, data, err){

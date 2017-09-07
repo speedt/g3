@@ -79,9 +79,11 @@ const logger = require('log4js').getLogger('biz.user');
     });
   };
 
+  var sha1 = '3b248050f9965193d8a4836d6258861a1890017f';
+
   function closeChannel(server_id, channel_id){
     return new Promise((resolve, reject) => {
-      redis.evalsha('3b248050f9965193d8a4836d6258861a1890017f', 3,
+      redis.evalsha(sha1, 3,
         conf.redis.database,  /**/
         server_id,            /**/
         channel_id,           /**/
@@ -96,7 +98,7 @@ const logger = require('log4js').getLogger('biz.user');
 
 (() => {
   function p1(logInfo, user){
-    if(!user) return Promise.reject('用户不存在');
+    if(!user)             return Promise.reject('用户不存在');
     if(1 !== user.status) return Promise.reject('禁用状态');
 
     if(md5.hex(logInfo.user_pass) !== user.user_pass)
@@ -112,9 +114,11 @@ const logger = require('log4js').getLogger('biz.user');
     });
   }
 
+  var sha1 = '6a63911ac256b0c00cf270c6332119240d52b13e';
+
   function authorize(user){
     return new Promise((resolve, reject) => {
-      redis.evalsha('6a63911ac256b0c00cf270c6332119240d52b13e', 4,
+      redis.evalsha(sha1, 4,
         conf.redis.database,                   /**/
         conf.app.client_id,                    /**/
         user.id,                               /**/
@@ -142,22 +146,6 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  function p1(user){
-    if(!user.group_id) return Promise.resolve();
-
-    var room = roomPool.get(user.group_id);
-    if(!room) return Promise.resolve();
-
-    var _user = room.reEntry(user);
-
-    if(!_user) return Promise.resolve();
-
-    return Promise.resolve([
-      room.users,
-      [_user.id, _user.opts.seat, _user.weixin_avatar],
-    ]);
-  }
-
   /**
    * 注册通道
    *
@@ -167,9 +155,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getByRedisChannelId(server_id, channel_id)
       .then(editChannel)
-      .then(biz.user.getByChannelId.bind(null, server_id, channel_id))
-      .then(p1)
-      .then(doc => resolve(doc))
+      .then(user => resolve(user))
       .catch(reject);
     });
   };
@@ -281,20 +267,47 @@ const logger = require('log4js').getLogger('biz.user');
   // 6-16个字符，支持英文大小写、数字、下划线，区分大小写
   var regex_user_pass = /^[a-zA-Z0-9_]{6,16}$/;
 
-  function formVali(user_info){
+  /**
+   * 用户注册
+   *
+   * @return
+   */
+  exports.register = function(user_info){
+    user_info = user_info || {};
+
+    if(!_.isString(user_info.user_name))
+      return Promise.reject('INVALID_PARAMS');
+
+    user_info.user_name = _.trim(user_info.user_name);
+
+    if(!regex_user_name.test(user_info.user_name))
+      return Promise.reject('INVALID_PARAMS');
+
+    if(!_.isString(user_info.user_pass))
+      return Promise.reject('INVALID_PARAMS');
+
+    user_info.user_pass = _.trim(user_info.user_pass);
+
+    if(!regex_user_pass.test(user_info.user_pass))
+      return Promise.reject('INVALID_PARAMS');
+
     return new Promise((resolve, reject) => {
       biz.user.getByName(user_info.user_name)
-      .then(user => {
-        if(user) return reject('用户名已存在');
-        resolve(user_info);
-      })
+      .then(p1)
+      .then(p2.bind(null, user_info))
+      .then(user_info => resolve(user_info))
       .catch(reject);
     });
+  };
+
+  function p1(user){
+    if(user) return Promise.reject('用户名已存在');
+    return Promise.resolve();
   }
 
   var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  function p1(user_info){
+  function p2(user_info){
     user_info.id               = utils.replaceAll(uuid.v1(), '-', '');
     user_info.user_pass        = md5.hex(user_info.user_pass);
     user_info.status           = 1;
@@ -335,36 +348,6 @@ const logger = require('log4js').getLogger('biz.user');
       });
     });
   }
-
-  /**
-   * 用户注册
-   *
-   * @return
-   */
-  exports.register = function(newInfo){
-    if(!_.isString(user_info.user_name))
-      return Promise.reject('INVALID_PARAMS');
-
-    user_info.user_name = _.trim(user_info.user_name);
-
-    if(!regex_user_name.test(user_info.user_name))
-      return Promise.reject('INVALID_PARAMS');
-
-    if(!_.isString(user_info.user_pass))
-      return Promise.reject('INVALID_PARAMS');
-
-    user_info.user_pass = _.trim(user_info.user_pass);
-
-    if(!regex_user_name.test(user_info.user_pass))
-      return Promise.reject('INVALID_PARAMS');
-
-    return new Promise((resolve, reject) => {
-      formVali(newInfo)
-      .then(p1)
-      .then(user_info => resolve(user_info))
-      .catch(reject);
-    });
-  };
 })();
 
 (() => {

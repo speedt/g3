@@ -29,41 +29,6 @@ const roomPool = require('emag.model').roomPool;
 const logger = require('log4js').getLogger('biz.group');
 
 (() => {
-  function p1(room, user){
-    if(user.group_id) return Promise.reject('请先退出');
-    user.group_id = room.id;
-
-    return new Promise((resolve, reject) => {
-      biz.user.entryGroup(user)
-      .then(user_info => {
-        var _entry = room.entry(user_info);
-        if('string' === typeof _entry) return reject(_entry);
-
-        var _users = [];
-
-        for(let i of _.values(room.users)){
-          _users.push([i.id, i.nickname, i.opts.seat, i.weixin_avatar]);
-        }
-
-        resolve([room.users, [[
-          room.id,
-          room.name,
-          room.fund,
-          room.round_count,
-          room.visitor_count,        // 游客人数
-          room.banker_seat,          // 当前庄家座位
-          room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
-          room.round_pno,            // 当前第n局
-          room.round_no,             // 当前第n把
-          room.getReadyCount(),      // 举手人数
-          room.act_status,
-          room.act_seat,
-        ], _users]]);
-      })
-      .catch(reject);
-    });
-  }
-
   /**
    *
    * @return
@@ -75,10 +40,44 @@ const logger = require('log4js').getLogger('biz.group');
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1.bind(null, room))
+      .then(biz.user.entryGroup)
+      .then(p2.bind(null, room))
       .then(doc => resolve(doc))
       .catch(reject);
     });
   };
+
+  function p1(room, user){
+    if(user.group_id) return Promise.reject('请先退出');
+    user.group_id = room.id;
+    return Promise.resolve(user);
+  }
+
+  function p2(room, user){
+    var _entry = room.entry(user);
+    if('string' === typeof _entry) return Promise.reject(_entry);
+
+    var _users = [];
+
+    for(let i of _.values(room.getUsers())){
+      _users.push([i.id, i.opts.seat, i.nickname, i.weixin_avatar]);
+    }
+
+    return Promise.resolve([room.getUsers(), [[
+      room.id,
+      room.name,
+      room.fund,
+      room.round_count,
+      room.visitor_count,        // 游客人数
+      room.banker_seat,          // 当前庄家座位
+      room.round_pno,            // 当前第n局
+      room.round_no,             // 当前第n把
+      room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
+      room.getReadyCount(),      // 举手人数
+      room.act_status,
+      room.act_seat,
+    ], _users]]);
+  }
 })();
 
 (() => {
@@ -153,16 +152,16 @@ const logger = require('log4js').getLogger('biz.group');
       room.round_count,
       room.visitor_count,        // 游客人数
       room.banker_seat,          // 当前庄家座位
-      room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
       room.round_pno,            // 当前第n局
       room.round_no,             // 当前第n把
+      room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
       room.getReadyCount(),      // 举手人数
       room.act_status,
       room.act_seat,
     ], [
       _entry.id,
-      _entry.nickname,
       _entry.opts.seat,
+      _entry.nickname,
       _entry.weixin_avatar,
     ]]);
   }
