@@ -17,6 +17,23 @@ const logger = require('log4js').getLogger('handle.group');
 const _ = require('underscore');
 
 (() => {
+  /**
+   *
+   */
+  exports.search = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('group search empty');
+
+    try{ var data = JSON.parse(msg.body);
+    }catch(ex){ return; }
+
+    try{ var group_info = JSON.parse(data.data);
+    }catch(ex){ return; }
+
+    biz.group.search(data.serverId, data.channelId, group_info)
+    .then (p1.bind(null, send, data))
+    .catch(p2.bind(null, send, data));
+  };
+
   function p1(send, data, doc){
     var _data = [];
     _data.push(data.channelId);
@@ -38,26 +55,24 @@ const _ = require('underscore');
       if(err) return logger.error('group search:', err);
     });
   }
+})();
 
+(() => {
   /**
    *
+   * @return
    */
-  exports.search = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('group search empty');
+  exports.quit = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('group quit empty');
 
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    try{ var group_info = JSON.parse(data.data);
-    }catch(ex){ return; }
-
-    biz.group.search(data.serverId, data.channelId, group_info)
-    .then(p1.bind(null, send, data))
+    biz.group.quit(data.serverId, data.channelId)
+    .then (p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
-})();
 
-(() => {
   function p1(send, data, doc){
     if(!doc) return;
 
@@ -86,24 +101,23 @@ const _ = require('underscore');
       if(err) return logger.error('group quit:', err);
     });
   }
+})();
 
+(() => {
   /**
    *
-   * @return
    */
-  exports.quit = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('group quit empty');
+  exports.entry = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('group entry empty');
 
     try{ var data = JSON.parse(msg.body);
     }catch(ex){ return; }
 
-    biz.group.quit(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
+    biz.group.entry(data.serverId, data.channelId, data.data)
+    .then (p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
-})();
 
-(() => {
   function p1(send, data, doc){
     if(!doc) return;
 
@@ -132,18 +146,4 @@ const _ = require('underscore');
       if(err) return logger.error('group entry:', err);
     });
   }
-
-  /**
-   *
-   */
-  exports.entry = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('group entry empty');
-
-    try{ var data = JSON.parse(msg.body);
-    }catch(ex){ return; }
-
-    biz.group.entry(data.serverId, data.channelId, data.data)
-    .then(p1.bind(null, send, data))
-    .catch(p2.bind(null, send, data));
-  };
 })();

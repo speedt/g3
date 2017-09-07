@@ -38,9 +38,26 @@ exports.one_for_one = function(send, msg){
 };
 
 (() => {
+  /**
+   *
+   */
+  exports.one_for_group = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('chat one_for_group empty');
+
+    try{ var data = JSON.parse(msg.body);
+    }catch(ex){ return; }
+
+    data.data = filter(data.data);
+    if(!data.data) return;
+
+    biz.user.getByChannelId(data.serverId, data.channelId)
+    .then (p1.bind(null, send, data))
+    .catch(p2.bind(null, send, data));
+  };
+
   function p1(send, data, user){
     var room = roomPool.get(user.group_id);
-    if(!room) return;
+    if(!room)                       return;
     if(1 > _.size(room.getUsers())) return;
 
     var _data = [];
@@ -58,33 +75,18 @@ exports.one_for_one = function(send, msg){
   }
 
   function p2(send, data, err){
-    if('string' !== typeof err) return logger.error('chat one_for_group:', err);
+    if('string' === typeof err) return logger.debug('chat one_for_group:', err);
 
-    var _data = [];
-    _data.push(data.channelId);
-    _data.push(JSON.stringify([2004, data.seqId, _.now(), , err]));
+    logger.error('chat one_for_group:', err);
 
-    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
-      if(err) return logger.error('chat one_for_group:', err);
-    });
+    // var _data = [];
+    // _data.push(data.channelId);
+    // _data.push(JSON.stringify([2004, data.seqId, _.now(), , err]));
+
+    // send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
+    //   if(err) return logger.error('chat one_for_group:', err);
+    // });
   }
-
-  /**
-   *
-   */
-  exports.one_for_group = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('chat one_for_group empty');
-
-    try{ var data = JSON.parse(msg.body);
-    }catch(ex){ return; }
-
-    data.data = filter(data.data);
-    if(!data.data) return;
-
-    biz.user.getByChannelId(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
-    .catch(p2.bind(null, send, data));
-  };
 })();
 
 /**
