@@ -75,7 +75,6 @@ amq.getClient((err) => {
   amq.injection('/queue/channel.open',  handle.channel.open,  () => {});
   amq.injection('/queue/channel.close', handle.channel.close, () => {});
   amq.injection('/queue/qq.1001',       handle.channel.info,  () => {});
-  amq.injection('/queue/qq.3011',       handle.channel.ready, () => {});
 
   amq.injection('/queue/qq.2001', handle.chat.one_for_one,   () => {});
   amq.injection('/queue/qq.2003', handle.chat.one_for_group, () => {});
@@ -84,10 +83,10 @@ amq.getClient((err) => {
   amq.injection('/queue/qq.3005', handle.group.quit,   () => {});
   amq.injection('/queue/qq.3007', handle.group.entry,  () => {});
 
+  amq.injection('/queue/qq.5011', handle.channel.ready,        () => {});
   amq.injection('/queue/qq.5013', handle.pushCake.craps4,      () => {});
   amq.injection('/queue/qq.5017', handle.pushCake.bankerBet,   () => {});
   amq.injection('/queue/qq.5015', handle.pushCake.bankerCraps, () => {});
   amq.injection('/queue/qq.5019', handle.pushCake.unBankerBet, () => {});
-
-  amq.injection('/queue/qq.5071', handle.pushCake.bankerGoOn, () => {});
+  amq.injection('/queue/qq.5071', handle.pushCake.bankerGoOn,  () => {});
 });
