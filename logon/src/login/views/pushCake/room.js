@@ -41,6 +41,15 @@ var Room = function(opts){
   self.visitor_count = opts.visitor_count || 0;  // 游客人数
   self.fund          = opts.fund          || 1000;
   self.round_count   = opts.round_count   || 4;
+
+  self.round_pno             = 1;  // 当前第n局
+  self.round_no              = 1;  // 当前第n把
+  self.round_no_first_seat   = 1;  // 庄家摇骰子确定第一个起牌人的座位
+  self.round_no_compare      = []; // 牌比对结果
+  self.round_no_compare_seat = 1;  // 待比牌人的座位
+
+  self.banker_seat = 0;                // 庄家座位
+  self.banker_bets = [200, 300, 500];  // 庄家锅底
 };
 
 var pro = Room.prototype;
@@ -119,6 +128,18 @@ pro.isReady = function(user_id){
   if(!user) return;
   return 0 < user.opts.is_ready;
 };
+
+/**
+ *
+ * @return
+ */
+pro.isQuit = function(user_id){
+  var user = this.getUser(user_id);
+  if(!user) return;
+  return 0 < user.opts.is_quit;
+};
+
+
 
 /**
  * 判断是否游戏是否开始
@@ -201,13 +222,16 @@ pro.isFull = function(){
  * @return
  */
 pro.re_entry = function(user){
-  var _user = this.getUser(user.id);
-  if(!_user)                   return;
-  if(!this.isPlayer(_user.id)) return;
-  if(1 > _user.opts.is_quit)   return;
+  var self = this;
+
+  var _user = self.getUser(user.id);
+  if(!_user)                   return '';
+
+  if(!self.isPlayer(_user.id)) return '';
+  if(!self.isQuit  (_user.id)) return '';
 
   _user.opts.re_entry_time = new Date().getTime();
-  _user.opts.is_quit       = 1;
+  _user.opts.is_quit       = 0;
 
   _user.server_id  = user.server_id;
   _user.channel_id = user.channel_id;

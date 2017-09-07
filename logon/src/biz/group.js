@@ -169,8 +169,23 @@ const logger = require('log4js').getLogger('biz.group');
 })();
 
 (() => {
+
+  /**
+   * 退出群组
+   *
+   * @return
+   */
+  exports.quit = function(server_id, channel_id){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+
   function p1(user){
-    if(!user.group_id) return Promise.reject('已经退出了');
+    if(!user.group_id) return Promise.reject('已经退出');
     var room = roomPool.get(user.group_id);
 
     if(!room){
@@ -201,13 +216,15 @@ const logger = require('log4js').getLogger('biz.group');
       .catch(reject);
     });
   }
+})();
 
+(() => {
   /**
-   * 退出群组
+   * 重新进入
    *
    * @return
    */
-  exports.quit = function(server_id, channel_id){
+  exports.re_entry = function(server_id, channel_id){
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
@@ -215,4 +232,19 @@ const logger = require('log4js').getLogger('biz.group');
       .catch(reject);
     });
   };
+
+  function p1(user){
+    if(!user.group_id) return Promise.reject('已经退出');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _re_entry = room.re_entry(user);
+    if('string' === typeof _re_entry) return Promise.reject(_re_entry);
+
+    return Promise.resolve([
+      room.users,
+      [_re_entry.id, _re_entry.opts.seat],
+    ]);
+  }
 })();
