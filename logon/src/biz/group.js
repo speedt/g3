@@ -181,25 +181,25 @@ const logger = require('log4js').getLogger('biz.group');
       });
     }
 
-    if(room.quit(user.id)){
-      return new Promise((resolve, reject) => {
-        biz.user.quitGroup(user.id)
-        .then(() => {
-          if(1 > _.size(room.users)) return resolve();
-
-          resolve([
-            room.users,
-            [user.id],
-          ]);
-        })
-        .catch(reject);
-      });
+    if(!room.quit(user.id)){
+      return Promise.resolve([
+        room.users,
+        [user.id, user.opts.seat],
+      ]);
     }
 
-    return Promise.resolve([
-      room.users,
-      [user.id, room.getUser(user.id).opts.is_quit],
-    ]);
+    return new Promise((resolve, reject) => {
+      biz.user.quitGroup(user.id)
+      .then(() => {
+        if(1 > _.size(room.getUsers())) return resolve();
+
+        resolve([
+          room.users,
+          [user.id],
+        ]);
+      })
+      .catch(reject);
+    });
   }
 
   /**

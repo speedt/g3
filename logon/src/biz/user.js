@@ -342,13 +342,21 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.register = function(newInfo){
-    if(!_.isString(user_info.user_name)) return Promise.reject('invalid_params');
-    user_info.user_name = _.trim(user_info.user_name);
-    if(!regex_user_name.test(user_info.user_name)) return Promise.reject('invalid_params');
+    if(!_.isString(user_info.user_name))
+      return Promise.reject('INVALID_PARAMS');
 
-    if(!_.isString(user_info.user_pass)) return Promise.reject('invalid_params');
+    user_info.user_name = _.trim(user_info.user_name);
+
+    if(!regex_user_name.test(user_info.user_name))
+      return Promise.reject('INVALID_PARAMS');
+
+    if(!_.isString(user_info.user_pass))
+      return Promise.reject('INVALID_PARAMS');
+
     user_info.user_pass = _.trim(user_info.user_pass);
-    if(!regex_user_name.test(user_info.user_pass)) return Promise.reject('invalid_params');
+
+    if(!regex_user_name.test(user_info.user_pass))
+      return Promise.reject('INVALID_PARAMS');
 
     return new Promise((resolve, reject) => {
       formVali(newInfo)
