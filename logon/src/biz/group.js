@@ -171,7 +171,6 @@ const logger = require('log4js').getLogger('biz.group');
 (() => {
   function p1(user){
     if(!user.group_id) return Promise.reject('已经退出了');
-
     var room = roomPool.get(user.group_id);
 
     if(!room){

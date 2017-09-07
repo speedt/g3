@@ -136,7 +136,7 @@ pro.isPlayer = function(user_id){
 pro.isReady = function(user_id){
   var user = this.getUser(user_id);
   if(!user) return;
-  return user.opts.is_ready;
+  return 0 < user.opts.is_ready;
 };
 
 /**
@@ -157,7 +157,7 @@ pro.getReadyCount = function(){
   var count = 0;
 
   for(let i of _.values(this._players)){
-    if(i.opts.is_ready) ++count;
+    if(0 < i.opts.is_ready) ++count;
   }
 
   return count;
@@ -200,8 +200,8 @@ pro.isFull = function(){
 
     user.opts.entry_time = new Date().getTime();
     user.opts.score      = 0;
-    user.opts.is_quit    = false;
-    user.opts.is_ready   = false;
+    user.opts.is_quit    = 0;
+    user.opts.is_ready   = 0;
 
     return user;
   };
@@ -226,7 +226,7 @@ pro.re_entry = function(user){
   if(1 > _user.opts.is_quit)   return;
 
   _user.opts.re_entry_time = new Date().getTime();
-  _user.opts.is_quit       = false;
+  _user.opts.is_quit       = 1;
 
   _user.server_id  = user.server_id;
   _user.channel_id = user.channel_id;
@@ -247,7 +247,7 @@ pro.quit = function(user_id){
 
   if(self.isStart() && self.isPlayer(user_id)){
     user.opts.quit_time = new Date().getTime();
-    user.opts.is_quit   = true;
+    user.opts.is_quit   = 1;
     return false;
   }
 
@@ -274,7 +274,7 @@ pro.ready = function(user_id){
   if(!self.isPlayer(user_id)) return '不能举手';
   if( self.isReady (user_id)) return '已经举手';
 
-  user.opts.is_ready = true;
+  user.opts.is_ready = 1;
 
   if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
