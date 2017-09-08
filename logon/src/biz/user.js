@@ -79,11 +79,12 @@ const logger = require('log4js').getLogger('biz.user');
     });
   };
 
-  var sha1 = '3b248050f9965193d8a4836d6258861a1890017f';
+  var sha1    = '3b248050f9965193d8a4836d6258861a1890017f';
+  var numkeys = 3;
 
   function closeChannel(server_id, channel_id){
     return new Promise((resolve, reject) => {
-      redis.evalsha(sha1, 3,
+      redis.evalsha(sha1, numkeys,
         conf.redis.database,  /**/
         server_id,            /**/
         channel_id,           /**/

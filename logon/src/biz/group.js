@@ -168,7 +168,6 @@ const logger = require('log4js').getLogger('biz.group');
 })();
 
 (() => {
-
   /**
    * 退出群组
    *
@@ -184,7 +183,8 @@ const logger = require('log4js').getLogger('biz.group');
   };
 
   function p1(user){
-    if(!user.group_id) return Promise.reject('已经退出');
+    if(!user.group_id) return Promise.reject('不在群组');
+
     var room = roomPool.get(user.group_id);
 
     if(!room){
@@ -198,7 +198,7 @@ const logger = require('log4js').getLogger('biz.group');
     if(!room.quit(user.id)){
       return Promise.resolve([
         room.users,
-        [user.id, user.opts.seat],
+        user.id,
       ]);
     }
 
@@ -209,7 +209,7 @@ const logger = require('log4js').getLogger('biz.group');
 
         resolve([
           room.users,
-          [user.id],
+          user.id,
         ]);
       })
       .catch(reject);

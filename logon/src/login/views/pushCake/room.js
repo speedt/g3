@@ -255,7 +255,7 @@ pro.quit = function(user_id){
     delete self._players[_user.opts.seat];
   }
 
-  return (delete self._users[user_id]);
+  return (delete self._users[_user.id]);
 };
 
 /**
