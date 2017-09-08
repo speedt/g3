@@ -110,6 +110,14 @@ pro.getUser = function(id){
 };
 
 /**
+ *
+ * @return
+ */
+pro.getUserBySeat = function(seat_no){
+  return this._players[seat_no];
+};
+
+/**
  * 获取所有用户
  *
  * @return

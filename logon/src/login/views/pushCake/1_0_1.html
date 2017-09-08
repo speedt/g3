@@ -22,7 +22,7 @@
     <textarea rows='8' cols='50'></textarea>
     <textarea rows='8' cols='50'></textarea><p></p>
 
-    <input type='button' id='_3011_ready' value='举手'><p></p>
+    <input type='button' id='_5001_ready' value='举手'><p></p>
 
     <input type='button' id='_5013_craps' value='用户摇骰子'><p></p>
 
@@ -98,10 +98,10 @@ $(function(){
     socket.send(JSON.stringify(p));
   });
 
-  $('#_3011_ready').click(function(){
+  $('#_5001_ready').click(function(){
     var p = [
       102,
-      3011,
+      5001,
       Math.random() * 1000,
       new Date().getTime(),
       null,
