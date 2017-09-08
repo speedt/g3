@@ -11,28 +11,35 @@ const conf  = require(path.join(cwd, 'settings'));
 
 const biz    = require('emag.biz');
 
-const logger = require('log4js').getLogger('handle');
-
 const _  = require('underscore');
 _.str    = require('underscore.string');
 _.mixin(_.str.exports());
 
 const roomPool = require('emag.model').roomPool;
 
+const logger = require('log4js').getLogger('handle');
+
+/**
+ *
+ * 信息过滤
+ *
+ * @return
+ */
+function filter(msg){
+  if(!_.isString(msg)) return;
+  return _.trim(msg);
+}
+
 /**
  *
  */
 exports.one_for_one = function(send, msg){
-  if(!_.isString(msg.body)) return logger.error('chat one_for_one empty');
-
-  try{ var data = JSON.parse(msg.body);
+  try{ var data = JSON.parse(msg);
   }catch(ex){ return; }
 
   var _data = [data.channelId, JSON.stringify([2002, , _.now(), data.data])];
 
-  logger.debug('chat one_for_one: %j', _data);
-
-  send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
+  send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
     if(err) return logger.error('chat one_for_one:', err);
   });
 };
@@ -42,9 +49,7 @@ exports.one_for_one = function(send, msg){
    *
    */
   exports.one_for_group = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('chat one_for_group empty');
-
-    try{ var data = JSON.parse(msg.body);
+    try{ var data = JSON.parse(msg);
     }catch(ex){ return; }
 
     data.data = filter(data.data);
@@ -56,8 +61,11 @@ exports.one_for_one = function(send, msg){
   };
 
   function p1(send, data, user){
+    if(!user.group_id)              return;
+
     var room = roomPool.get(user.group_id);
     if(!room)                       return;
+
     if(1 > _.size(room.getUsers())) return;
 
     var _data = [];
@@ -75,27 +83,10 @@ exports.one_for_one = function(send, msg){
   }
 
   function p2(send, data, err){
-    if('string' === typeof err) return logger.debug('chat one_for_group:', err);
-
-    logger.error('chat one_for_group:', err);
-
-    // var _data = [];
-    // _data.push(data.channelId);
-    // _data.push(JSON.stringify([2004, data.seqId, _.now(), , err]));
-
-    // send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
-    //   if(err) return logger.error('chat one_for_group:', err);
-    // });
+    if('object' === typeof err) return logger.error('chat one_for_group:', err);
+    switch(err){
+      case 'invalid_user_id': return logger.debug('chat one_for_group:', err);
+      default: logger.debug('chat one_for_group:', err);
+    }
   }
 })();
-
-/**
- *
- * 信息过滤
- *
- * @return
- */
-function filter(msg){
-  if(!_.isString(msg)) return;
-  return _.trim(msg);
-}
