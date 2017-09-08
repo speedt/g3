@@ -60,6 +60,15 @@ var Method = function(opts){
   self.visitor_count = opts.visitor_count || 0;  // 游客人数
   self.fund          = opts.fund          || 1000;
   self.round_count   = opts.round_count   || 4;
+
+  self.round_pno             = 1;  // 当前第n局
+  self.round_no              = 1;  // 当前第n把
+  self.round_no_first_seat   = 1;  // 庄家摇骰子确定第一个起牌人的座位
+  self.round_no_compare      = []; // 牌比对结果
+  self.round_no_compare_seat = 1;  // 待比牌人的座位
+
+  self.banker_seat = 0;                // 庄家座位
+  self.banker_bets = [200, 300, 500];  // 庄家锅
 };
 
 var pro = Method.prototype;
@@ -110,14 +119,6 @@ pro.getUser = function(id){
 };
 
 /**
- *
- * @return
- */
-pro.getUserBySeat = function(seat_no){
-  return this._players[seat_no];
-};
-
-/**
  * 获取所有用户
  *
  * @return
@@ -131,9 +132,7 @@ pro.getUsers = function(){
  *
  * @return
  */
-pro.isPlayer = function(user_id){
-  var user = this.getUser(user_id);
-  if(!user) return;
+pro.isPlayer = function(user){
   return 0 < user.opts.seat;
 };
 
@@ -141,11 +140,19 @@ pro.isPlayer = function(user_id){
  *
  * @return
  */
-pro.isReady = function(user_id){
-  var user = this.getUser(user_id);
-  if(!user) return;
+pro.isReady = function(user){
   return 0 < user.opts.is_ready;
 };
+
+/**
+ *
+ * @return
+ */
+pro.isQuit = function(user){
+  return 0 < user.opts.is_quit;
+};
+
+
 
 /**
  * 判断是否游戏是否开始
@@ -165,7 +172,7 @@ pro.getReadyCount = function(){
   var count = 0;
 
   for(let i of _.values(this._players)){
-    if(0 < i.opts.is_ready) ++count;
+    if(this.isReady(i)) ++ count;
   }
 
   return count;
@@ -228,13 +235,16 @@ pro.isFull = function(){
  * @return
  */
 pro.re_entry = function(user){
-  var _user = this.getUser(user.id);
-  if(!_user)                   return;
-  if(!this.isPlayer(_user.id)) return;
-  if(1 > _user.opts.is_quit)   return;
+  var self = this;
+
+  var _user = self.getUser(user.id);
+  if(!_user)                return '不在群组';
+
+  if(!self.isPlayer(_user)) return '不是玩家';
+  if(!self.isQuit  (_user)) return '没有退出';
 
   _user.opts.re_entry_time = new Date().getTime();
-  _user.opts.is_quit       = 1;
+  _user.opts.is_quit       = 0;
 
   _user.server_id  = user.server_id;
   _user.channel_id = user.channel_id;
@@ -250,21 +260,21 @@ pro.re_entry = function(user){
 pro.quit = function(user_id){
   var self = this;
 
-  var user = self.getUser(user_id);
-  if(!user) return true;
+  var _user = self.getUser(user_id);
+  if(!_user) return true;
 
-  if(self.isStart() && self.isPlayer(user_id)){
-    user.opts.quit_time = new Date().getTime();
-    user.opts.is_quit   = 1;
-    return false;
+  if(self.isPlayer(_user)){
+    if(self.isStart()){
+      _user.opts.quit_time = new Date().getTime();
+      _user.opts.is_quit   = 1;
+      return false;
+    }
+
+    self._free_seat.push(_user.opts.seat);
+    delete self._players[_user.opts.seat];
   }
 
-  if(self.isPlayer(user_id)){
-    self._free_seat.push(user.opts.seat);
-    delete self._players[user.opts.seat];
-  }
-
-  return (delete self._users[user_id]);
+  return (delete self._users[_user.id]);
 };
 
 /**
@@ -274,15 +284,16 @@ pro.quit = function(user_id){
 pro.ready = function(user_id){
   var self = this;
 
-  if(self.act_status !== ACT_STATUS_READY) return '动作：举手';
+  if(self.act_status !== ACT_STATUS_READY) return 'ACT_STATUS_READY';
   if(self.isStart())                       return '已经开始';
 
-  var user = self.getUser(user_id);
-  if(!user)                   return '用户不存在';
-  if(!self.isPlayer(user_id)) return '不能举手';
-  if( self.isReady (user_id)) return '已经举手';
+  var _user = self.getUser(user_id);
+  if(!_user)                return '用户不存在';
 
-  user.opts.is_ready = 1;
+  if(!self.isPlayer(_user)) return '不能举手';
+  if( self.isReady (_user)) return '已经举手';
+
+  _user.opts.is_ready = 1;
 
   if(self.isStart()){
     self.act_status = ACT_STATUS_CRAPS4;
@@ -290,7 +301,7 @@ pro.ready = function(user_id){
     self._cards_36  = genCards();
   }
 
-  return user;
+  return _user;
 };
 
 (function(){

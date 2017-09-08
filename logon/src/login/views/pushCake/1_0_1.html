@@ -10,6 +10,7 @@
 
     <input type='button' id='wrongTest' value='wrongTest'><p></p>
     <input type='button' id='myInfo' value='myInfo'><p></p>
+    <input type='button' id='re_entry' value='重连'><p></p>
 
     创建群组：
     <input type='button' id='createGroup' value='createGroup'><p></p>
@@ -69,6 +70,18 @@ $(function(){
         round_count: 4,  // n圈
         fund: 1000,  // 组局基金
       }),
+      null,
+    ];
+    socket.send(JSON.stringify(p));
+  });
+
+  $('#re_entry').click(function(){
+    var p = [
+      102,
+      3003,
+      Math.random() * 1000,
+      new Date().getTime(),
+      null,
       null,
     ];
     socket.send(JSON.stringify(p));
