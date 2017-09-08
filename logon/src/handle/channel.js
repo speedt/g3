@@ -40,10 +40,7 @@ const logger = require('log4js').getLogger('handle.channel');
 
   function p2(send, data, err){
     if('object' === typeof err) return logger.error('channel open:', err);
-    switch(err){
-      case 'invalid_user_id': return logger.debug('channel open:', err);
-      default: logger.debug('channel open:', err);
-    }
+    logger.debug('channel open:', err);
   }
 })();
 
@@ -79,10 +76,7 @@ const logger = require('log4js').getLogger('handle.channel');
 
   function p2(send, data, err){
     if('object' === typeof err) return logger.error('channel close:', err);
-    switch(err){
-      case 'invalid_user_id': return logger.debug('channel close:', err);
-      default: logger.debug('channel close:', err);
-    }
+    logger.debug('channel close:', err);
   }
 })();
 
@@ -108,9 +102,6 @@ const logger = require('log4js').getLogger('handle.channel');
 
   function p2(send, data, err){
     if('object' === typeof err) return logger.error('channel info:', err);
-    switch(err){
-      case 'invalid_user_id': return logger.debug('channel info:', err);
-      default: logger.debug('channel info:', err);
-    }
+    logger.debug('channel info:', err);
   }
 })();

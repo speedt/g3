@@ -84,9 +84,6 @@ exports.one_for_one = function(send, msg){
 
   function p2(send, data, err){
     if('object' === typeof err) return logger.error('chat one_for_group:', err);
-    switch(err){
-      case 'invalid_user_id': return logger.debug('chat one_for_group:', err);
-      default: logger.debug('chat one_for_group:', err);
-    }
+    logger.debug('chat one_for_group:', err);
   }
 })();

@@ -115,16 +115,18 @@ const logger = require('log4js').getLogger('biz.user');
     });
   }
 
-  var sha1 = '6a63911ac256b0c00cf270c6332119240d52b13e';
+  var sha1    = '6a63911ac256b0c00cf270c6332119240d52b13e';
+  var numkeys = 4;
+  var seconds = 5;
 
   function authorize(user){
     return new Promise((resolve, reject) => {
-      redis.evalsha(sha1, 4,
+      redis.evalsha(sha1, numkeys,
         conf.redis.database,                   /**/
         conf.app.client_id,                    /**/
         user.id,                               /**/
         utils.replaceAll(uuid.v4(), '-', ''),  /**/
-        5, (err, code) => {
+        seconds, (err, code) => {
         if(err) return reject(err);
         resolve(code);
       });

@@ -26,7 +26,10 @@ const redis = require('emag.db').redis;
             'WHERE '+
               'b.id IS NOT NULL '+
             'ORDER BY a.create_time DESC';
-
+  /**
+   *
+   * @return
+   */
   exports.findAll = function(cb){
     mysql.query(sql, null, cb);
   };

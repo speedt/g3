@@ -9,12 +9,12 @@ const path  = require('path');
 const cwd   = process.cwd();
 const conf  = require(path.join(cwd, 'settings'));
 
+const _ = require('underscore');
+
 const biz    = require('emag.biz');
 const cfg    = require('emag.cfg');
 
 const logger = require('log4js').getLogger('handle.group');
-
-const _ = require('underscore');
 
 (() => {
   /**
@@ -44,11 +44,8 @@ const _ = require('underscore');
   }
 
   function p2(send, data, err){
-    if('object' === typeof err)
-      return logger.error('group search:', err);
-
-    if('invalid_user_id' === err)
-      return logger.debug('group search:', err);
+    if('object'   === typeof err) return logger.error('group search:', err);
+    if('invalid_user_id' === err) return logger.debug('group search:', err);
 
     var _data = [
       data.channelId,
@@ -93,11 +90,8 @@ const _ = require('underscore');
   }
 
   function p2(send, data, err){
-    if('object' === typeof err)
-      return logger.error('group re_entry:', err);
-
-    if('invalid_user_id' === err)
-      return logger.debug('group re_entry:', err);
+    if('object'   === typeof err) return logger.error('group re_entry:', err);
+    if('invalid_user_id' === err) return logger.debug('group re_entry:', err);
 
     var _data = [
       data.channelId,
@@ -128,9 +122,10 @@ const _ = require('underscore');
   function p1(send, data, doc){
     if(!doc) return;
 
-    var _data = [];
-    _data.push(null);
-    _data.push(JSON.stringify([3006, doc[1], _.now(), data.seqId]));
+    var _data = [
+      null,
+      JSON.stringify([3006, doc[1], _.now(), data.seqId]),
+    ];
 
     for(let i of _.values(doc[0])){
       if(!i.server_id || !i.channel_id) continue;
@@ -143,11 +138,8 @@ const _ = require('underscore');
   }
 
   function p2(send, data, err){
-    if('object' === typeof err)
-      return logger.error('group quit:', err);
-
-    if('invalid_user_id' === err)
-      return logger.debug('group quit:', err);
+    if('object'   === typeof err) return logger.error('group quit:', err);
+    if('invalid_user_id' === err) return logger.debug('group quit:', err);
 
     var _data = [
       data.channelId,
@@ -176,9 +168,10 @@ const _ = require('underscore');
   function p1(send, data, doc){
     if(!doc) return;
 
-    var _data = [];
-    _data.push(null);
-    _data.push(JSON.stringify([3008, doc[1], _.now(), data.seqId]));
+    var _data = [
+      null,
+      JSON.stringify([3008, doc[1], _.now(), data.seqId]),
+    ];
 
     for(let i of _.values(doc[0])){
       if(!i.server_id || !i.channel_id) continue;
@@ -191,11 +184,8 @@ const _ = require('underscore');
   }
 
   function p2(send, data, err){
-    if('object' === typeof err)
-      return logger.error('group entry:', err);
-
-    if('invalid_user_id' === err)
-      return logger.debug('group entry:', err);
+    if('object'   === typeof err) return logger.error('group entry:', err);
+    if('invalid_user_id' === err) return logger.debug('group entry:', err);
 
     var _data = [
       data.channelId,

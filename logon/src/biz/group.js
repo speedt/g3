@@ -197,7 +197,7 @@ const logger = require('log4js').getLogger('biz.group');
 
     if(!room.quit(user.id)){
       return Promise.resolve([
-        room.users,
+        room.getUsers(),
         user.id,
       ]);
     }
@@ -208,7 +208,7 @@ const logger = require('log4js').getLogger('biz.group');
         if(1 > _.size(room.getUsers())) return resolve();
 
         resolve([
-          room.users,
+          room.getUsers(),
           user.id,
         ]);
       })
@@ -242,7 +242,7 @@ const logger = require('log4js').getLogger('biz.group');
     if('string' === typeof _re_entry) return Promise.reject(_re_entry);
 
     return Promise.resolve([
-      room.users,
+      room.getUsers(),
       [_re_entry.id, _re_entry.opts.seat],
     ]);
   }
