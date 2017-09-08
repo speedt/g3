@@ -25,7 +25,7 @@ const _ = require('underscore');
     var data = { serverId: s[0], channelId: s[1] };
 
     biz.user.registerChannel(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
+    .then (p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
 
@@ -52,6 +52,20 @@ const _ = require('underscore');
 })();
 
 (() => {
+  /**
+   *
+   */
+  exports.close = function(send, msg){
+    if(!_.isString(msg.body)) return logger.error('channel close empty');
+
+    var s = msg.body.split('::');
+    var data = { serverId: s[0], channelId: s[1] };
+
+    biz.user.logout(data.serverId, data.channelId)
+    .then (p1.bind(null, send, data))
+    .catch(p2);
+  };
+
   function p1(send, data, doc){
     if(!doc) return;
 
@@ -76,49 +90,33 @@ const _ = require('underscore');
       default: logger.debug('channel close:', err);
     }
   }
-
-  /**
-   *
-   */
-  exports.close = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('channel close empty');
-
-    var s = msg.body.split('::');
-    var data = { serverId: s[0], channelId: s[1] };
-
-    biz.user.logout(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
-    .catch(p2);
-  };
 })();
 
 (() => {
-  function p1(send, data, user){
-    var _data = [data.channelId, JSON.stringify([1002, data.seqId, _.now(), user])];
-    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, (err, code) => {
+  /**
+   *
+   */
+  exports.info = function(send, msg){
+    try{ var data = JSON.parse(msg);
+    }catch(ex){ return; }
+
+    biz.user.getByChannelId(data.serverId, data.channelId)
+    .then (p1.bind(null, send, data))
+    .catch(p2.bind(null, send, data));
+  };
+
+  function p1(send, data, doc){
+    var _data = [data.channelId, JSON.stringify([1002, data.seqId, _.now(), doc])];
+    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
       if(err) return logger.error('channel info:', err);
     });
   }
 
-  function p2(err){
+  function p2(send, data, err){
     if('string' !== typeof err) return logger.error('channel info:', err);
     switch(err){
       case 'invalid_user_id': return logger.debug('channel info:', err);
       default: logger.debug('channel info:', err);
     }
   }
-
-  /**
-   *
-   */
-  exports.info = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('channel info empty');
-
-    try{ var data = JSON.parse(msg.body);
-    }catch(ex){ return; }
-
-    biz.user.getByChannelId(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
-    .catch(p2);
-  };
 })();
