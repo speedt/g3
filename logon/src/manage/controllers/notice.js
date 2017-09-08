@@ -11,7 +11,7 @@ const _   = require('underscore');
 const conf  = require('../settings');
 const utils = require('speedt-utils').utils;
 
-const amq = require('emag.lib').amq;
+const amq = require('speedt-amq');
 
 exports.indexUI = function(req, res, next){
 

@@ -9,12 +9,13 @@ const path   = require('path');
 const cwd    = process.cwd();
 const conf   = require('./settings');
 
+const amq    = require('speedt-amq');
+
 const _      = require('underscore');
 
 const cfg    = require('emag.cfg');
 const biz    = require('emag.biz');
 const handle = require('emag.handle');
-const amq    = require('emag.lib').amq;
 
 const log4js = require('log4js');
 
