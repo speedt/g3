@@ -32,7 +32,7 @@ const logger = require('log4js').getLogger('handle.channel');
   function p1(send, data, doc){
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, [
       data.channelId,
-      JSON.stringify([1, , _.now(), conf.app.ver])
+      JSON.stringify([1, conf.app.ver, _.now()]),
     ], err => {
       if(err) return logger.error('channel open:', err);
     });
@@ -65,7 +65,7 @@ const logger = require('log4js').getLogger('handle.channel');
 
     var _data = [];
     _data.push(null);
-    _data.push(JSON.stringify([1004, data.seqId, _.now(), doc[1]]));
+    _data.push(JSON.stringify([1004, doc[1], _.now(), data.seqId]));
 
     for(let i of _.values(doc[0])){
       if(!i.server_id || !i.channel_id) continue;
@@ -100,7 +100,7 @@ const logger = require('log4js').getLogger('handle.channel');
   };
 
   function p1(send, data, doc){
-    var _data = [data.channelId, JSON.stringify([1002, data.seqId, _.now(), doc])];
+    var _data = [data.channelId, JSON.stringify([1002, doc, _.now(), data.seqId])];
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
       if(err) return logger.error('channel info:', err);
     });

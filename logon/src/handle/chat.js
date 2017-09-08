@@ -37,7 +37,7 @@ exports.one_for_one = function(send, msg){
   try{ var data = JSON.parse(msg);
   }catch(ex){ return; }
 
-  var _data = [data.channelId, JSON.stringify([2002, , _.now(), data.data])];
+  var _data = [data.channelId, JSON.stringify([2002, data.data, _.now()])];
 
   send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
     if(err) return logger.error('chat one_for_one:', err);
@@ -70,7 +70,7 @@ exports.one_for_one = function(send, msg){
 
     var _data = [];
     _data.push(null);
-    _data.push(JSON.stringify([2004, data.seqId, _.now(), [user.id, data.data]]));
+    _data.push(JSON.stringify([2004, [user.id, data.data], _.now(), data.seqId]));
 
     for(let i of _.values(room.getUsers())){
       if(!i.server_id || !i.channel_id) continue;
