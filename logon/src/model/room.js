@@ -240,9 +240,6 @@ pro.re_entry = function(user){
   var _user = self.getUser(user.id);
   if(!_user)                return '不在群组';
 
-  if(!self.isPlayer(_user)) return '不是玩家';
-  if(!self.isQuit  (_user)) return '没有退出';
-
   _user.opts.re_entry_time = new Date().getTime();
   _user.opts.is_quit       = 0;
 

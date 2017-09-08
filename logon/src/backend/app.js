@@ -7,8 +7,10 @@
 
 const path   = require('path');
 const cwd    = process.cwd();
-const _      = require('underscore');
 const conf   = require('./settings');
+
+const _      = require('underscore');
+
 const cfg    = require('emag.cfg');
 const biz    = require('emag.biz');
 const handle = require('emag.handle');
@@ -57,9 +59,9 @@ function exit(){
   });
 }
 
-process.on('SIGINT', exit);
+process.on('SIGINT',  exit);
 process.on('SIGTERM', exit);
-process.on('exit', exit);
+process.on('exit',    exit);
 
 biz.backend.open(conf.app.id, (err, code) => {
   if(err) return logger.error('backend %j open:', conf.app.id, err);
