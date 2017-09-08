@@ -17,6 +17,18 @@ const logger = require('log4js').getLogger('handle.channel');
 const _ = require('underscore');
 
 (() => {
+  /**
+   *
+   */
+  exports.open = function(send, msg){
+    var s = msg.split('::');
+    var data = { serverId: s[0], channelId: s[1] };
+
+    biz.user.registerChannel(data.serverId, data.channelId)
+    .then(p1.bind(null, send, data))
+    .catch(p2.bind(null, send, data));
+  };
+
   function p1(send, data, doc){
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, [
       data.channelId,
@@ -37,20 +49,6 @@ const _ = require('underscore');
       if(err) return logger.error('channel open:', err);
     });
   }
-
-  /**
-   *
-   */
-  exports.open = function(send, msg){
-    if(!_.isString(msg.body)) return logger.error('channel open empty');
-
-    var s = msg.body.split('::');
-    var data = { serverId: s[0], channelId: s[1] };
-
-    biz.user.registerChannel(data.serverId, data.channelId)
-    .then(p1.bind(null, send, data))
-    .catch(p2.bind(null, send, data));
-  };
 })();
 
 (() => {

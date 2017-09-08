@@ -8,14 +8,10 @@
 const _      = require('underscore');
 const logger = require('log4js').getLogger('handle.front');
 
-exports.start = function(send, msg){
-  if(!msg.body) return logger.error('front start empty');
-  var front_id = msg.body;
+exports.start = function(send, front_id){
   logger.info('front %j start: %j', front_id, _.now());
 };
 
-exports.stop = function(send, msg){
-  if(!msg.body) return logger.error('front stop empty');
-  var front_id = msg.body;
+exports.stop = function(send, front_id){
   logger.info('front %j stop: %j', front_id, _.now());
 };
