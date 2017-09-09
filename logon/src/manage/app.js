@@ -93,7 +93,7 @@ app.use(app.router)
 
 app.use(function (err, req, res, next){
   if(!err) return next();
-  if(req.xhr) return res.send({ error: { msg: err.message } });
+  if(req.xhr) return res.send({ error: { code: err.message } });
   res.send(500, err.message);
 });
 

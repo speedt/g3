@@ -240,7 +240,11 @@ function del(id){
       dataType: 'JSON',
       data: { id: id },
       success: function(data){
-        if(data.error) return alert(data.error.msg);
+        if(data.error){
+	      if(data.error.code) alert(data.error.code);
+          if(data.error.msg)  alert(data.error.msg);
+          return;
+        }
         alert('删除成功');
         location.reload();
       },

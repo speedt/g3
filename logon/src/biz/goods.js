@@ -26,13 +26,16 @@ const redis = require('emag.db').redis;
 
 (() => {
   var sql = 'SELECT '+
-              'b.prop_name game_prop_name, '+
+              'c.prop_name game_prop_name,'+
+              'b.goods_name,'+
               'a.* '+
             'FROM '+
               '(SELECT * FROM w_goods_detail WHERE goods_id=?) a '+
-              'LEFT JOIN w_game_prop b ON (a.game_prop_id=b.id) '+
+              'LEFT JOIN w_goods b ON (a.goods_id=b.id) '+
+              'LEFT JOIN w_game_prop c ON (a.game_prop_id=c.id) '+
             'WHERE '+
-              'b.id IS NOT NULL '+
+              'b.id IS NOT NULL AND '+
+              'c.id IS NOT NULL '+
             'ORDER BY a.create_time DESC';
   /**
    * 获取某一商品的详细道具列表
@@ -116,6 +119,6 @@ const redis = require('emag.db').redis;
    * @return
    */
   exports.del = function(id, cb){
-    mysql.query(sql, [id], cb);
+    cb(new Error('Permission Denied'));
   };
 })();
