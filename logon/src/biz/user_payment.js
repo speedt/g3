@@ -37,14 +37,15 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  var sql = 'INSERT INTO s_user_payment (id, user_id, goods_id, create_time, order_id) VALUES (?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO s_user_payment (id, user_id, goods_id, create_time, order_id, original_data) VALUES (?, ?, ?, ?, ?, ?)';
   /**
    *
    * @return
    */
   exports.saveNew = function(newInfo, trans){
-    newInfo.id          = utils.replaceAll(uuid.v1(), '-', '');
-    newInfo.create_time = new Date();
+    newInfo.id            = utils.replaceAll(uuid.v1(), '-', '');
+    newInfo.create_time   = new Date();
+    newInfo.original_data = JSON.stringify(newInfo);
 
     return new Promise((resolve, reject) => {
       (trans || mysql).query(sql, [
@@ -53,6 +54,7 @@ const logger = require('log4js').getLogger('biz.user');
         newInfo.goods_id,
         newInfo.create_time,
         newInfo.order_id,
+        newInfo.original_data,
       ], (err, code) => {
         if(err) return reject(err);
         resolve(newInfo);
