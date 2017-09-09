@@ -37,7 +37,7 @@
 			</a>
 		</li>
 
-		<li#if('true' == "#indexOf($!{data.nav_choose}, ',02,')") class='active open'#end>
+		#*<li#if('true' == "#indexOf($!{data.nav_choose}, ',02,')") class='active open'#end>
 			<a href='javascript:;' class="dropdown-toggle">
 				<i class="icon-comments "></i>
 				<span class="menu-text"> 系统管理 </span>
@@ -52,7 +52,7 @@
 					</a>
 				</li>
 
-				#*<!-- <li#if('true' == "#indexOf($!{data.nav_choose}, ',0202,')") class='active'#end>
+				<!-- <li#if('true' == "#indexOf($!{data.nav_choose}, ',0202,')") class='active'#end>
 					<a href="/menu/">
 						<i class="icon-double-angle-right"></i>
 						模块管理
@@ -64,9 +64,9 @@
 						<i class="icon-double-angle-right"></i>
 						角色管理
 					</a>
-				</li> -->*#
+				</li> -->
 			</ul>
-		</li>
+		</li>*#
 
 		<li#if('true' == "#indexOf($!{data.nav_choose}, ',03,')") class='active open'#end>
 			<a href='javascript:;' class="dropdown-toggle">
@@ -87,7 +87,7 @@
 			</ul>
 		</li>
 
-		<li#if('true' == "#indexOf($!{data.nav_choose}, ',04,')") class='active open'#end>
+		<!-- <li#if('true' == "#indexOf($!{data.nav_choose}, ',04,')") class='active open'#end>
 			<a href='javascript:;' class="dropdown-toggle">
 				<i class="icon-comments "></i>
 				<span class="menu-text"> 交流中心 </span>
@@ -111,7 +111,7 @@
 				</li>
 
 			</ul>
-		</li>
+		</li> -->
 
 		<li>
 			<a href="$!{conf.html.virtualPath}manager/logout">
