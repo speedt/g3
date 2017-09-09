@@ -56,8 +56,8 @@ var Method = function(opts){
 
   self._free_seat    = [1, 2, 3, 4];
   self._player_count = self._free_seat.length;
-
   self.visitor_count = opts.visitor_count || 0;  // 游客人数
+
   self.fund          = opts.fund          || 1000;
   self.round_count   = opts.round_count   || 4;
 
@@ -172,7 +172,7 @@ pro.getReadyCount = function(){
   var count = 0;
 
   for(let i of _.values(this._players)){
-    if(this.isReady(i)) ++ count;
+    if(this.isReady(i)) ++count;
   }
 
   return count;
@@ -183,7 +183,15 @@ pro.getReadyCount = function(){
  * @return
  */
 pro.release = function(){
-  return 1 > _.size(this._users);
+  return 1 > this.getUserCount();
+};
+
+/**
+ *
+ * @return
+ */
+pro.getUserCount = function(){
+  return _.size(this._users);
 };
 
 /**
@@ -192,7 +200,7 @@ pro.release = function(){
  * @return boolean
  */
 pro.isFull = function(){
-  return (this._player_count + this.visitor_count) <= _.size(this._users);
+  return (this._player_count + this.visitor_count) <= this.getUserCount();
 };
 
 (function(){
@@ -204,7 +212,7 @@ pro.isFull = function(){
   pro.entry = function(user){
     var self = this;
 
-    if(self.getUser(user.id)) return '已经在房间内';
+    if(self.getUser(user.id)) return '已在房间';
     if(self.isFull())         return '房间满员';
 
     user.opts = {};
@@ -238,7 +246,7 @@ pro.re_entry = function(user){
   var self = this;
 
   var _user = self.getUser(user.id);
-  if(!_user)                return '不在群组';
+  if(!_user) return '不在群组';
 
   _user.opts.re_entry_time = new Date().getTime();
   _user.opts.is_quit       = 0;
@@ -271,7 +279,7 @@ pro.quit = function(user_id){
     delete self._players[_user.opts.seat];
   }
 
-  return (delete self._users[_user.id]);
+  return (delete self._users[user_id]);
 };
 
 /**

@@ -33,8 +33,7 @@ res.release = function(id){
   var room = this.get(id);
   if(!room) return true;
   if(!room.release()) return false;
-  delete rooms[id];
-  return true;
+  return (delete rooms[id]);
 };
 
 res.get = function(id){

@@ -61,16 +61,17 @@ exports.one_for_one = function(send, msg){
   };
 
   function p1(send, data, user){
-    if(!user.group_id)              return;
+    if(!user.group_id) return;
 
     var room = roomPool.get(user.group_id);
-    if(!room)                       return;
+    if(!room)          return;
 
-    if(1 > _.size(room.getUsers())) return;
+    if(room.release()) return;
 
-    var _data = [];
-    _data.push(null);
-    _data.push(JSON.stringify([2004, [user.id, data.data], _.now(), data.seqId]));
+    var _data = [
+      null,
+      JSON.stringify([2004, [user.id, data.data], _.now(), data.seqId]),
+    ];
 
     for(let i of _.values(room.getUsers())){
       if(!i.server_id || !i.channel_id) continue;
