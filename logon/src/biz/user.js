@@ -27,6 +27,16 @@ _.mixin(_.str.exports());
 const logger = require('log4js').getLogger('biz.user');
 
 (() => {
+  /**
+   *
+   * @return
+   */
+  exports.payment = function(payInfo, cb){
+    // TODO
+  };
+})();
+
+(() => {
   var sql = 'SELECT a.* FROM s_user a WHERE a.status=? ORDER BY a.create_time DESC';
 
   exports.findAll = function(status, cb){

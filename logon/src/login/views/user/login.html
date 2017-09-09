@@ -81,7 +81,8 @@ function push(){
     success: function(data){
       console.log(data);
       if(data.error){
-        alert(data.error.code +' '+ data.error.msg);
+        if(data.error.code) alert(data.error.code);
+        if(data.error.msg)  alert(data.error.msg);
         return;
       }
       location.href = '$!{conf.html.virtualPath}?code='+ data.data[0] +'&s='+ data.data[1];
