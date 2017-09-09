@@ -27,6 +27,33 @@ _.mixin(_.str.exports());
 const logger = require('log4js').getLogger('biz.user');
 
 (() => {
+  /**
+   *
+   * @return
+   */
+  exports.editPayment = function(data, id, trans){
+    var sql = 'UPDATE s_user SET a=a+b, b=b+c WHERE id=?';
+
+    return new Promise((resolve, reject) => {
+      (trans || mysql).query(sql, [
+        user_info.server_id,
+        user_info.channel_id,
+        user_info.id,
+      ], err => {
+        if(err) return reject(err);
+        resolve(user_info);
+      });
+    });
+  };
+
+  function getFieldName(field_no){
+    switch(field_no){
+      case 4: return 'gold_count';
+    }
+  }
+})();
+
+(() => {
   var sql = 'SELECT a.* FROM s_user a WHERE a.status=? ORDER BY a.create_time DESC';
 
   exports.findAll = function(status, cb){
