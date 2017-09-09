@@ -5,18 +5,19 @@
  */
 'use strict';
 
-exports.group      = require('./group');
+exports.group        = require('./group');
 
-exports.goods      = require('./goods');
-exports.gift       = require('./gift');
+exports.goods        = require('./goods');
+exports.gift         = require('./gift');
 
-exports.backend    = require('./backend');
-exports.frontend   = require('./frontend');
+exports.backend      = require('./backend');
+exports.frontend     = require('./frontend');
 
-exports.manager    = require('./manager');
-exports.user       = require('./user');
+exports.manager      = require('./manager');
+exports.user         = require('./user');
+exports.user_payment = require('./user_payment');
 
-exports.cfg        = require('./cfg');
-exports.notice     = require('./notice');
+exports.cfg          = require('./cfg');
+exports.notice       = require('./notice');
 
-exports.pushCake   = require('./pushCake');
+exports.pushCake     = require('./pushCake');

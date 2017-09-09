@@ -86,3 +86,20 @@ exports.giftUI = function(req, res, next){
     });
   });
 };
+
+exports.paymentUI = function(req, res, next){
+  var id = req.query.id;
+
+  biz.user_payment.findAllByUserId(id, function (err, docs){
+    if(err) return next(err);
+
+    res.render('user/payment', {
+      conf: conf,
+      data: {
+        list_payment: docs,
+        session_user: req.session.user,
+        nav_choose:   ',03,0301,'
+      }
+    });
+  });
+};
