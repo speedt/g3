@@ -63,20 +63,26 @@ const logger = require('log4js').getLogger('biz.group');
       _users.push([i.id, i.opts.seat, i.nickname, i.weixin_avatar]);
     }
 
-    return Promise.resolve([room.getUsers(), [[
-      room.id,
-      room.name,
-      room.fund,
-      room.round_count,
-      room.visitor_count,        // 游客人数
-      room.banker_seat,          // 当前庄家座位
-      room.round_pno,            // 当前第n局
-      room.round_no,             // 当前第n把
-      room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
-      room.getReadyCount(),      // 举手人数
-      room.act_status,
-      room.act_seat,
-    ], _users]]);
+    return Promise.resolve([
+      room.getUsers(),
+      [
+        [
+          room.id,
+          room.name,
+          room.fund,
+          room.round_count,
+          room.visitor_count,        // 游客人数
+          room.banker_seat,          // 当前庄家座位
+          room.round_pno,            // 当前第n局
+          room.round_no,             // 当前第n把
+          room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
+          room.getReadyCount(),      // 举手人数
+          room.act_status,
+          room.act_seat,
+        ],
+        _users,
+      ]
+    ]);
   }
 })();
 

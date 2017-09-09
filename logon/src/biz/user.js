@@ -237,7 +237,7 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  var sql = 'UPDATE s_user SET nickname=?, current_score=?, vip=?, gold_count=? WHERE id=?';
+  var sql = 'UPDATE s_user SET nickname=?, current_score=?, vip=?, gold_count=gold_count+? WHERE id=?';
 
   /**
    * 基本信息修改
