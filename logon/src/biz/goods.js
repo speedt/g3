@@ -43,9 +43,9 @@ const redis = require('emag.db').redis;
    * @param id 商品id
    * @return
    */
-  exports.findDetailById = function(id, cb){
+  exports.findDetailById = function(id, trans){
     return new Promise((resolve, reject) => {
-      mysql.query(sql, [id], (err, docs) => {
+      (trans || mysql).query(sql, [id], (err, docs) => {
         if(err) return reject(err);
         resolve(docs);
       })

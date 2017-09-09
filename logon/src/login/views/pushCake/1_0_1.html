@@ -59,10 +59,11 @@ $(function(){
     $.ajax({
       url: '$!{conf.html.virtualPath}user/da426e6076be11e7ad1a29fa785dd421',
       type: 'POST',
-      dataType: 'JSON',
+      dataType: 'TEXT',
       data: {
-        a: 1,
-        b: 2,
+        user_id:    '1',
+        product_id: '3',
+        order_id:   '123321',
       },
       success: function(data){
         console.log(data);

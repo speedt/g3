@@ -32,9 +32,53 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.payment = function(payInfo){
-    console.log(payInfo);
-    return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      validate(payInfo)
+      .then(formVali)
+      .then(p1)
+      .then(() => resolve())
+      .catch(reject);
+    });
   };
+
+  function validate(payInfo){
+    return Promise.resolve(payInfo);
+  }
+
+  function formVali(payInfo){
+    payInfo.goods_id = payInfo.product_id;
+    return Promise.resolve(payInfo);
+  }
+
+  function p1(payInfo){
+    return new Promise((resolve, reject) => {
+      mysql.beginTransaction()
+      .then(p2.bind(null, payInfo))
+      .then(() => resolve())
+      .catch(reject);
+    });
+  }
+
+  function p2(payInfo, trans){
+    return new Promise((resolve, reject) => {
+      biz.user_payment.saveNew(payInfo, trans)
+      .then(p3.bind(null, payInfo, trans))
+      .then(mysql.commitTransaction.bind(null, trans))
+      .then(() => resolve())
+      .catch(err => {
+        trans.rollback(() => reject(err));
+      })
+    });
+  }
+
+  function p3(payInfo, trans){
+    return new Promise((resolve, reject) => {
+      biz.goods.findDetailById(payInfo.goods_id, trans)
+      .then(biz.user.editPayment.bind(null, payInfo.user_id, trans))
+      .then(() => resolve())
+      .catch(reject);
+    });
+  }
 })();
 
 (() => {
@@ -42,7 +86,7 @@ const logger = require('log4js').getLogger('biz.user');
    *
    * @return
    */
-  exports.editPayment = function(data, id, trans){
+  exports.editPayment = function(id, trans, data){
     var _keys = process(data);
 
     var sql = 'UPDATE s_user SET ';
@@ -73,7 +117,8 @@ const logger = require('log4js').getLogger('biz.user');
 
   function getFieldName(field_no){
     switch(field_no){
-      case 4: return 'gold_count';
+      case '3': return 'current_score';
+      case '4': return 'gold_count';
     }
   }
 })();
