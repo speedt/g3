@@ -6,6 +6,7 @@
 	</head>
 	<body>
 
+    <input type='button' id='payment' value='充值'><p></p>
     <input type='button' id='logout' value='logout'><p></p>
 
     <input type='button' id='wrongTest' value='wrongTest'><p></p>
@@ -53,6 +54,24 @@ $(function(){
 var socket = null;
 
 $(function(){
+
+  $('#payment').click(function(){
+    $.ajax({
+      url: '$!{conf.html.virtualPath}user/da426e6076be11e7ad1a29fa785dd421',
+      type: 'POST',
+      dataType: 'JSON',
+      data: {
+        a: 1,
+        b: 2,
+      },
+      success: function(data){
+        console.log(data);
+      },
+      error: function(){
+        alert(arguments[2]);
+      }
+    });
+  });
 
   $('#wrongTest').click(function(){
     socket.send(JSON.stringify({}));

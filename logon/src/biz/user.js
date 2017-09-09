@@ -31,6 +31,17 @@ const logger = require('log4js').getLogger('biz.user');
    *
    * @return
    */
+  exports.payment = function(payInfo){
+    console.log(payInfo);
+    return Promise.resolve();
+  };
+})();
+
+(() => {
+  /**
+   *
+   * @return
+   */
   exports.editPayment = function(data, id, trans){
     var _keys = process(data);
 

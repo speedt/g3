@@ -24,17 +24,7 @@ const _  = require('underscore');
 _.str    = require('underscore.string');
 _.mixin(_.str.exports());
 
-const logger = require('log4js').getLogger('biz.user');
-
-(() => {
-  /**
-   *
-   * @return
-   */
-  exports.payment = function(payInfo, cb){
-    // TODO
-  };
-})();
+const logger = require('log4js').getLogger('biz.user_payment');
 
 (() => {
   var sql = 'INSERT INTO s_user_payment (id, user_id, goods_id, create_time, order_id, original_data) VALUES (?, ?, ?, ?, ?, ?)';
