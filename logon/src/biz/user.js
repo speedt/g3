@@ -32,19 +32,33 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.editPayment = function(data, id, trans){
-    var sql = 'UPDATE s_user SET a=a+b, b=b+c WHERE id=?';
+    var _keys = process(data);
+
+    var sql = 'UPDATE s_user SET ';
+    sql += _keys[0];
+    sql += ' WHERE id=?';
+
+    var _params = _keys[1];
+    _params.push(id);
 
     return new Promise((resolve, reject) => {
-      (trans || mysql).query(sql, [
-        user_info.server_id,
-        user_info.channel_id,
-        user_info.id,
-      ], err => {
+      (trans || mysql).query(sql, _params, err => {
         if(err) return reject(err);
-        resolve(user_info);
+        resolve();
       });
     });
   };
+
+  function process(data){
+    var _a = [], _b = [];
+
+    for(let i of data){
+      _a.push(getFieldName(i.game_prop_id) +'='+ getFieldName(i.game_prop_id) +'+?');
+      _b.push(i.num);
+    }
+
+    return [_a.join(','), _b];
+  }
 
   function getFieldName(field_no){
     switch(field_no){
