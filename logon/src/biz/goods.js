@@ -26,8 +26,8 @@ const redis = require('emag.db').redis;
 
 (() => {
   var sql = 'SELECT '+
-              'c.prop_name game_prop_name,'+
-              'b.goods_name,'+
+              'c.prop_name game_prop_name, '+
+              'b.goods_name, '+
               'a.* '+
             'FROM '+
               '(SELECT * FROM w_goods_detail WHERE goods_id=?) a '+

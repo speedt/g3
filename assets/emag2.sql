@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50623
 File Encoding         : 65001
 
-Date: 2017-09-09 14:00:15
+Date: 2017-09-09 16:19:03
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -177,6 +177,32 @@ CREATE TABLE `s_user_log` (
 -- ----------------------------
 -- Records of s_user_log
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for `s_user_payment`
+-- ----------------------------
+DROP TABLE IF EXISTS `s_user_payment`;
+CREATE TABLE `s_user_payment` (
+  `id` varchar(32) NOT NULL,
+  `user_id` varchar(32) DEFAULT NULL,
+  `goods_id` varchar(32) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `order_id` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of s_user_payment
+-- ----------------------------
+INSERT INTO `s_user_payment` VALUES ('03f24fa07a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:36:53', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('0c3b96807a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:07', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('151843c07a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:22', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('1b163b107a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:32', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('1bc8e9407a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:33', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('1d18c1d07a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:35', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('1e6258d07a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:37', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('1efc00c07a7a11e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:37:38', 'PB15552017080611424675675');
+INSERT INTO `s_user_payment` VALUES ('9fd3f8707a7911e7ae301facf754df8a', '9c012a33aa8b4ecc8aaf20ea149a6f25', '1', '2017-08-06 15:34:05', 'PB15552017080611424675675');
 
 -- ----------------------------
 -- Table structure for `w_game_prop`
