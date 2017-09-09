@@ -46,6 +46,10 @@ const logger = require('log4js').getLogger('biz.user');
   }
 
   function formVali(payInfo){
+    if(!_.isString(payInfo.user_id))    return Promise.reject('INVALID_PARAMS');
+    if(!_.isString(payInfo.product_id)) return Promise.reject('INVALID_PARAMS');
+    if(!_.isString(payInfo.order_id))   return Promise.reject('INVALID_PARAMS');
+
     payInfo.goods_id = payInfo.product_id;
     return Promise.resolve(payInfo);
   }
