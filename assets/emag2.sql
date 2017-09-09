@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50623
 File Encoding         : 65001
 
-Date: 2017-09-03 20:45:17
+Date: 2017-09-09 14:00:15
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -196,6 +196,7 @@ CREATE TABLE `w_game_prop` (
 INSERT INTO `w_game_prop` VALUES ('1', '冰冻', null, '2017-07-11 17:49:43');
 INSERT INTO `w_game_prop` VALUES ('2', '锁定', null, '2017-06-06 10:29:31');
 INSERT INTO `w_game_prop` VALUES ('3', '金币', '以个为单位', '2017-08-07 20:28:35');
+INSERT INTO `w_game_prop` VALUES ('4', '元宝', null, '2017-09-09 13:46:48');
 
 -- ----------------------------
 -- Table structure for `w_gift`
@@ -259,7 +260,7 @@ INSERT INTO `w_goods` VALUES ('0618ba207bcf11e784627dd159406629', '商品7', '�
 INSERT INTO `w_goods` VALUES ('1', '商品3', '商品3', '2017-07-11 17:49:43', '3', '3', '1', '3');
 INSERT INTO `w_goods` VALUES ('170f87f07bcf11e784627dd159406629', '商品8', '商品8', '2017-08-08 08:18:23', '8', '8', '1', '8');
 INSERT INTO `w_goods` VALUES ('2', '商品1', '商品1', '2017-06-06 10:29:31', '1', '1', '1', '1');
-INSERT INTO `w_goods` VALUES ('3', '商品2', '商品2', '2017-07-11 17:47:41', '2', '2', '0', '2');
+INSERT INTO `w_goods` VALUES ('3', '商品2', '商品2', '2017-07-11 17:47:41', '100', '2', '0', '1');
 INSERT INTO `w_goods` VALUES ('4', '商品4', '商品4', '2017-08-01 21:39:34', '4', '4', '0', '4');
 INSERT INTO `w_goods` VALUES ('5020b6507bce11e784627dd159406629', '商品5', '商品5', '2017-08-08 08:12:50', '5', '5', '1', '5');
 INSERT INTO `w_goods` VALUES ('587a29d07bce11e784627dd159406629', '商品6', '商品6', '2017-08-08 08:13:04', '6', '6', '1', '6');
@@ -290,7 +291,7 @@ INSERT INTO `w_goods_detail` VALUES ('2', '1', '2', '2', '2017-08-07 17:17:01');
 INSERT INTO `w_goods_detail` VALUES ('3', '2', '1', '3', '2017-08-07 17:17:03');
 INSERT INTO `w_goods_detail` VALUES ('4', '2', '2', '4', '2017-08-07 17:17:06');
 INSERT INTO `w_goods_detail` VALUES ('5', '1', '3', '5', '2017-08-07 20:30:30');
-INSERT INTO `w_goods_detail` VALUES ('6', '3', '3', '33', '2017-08-08 08:15:57');
+INSERT INTO `w_goods_detail` VALUES ('6', '3', '4', '100', '2017-08-08 08:15:57');
 INSERT INTO `w_goods_detail` VALUES ('7', '4', '3', '44', '2017-08-08 08:16:34');
 INSERT INTO `w_goods_detail` VALUES ('8', '5020b6507bce11e784627dd159406629', '3', '55', '2017-08-08 08:17:13');
 INSERT INTO `w_goods_detail` VALUES ('9', '587a29d07bce11e784627dd159406629', '3', '66', '2017-08-08 08:17:31');
