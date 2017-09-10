@@ -48,7 +48,7 @@ const logger = require('log4js').getLogger('biz.group');
   };
 
   function p1(room, user){
-    if(user.group_id) return Promise.reject('请先退出');
+    if(user.group_id) return Promise.reject('MUST_BE_QUIT');
     user.group_id = room.id;
     return Promise.resolve(user);
   }
@@ -120,7 +120,7 @@ const logger = require('log4js').getLogger('biz.group');
   };
 
   function p1(user){
-    if(user.group_id) return Promise.reject('请先退出');
+    if(user.group_id) return Promise.reject('MUST_BE_QUIT');
 
     return new Promise((resolve, reject) => {
       biz.user.genFreeGroupId()

@@ -26,7 +26,7 @@ const logger = require('log4js').getLogger('handle.group');
     try{ var data = JSON.parse(msg);
     }catch(ex){ return; }
 
-    biz.pushCake.ready(data.serverId, data.channelId)
+    biz.pushCake.ready(data.serverId, data.channelId, next.bind(null, send, data))
     .then (p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
   };
@@ -43,7 +43,7 @@ const logger = require('log4js').getLogger('handle.group');
       if(!i.server_id || !i.channel_id) continue;
       _data.splice(0, 1, i.channel_id);
 
-      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, (err, code) => {
+      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, err => {
         if(err) return logger.error('channel ready:', err);
       });
     }
@@ -61,5 +61,23 @@ const logger = require('log4js').getLogger('handle.group');
     send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
       if(err) return logger.error('channel ready:', err);
     });
+  }
+
+  function next(send, data, doc){
+    if(!doc) return;
+
+    var _data = [
+      null,
+      JSON.stringify([5002, doc[1], _.now(), data.seqId])
+    ];
+
+    for(let i of _.values(doc[0])){
+      if(!i.server_id || !i.channel_id) continue;
+      _data.splice(0, 1, i.channel_id);
+
+      send('/queue/back.send.v3.'+ i.server_id, { priority: 9 }, _data, err => {
+        if(err) return logger.error('channel ready:', err);
+      });
+    }
   }
 })();
