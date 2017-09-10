@@ -10,14 +10,13 @@ const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
 const uuid   = require('node-uuid');
-const util   = require('util');
-const crypto = require('crypto');
 
 const md5   = require('speedt-utils').md5;
 const utils = require('speedt-utils').utils;
 
-const mysql = require('emag.db').mysql;
-const redis = require('emag.db').redis;
+const mysql  = require('emag.db').mysql;
+const redis  = require('emag.db').redis;
+const anysdk = require('emag.lib').anysdk;
 
 const cfg = require('emag.cfg');
 const biz = require('emag.biz');
@@ -34,96 +33,15 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.payment = function(payInfo){
+    if(!anysdk.payment(payInfo)) return Promise.reject('ERROR');
+
     return new Promise((resolve, reject) => {
-      validate(payInfo)
-      .then(formVali)
+      formVali(payInfo)
       .then(p1)
       .then(() => resolve())
       .catch(reject);
     });
   };
-
-
-
-
-
-
-
-//anysdk privatekey
-var private_key = 'E2D5511AFC845DDF8CE220ACE2A0A1C9';
-//anysdk 增强密钥
-var enhanced_key = 'OWE2ZmMyOGVmMWNhYzc0MmYyOWU';
-
-//md5
-var my_md5 = function(data){
-  //中文字符处理
-  data = new Buffer(data).toString("binary");
-  return crypto.createHash('md5').update(data).digest('hex').toLowerCase();
-}
-
-//通用验签
-var check_sign = function(post,private_key){  
-  var source_sign = post.sign;
-  delete post.sign;
-  var new_sign = get_sign(post,private_key);  
-  
-  if(source_sign == new_sign){
-    return true;
-  }
-  return false;
-}
-
-//增强验签
-var check_enhanced_sign = function(post,enhanced_key){
-  var source_enhanced_sign = post.enhanced_sign;
-  delete post.enhanced_sign;
-  delete post.sign;
-  var new_sign = get_sign(post,enhanced_key);
-
-  if(source_enhanced_sign == new_sign){
-    return true;
-  }
-  return false; 
-}
-
-//获取签名
-var get_sign = function(post,sign_key){
-  var keys = [];
-
-  for(let key in post){
-    // console.log("Key:"+key+"\tVaule:"+post[key]);
-    keys.push(key);
-    
-  }
-  keys = keys.sort();
-  var paramString = '';
-  for(let i in keys){
-    paramString += post[keys[i]];
-  }
-  // console.log("拼接的字符串:"+paramString);
-  // console.log("第一次md5:"+my_md5(paramString));
-  // console.log("加入密钥:"+my_md5(paramString)+sign_key);
-  // console.log("第二次md5:"+my_md5(my_md5(paramString)+sign_key));
-  
-  return  my_md5(my_md5(paramString)+sign_key);
-}
-
-
-
-
-
-
-
-
-
-
-  function validate(payInfo){
-
-    console.log(check_sign(payInfo, private_key));
-    console.log(check_enhanced_sign(payInfo,enhanced_key))
-
-    return Promise.resolve(payInfo);
-  }
 
   function formVali(payInfo){
     if(!_.isString(payInfo.user_id))    return Promise.reject('INVALID_PARAMS');

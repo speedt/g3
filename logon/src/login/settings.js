@@ -12,6 +12,10 @@ module.exports = {
     name: 'foreworld.net',
     port: 8888,
   },
+  anysdk: {
+    private_key:  process.env.ANYSDK_PRIVATE_KEY  || 'E2D5511AFC845DDF8CE220ACE2A0A1C9',
+    enhanced_key: process.env.ANYSDK_ENHANCED_KEY || 'OWE2ZmMyOGVmMWNhYzc0MmYyOWU',
+  },
   cookie: {
     key: 'web',
     secret: 'login'
