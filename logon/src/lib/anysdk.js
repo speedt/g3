@@ -9,13 +9,15 @@ const path = require('path');
 const cwd  = process.cwd();
 const conf = require(path.join(cwd, 'settings'));
 
+const crypto = require('crypto');
+
 (() => {
   /**
    *
    * @return
    */
   exports.payment = function(payInfo){
-    return (check_sign(payInfo, conf.anysdk.private_key) && check_enhanced_sign(payInfo, conf.anysdk.private_key));
+    return (check_sign(payInfo, conf.anysdk.private_key) && check_enhanced_sign(payInfo, conf.anysdk.enhanced_key));
   };
 
   // //anysdk privatekey
