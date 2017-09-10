@@ -69,7 +69,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
         switch(room.act_status){
           case 'AS_WAIT_FOR_PLAYER_DICE':         next(room.timeOut_PlayerDice());          break;   //10s
           case 'AS_DELAY_PLAYER_DICE':            next(room.delay_PlayerDice());            break;    //5s
-          case 'AS_WAIT_FOR_BANKER_BET':          next(room.timeOut_BankerBet());           break;      //20s
+          // case 'AS_WAIT_FOR_BANKER_BET':          next(room.timeOut_BankerBet());           break;      //20s
           // case 'AS_DELAY_BANKER_BET':             next(room.delay_BankerBet());             break;      //3s
           // case 'AS_WAIT_FOR_BANKER_DICE':         next(room.timeOut_BankerDice());          break;   //10s
           // case 'AS_DELAY_BANKER_DICE':            next(room.delay_BankerDice());            break;     //5s
@@ -95,7 +95,6 @@ const logger = require('log4js').getLogger('biz.pushCake');
   }
 })();
 
-
 (() => {
   function p1(user){
     if(!user.group_id) return Promise.reject('已经退出了');
@@ -118,6 +117,34 @@ const logger = require('log4js').getLogger('biz.pushCake');
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
+
+(() => {
+  function p1(bet, user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _bankerBet = room.bankerBet(user.id, bet);
+    if('string' === typeof _bankerBet) return Promise.reject(_bankerBet);
+
+    return Promise.resolve(_bankerBet);
+  }
+
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  exports.bankerBet = function(server_id, channel_id, bet){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, bet))
       .then(doc => resolve(doc))
       .catch(reject);
     });
