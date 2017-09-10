@@ -68,8 +68,29 @@ exports.wxUI = function(req, res, next){
 })();
 
 (() => {
+  function p1(res, token){
+    res.send({ data: token });
+  }
+
+  function p2(res, next, err){
+    if('string' === typeof err)
+      return res.send({ error: { code: err } });
+    next(err);
+  }
+
+  exports.loginWX = function(req, res, next){
+    var query = req.body;
+
+    biz.user.loginWX(query)
+    .then (p1.bind(null, res))
+    .catch(p2.bind(null, res, next));
+  };
+})();
+
+(() => {
   /**
    *
+
    *
    */
   exports.payment = function(req, res, next){
