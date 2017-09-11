@@ -312,29 +312,27 @@ const logger = require('log4js').getLogger('biz.user');
   var sql = 'UPDATE s_user SET nickname=?, sex=?, original_data=?, weixin=?, weixin_avatar=? WHERE id=?'
 
   function p3(user_info, user){
-    if(user){
-      user.original_data = JSON.stringify(user_info);
-      user.nickname      = user_info.nickname;
-      user.sex           = user_info.sex;
-      user.weixin        = user_info.unionid;
-      user.weixin_avatar = user_info.headimgurl;
+    if(!user) return biz.user.registerWX(user_info);
 
-      return new Promise((resolve, reject) => {
-        mysql.query(sql, [
-          user.nickname,
-          user.sex,
-          user.original_data,
-          user.weixin,
-          user.weixin_avatar,
-          user.id,
-        ], err => {
-          if(err) return reject(err);
-          resolve(user);
-        });
+    user.original_data = JSON.stringify(user_info);
+    user.nickname      = user_info.nickname;
+    user.sex           = user_info.sex;
+    user.weixin        = user_info.unionid;
+    user.weixin_avatar = user_info.headimgurl;
+
+    return new Promise((resolve, reject) => {
+      mysql.query(sql, [
+        user.nickname,
+        user.sex,
+        user.original_data,
+        user.weixin,
+        user.weixin_avatar,
+        user.id,
+      ], err => {
+        if(err) return reject(err);
+        resolve(user);
       });
-    }
-
-    return biz.user.registerWX(user_info);
+    });
   }
 })();
 
