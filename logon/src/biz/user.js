@@ -268,11 +268,11 @@ const logger = require('log4js').getLogger('biz.user');
    *
    * @return
    */
-  exports.loginWX = function(logInfo /* 用户名及密码 */){
+  exports.wx = function(logInfo /* 用户名及密码 */){
     return new Promise((resolve, reject) => {
       p1(logInfo)
       .then(p2)
-      .then(biz.user.getById.bind(null, logInfo.openid))
+      .then(biz.user.getById)
       .then(biz.user.loginToken)
       .then(token => resolve(token))
       .catch(reject);
@@ -304,7 +304,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getById(user_info.openid)
       .then(p3.bind(null, user_info))
-      .then(() => resolve())
+      .then(() => resolve(user_info.openid))
       .catch(reject);
     });
   }
@@ -465,8 +465,8 @@ const logger = require('log4js').getLogger('biz.user');
   exports.registerWX = function(user_info){
     user_info.original_data = JSON.stringify(user_info);
     user_info.id            = user_info.openid;
-    user_info.user_name     = user_info.nickname;
-    user_info.user_pass     = _.random(100000, 999999);
+    user_info.user_name     = user_info.openid;
+    user_info.user_pass     = '123456';
     user_info.weixin        = user_info.unionid;
     user_info.weixin_avatar = user_info.headimgurl;
 
@@ -513,7 +513,7 @@ const logger = require('log4js').getLogger('biz.user');
     return Promise.resolve();
   }
 
-  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, weixin_avatar, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, weixin_avatar, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count, original_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   function p2(user_info){
     user_info.id               = user_info.id || utils.replaceAll(uuid.v1(), '-', '');
@@ -521,7 +521,6 @@ const logger = require('log4js').getLogger('biz.user');
     user_info.status           = 1;
     user_info.create_time      = new Date();
     user_info.current_score    = 0;
-    user_info.nickname         = user_info.user_name;
     user_info.vip              = 0;
     user_info.consume_count    = 0;
     user_info.win_count        = 0;
@@ -551,6 +550,7 @@ const logger = require('log4js').getLogger('biz.user');
         user_info.lose_score_count,
         user_info.line_gone_count,
         user_info.gold_count,
+        user_info.original_data,
       ], err => {
         if(err) return reject(err);
         resolve(user_info);
