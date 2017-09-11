@@ -272,9 +272,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       p1(logInfo)
       .then(p2)
-      .then(biz.user.getById)
-      .then(biz.user.loginToken)
-      .then(token => resolve(token))
+      .then(() => resolve({}))
       .catch(reject);
     });
   };
@@ -304,7 +302,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getById(user_info.openid)
       .then(p3.bind(null, user_info))
-      .then(() => resolve(user_info.openid))
+      .then(() => resolve())
       .catch(reject);
     });
   }

@@ -59,14 +59,6 @@ exports.loginUI = function(req, res, next){
     .then (p1.bind(null, res))
     .catch(p2.bind(null, res, next));
   };
-
-  exports.loginWX = function(req, res, next){
-    var query = req.body;
-
-    biz.user.login(query)
-    .then (p1.bind(null, res))
-    .catch(p2.bind(null, res, next));
-  };
 })();
 
 (() => {
@@ -80,7 +72,7 @@ exports.loginUI = function(req, res, next){
     next(err);
   }
 
-  exports.wxUI = function(req, res, next){
+  exports.wx = function(req, res, next){
     var query = req.body;
 
     biz.user.wx(query)
