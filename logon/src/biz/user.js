@@ -341,11 +341,7 @@ const logger = require('log4js').getLogger('biz.user');
     user_info.weixin        = user_info.unionid;
     user_info.weixin_avatar = user_info.headimgurl;
 
-    return new Promise((resolve, reject) => {
-      biz.user.registerWX(user_info)
-      then(() => resolve())
-      .catch(reject);
-    });
+    return biz.user.registerWX(user_info);
   }
 })();
 
@@ -476,13 +472,7 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.registerWX = function(user_info){
-    user_info = user_info || {};
-
-    return new Promise((resolve, reject) => {
-      p2(user_info)
-      .then(user_info => resolve(user_info))
-      .catch(reject);
-    });
+    return p2(user_info);
   };
 
   /**
@@ -508,6 +498,8 @@ const logger = require('log4js').getLogger('biz.user');
 
     if(!regex_user_pass.test(user_info.user_pass))
       return Promise.reject('INVALID_PARAMS');
+
+    delete user_info.id;
 
     return new Promise((resolve, reject) => {
       biz.user.getByName(user_info.user_name)
