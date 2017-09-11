@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50623
 File Encoding         : 65001
 
-Date: 2017-09-11 11:13:07
+Date: 2017-09-11 13:58:43
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -120,7 +120,7 @@ CREATE TABLE `s_user` (
   `mobile` varchar(32) DEFAULT NULL,
   `qq` varchar(32) DEFAULT NULL,
   `weixin` varchar(128) DEFAULT NULL,
-  `weixin_avatar` varchar(128) DEFAULT NULL COMMENT '头像',
+  `weixin_avatar` varchar(1024) DEFAULT NULL COMMENT '头像',
   `email` varchar(128) DEFAULT NULL,
   `current_score` int(11) DEFAULT NULL COMMENT '现有积分',
   `tool_1` int(11) DEFAULT NULL,
@@ -148,15 +148,15 @@ CREATE TABLE `s_user` (
 -- Records of s_user
 -- ----------------------------
 INSERT INTO `s_user` VALUES ('0525822071ab11e7a481015d0a4c1d9e', '吴老肥', '96e79218965eb72c92a549dd5a330112', null, null, null, '', null, '1', null, '吴老肥', '1', '2017-07-26 10:35:00', '', '', '', null, '', '20066', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
-INSERT INTO `s_user` VALUES ('1', 'hx', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-000005eb-00000003-ffd8a53d192fab1e-9f1541cb', '1', '', '1504420286084', '1', null, '张三', null, null, null, '1234', null, null, null, '7015', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '6400', null);
-INSERT INTO `s_user` VALUES ('2', 'wupeng  ', 'e10adc3949ba59abbe56e057f20f883e', null, null, null, '', null, '1', null, '李四', null, null, null, null, null, null, null, '998832792', '31231', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
+INSERT INTO `s_user` VALUES ('1', 'hx', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-000005eb-00000003-ffd8a53d192fab1e-9f1541cb', '1', '', '1504420286084', '1', null, '张三', null, null, null, '1234', null, 'http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoDA8HqHL3ZNz3jcQhf6aAryIdZ1j8Bh75TPTpoScMpODMsBa3mVBbQGDFxoajZiaF2JV9p8JHQXBQ/0', null, '7015', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '6400', null);
+INSERT INTO `s_user` VALUES ('2', 'wupeng  ', 'e10adc3949ba59abbe56e057f20f883e', null, null, null, '', null, '1', null, '李四', null, null, null, null, null, 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1505119468585&di=8d3106f641a831639f8f1f925cbd1b6d&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimage%2Fc0%253Dshijue1%252C0%252C0%252C294%252C40%2Fsign%3Ddef685c2db00baa1ae214ff82f79d367%2Fcc11728b4710b9128937bed0c9fdfc039245222d.jpg', null, '998832792', '31231', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('2c730630708011e78e22ffc0f87ffa5a', '猫1', '96e79218965eb72c92a549dd5a330112', null, null, null, '', null, '1', null, '', '1', '2017-07-24 22:55:46', '', '', '', null, '', '30000', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('3', 'lixiang', 'e10adc3949ba59abbe56e057f20f883e', null, null, null, '', null, '1', null, '王五', null, null, null, null, null, null, null, '999989930', '123123', '0', '0', '0', '0', '0', '0', '0', '0', '1', null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('4', 'wy', 'e10adc3949ba59abbe56e057f20f883e', null, null, null, '', null, '1', null, '哈哈', null, null, null, null, null, null, null, '901228843', '1233123', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('5', 't1', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-000005eb-00000035-dcf1b4334a296bd0-ae15f972', '1', '744053', '1504429417368', '1', null, 't1', null, null, null, null, null, null, null, '19394', '123', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('6', 't2', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-000005eb-00000039-5b3a99325a29e99a-bd02533c', '1', '744053', '1504429436138', '1', '2017-08-24 19:42:39', 't2', null, null, null, null, null, null, null, '41600', '89', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('7', 't3', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-000005eb-00000038-3d086d7fea29bc64-e407ccdc', '1', '744053', '1504429430803', '1', null, 't3', null, null, null, null, null, null, null, '122862147', '87', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
-INSERT INTO `s_user` VALUES ('9c012a33aa8b4ecc8aaf20ea149a6f25', 'mega', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-0000064c-00000029-f9d42cd010f027cd-0cd84a75', '1', '', '1504956244390', '1', null, '马六', null, '2017-08-08 10:18:43', null, '12341', null, null, null, '0', '123123', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, '1300', null);
+INSERT INTO `s_user` VALUES ('9c012a33aa8b4ecc8aaf20ea149a6f25', 'mega', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffedcde12-00000986-00000004-2cd95701fa0d925b-4cdc115e', '1', '', '1504956244390', '1', null, '马六', null, '2017-08-08 10:18:43', null, '12341', null, null, null, '0', '123123', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, '1300', null);
 INSERT INTO `s_user` VALUES ('9fe2a410777c11e7bdc4fd3c0cd2bc87', 't4', 'e10adc3949ba59abbe56e057f20f883e', 'bbe1c450365b4bbd839d02411167cdea', '080027fffeff9b2f-000005eb-00000037-957741070a298b7d-c743afab', '1', '744053', '1504429425008', '1', null, '猫4123123', '1', '2017-08-02 20:18:00', '', '', '', null, '', '10065', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('b5780670775f11e7831c0d095411373b', '猫2', '96e79218965eb72c92a549dd5a330112', null, null, null, '', null, '1', null, '猫2', '1', '2017-08-02 16:51:01', '', '', '', null, '', '43280', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
 INSERT INTO `s_user` VALUES ('c2fe9bb076ba11e7ad1a29fa785dd421', '雪箭轩', 'bde0814411dcea94c5e0d9b29e635510', null, null, null, '', null, '1', null, '雪箭轩', '1', '2017-08-01 21:10:17', '', '', '', null, '', '9570499', '0', '0', '0', '0', '0', '0', '0', '0', '0', null, null, null, null, null, null, null, '0', null);
