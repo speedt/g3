@@ -25,6 +25,9 @@ const _  = require('underscore');
 _.str    = require('underscore.string');
 _.mixin(_.str.exports());
 
+const http = require('http');
+const ajax = require('speedt-utils').ajax;
+
 const logger = require('log4js').getLogger('biz.user');
 
 (() => {
@@ -206,29 +209,11 @@ const logger = require('log4js').getLogger('biz.user');
 
     return new Promise((resolve, reject) => {
       Promise.all([
-        authorize(user),
+        biz.user.authorize(user),
         biz.frontend.available(),
       ])
       .then(token => resolve(token))
       .catch(reject);
-    });
-  }
-
-  var sha1    = '6a63911ac256b0c00cf270c6332119240d52b13e';
-  var numkeys = 4;
-  var seconds = 5;
-
-  function authorize(user){
-    return new Promise((resolve, reject) => {
-      redis.evalsha(sha1, numkeys,
-        conf.redis.database,                   /**/
-        conf.app.client_id,                    /**/
-        user.id,                               /**/
-        utils.replaceAll(uuid.v4(), '-', ''),  /**/
-        seconds, (err, code) => {
-        if(err) return reject(err);
-        resolve(code);
-      });
     });
   }
 
@@ -245,6 +230,66 @@ const logger = require('log4js').getLogger('biz.user');
       .catch(reject);
     });
   };
+})();
+
+(() => {
+  var sha1    = '6a63911ac256b0c00cf270c6332119240d52b13e';
+  var numkeys = 4;
+  var seconds = 5;
+
+  exports.authorize = function(user){
+    return new Promise((resolve, reject) => {
+      redis.evalsha(sha1, numkeys,
+        conf.redis.database,                   /**/
+        conf.app.client_id,                    /**/
+        user.id,                               /**/
+        utils.replaceAll(uuid.v4(), '-', ''),  /**/
+        seconds, (err, code) => {
+        if(err) return reject(err);
+        resolve(code);
+      });
+    });
+  }
+})();
+
+(() => {
+  /**
+   * 微信登陆
+   *
+   * @return
+   */
+  exports.loginWX = function(logInfo /* 用户名及密码 */){
+    return new Promise((resolve, reject) => {
+      p1(logInfo)
+      .then(p2)
+      .catch(reject);
+    });
+  };
+
+  function p1(query){
+    return new Promise((resolve, reject) => {
+      ajax(http.request, {
+        host: 'oauth.anysdk.com',
+        port: 80,
+        path: '/api/User/LoginOauth/',
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        }
+      }, query, null).then(html => {
+        try{ var data = JSON.parse(html);
+        }catch(ex){ return reject(ex); }
+
+        if('ok' !== data.status) return reject(data.data.error);
+
+        resolve(data.data);
+      }).catch(reject);
+    });
+  }
+
+  function p2(user){
+    // TODO
+  }
 })();
 
 (() => {
