@@ -272,6 +272,8 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       p1(logInfo)
       .then(p2)
+      .then(biz.user.getById.bind(null, logInfo.openid))
+      .then(biz.user.loginToken)
       .then(token => resolve(token))
       .catch(reject);
     });
@@ -301,13 +303,47 @@ const logger = require('log4js').getLogger('biz.user');
   function p2(user_info){
     return new Promise((resolve, reject) => {
       biz.user.getById(user_info.openid)
-      .then(user => {
-        if(user){
-          return biz.user.loginToken(user)
-          .then((token) => resolve(token))
-          .catch(reject);
-        }
-      })
+      .then(p3.bind(null, user_info))
+      .then(() => resolve())
+      .catch(reject);
+    });
+  }
+
+  var sql = 'UPDATE s_user SET nickname=?, sex=?, original_data=?, weixin=?, weixin_avatar=? WHERE id=?'
+
+  function p3(user_info, user){
+    if(user){
+      user.original_data = JSON.stringify(user_info);
+      user.nickname      = user_info.nickname;
+      user.sex           = user_info.sex;
+      user.weixin        = user_info.unionid;
+      user.weixin_avatar = user_info.headimgurl;
+
+      return new Promise((resolve, reject) => {
+        mysql.query(sql, [
+          user.nickname,
+          user.sex,
+          user.original_data,
+          user.weixin,
+          user.weixin_avatar,
+          user.id,
+        ], err => {
+          if(err) return reject(err);
+          resolve(user);
+        });
+      });
+    }
+
+    user_info.original_data = JSON.stringify(user_info);
+    user_info.id            = user_info.openid;
+    user_info.user_name     = user_info.nickname;
+    user_info.user_pass     = _.random(100000, 999999);
+    user_info.weixin        = user_info.unionid;
+    user_info.weixin_avatar = user_info.headimgurl;
+
+    return new Promise((resolve, reject) => {
+      biz.user.registerWX(user_info)
+      then(() => resolve())
       .catch(reject);
     });
   }
@@ -435,6 +471,21 @@ const logger = require('log4js').getLogger('biz.user');
   var regex_user_pass = /^[a-zA-Z0-9_]{6,16}$/;
 
   /**
+   * 微信注册
+   *
+   * @return
+   */
+  exports.registerWX = function(user_info){
+    user_info = user_info || {};
+
+    return new Promise((resolve, reject) => {
+      p2(user_info)
+      .then(user_info => resolve(user_info))
+      .catch(reject);
+    });
+  };
+
+  /**
    * 用户注册
    *
    * @return
@@ -472,10 +523,10 @@ const logger = require('log4js').getLogger('biz.user');
     return Promise.resolve();
   }
 
-  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, weixin_avatar, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   function p2(user_info){
-    user_info.id               = utils.replaceAll(uuid.v1(), '-', '');
+    user_info.id               = user_info.id || utils.replaceAll(uuid.v1(), '-', '');
     user_info.user_pass        = md5.hex(user_info.user_pass);
     user_info.status           = 1;
     user_info.create_time      = new Date();
@@ -499,6 +550,7 @@ const logger = require('log4js').getLogger('biz.user');
         user_info.create_time,
         user_info.mobile,
         user_info.weixin,
+        user_info.weixin_avatar,
         user_info.current_score,
         user_info.nickname,
         user_info.vip,
