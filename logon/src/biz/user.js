@@ -334,13 +334,6 @@ const logger = require('log4js').getLogger('biz.user');
       });
     }
 
-    user_info.original_data = JSON.stringify(user_info);
-    user_info.id            = user_info.openid;
-    user_info.user_name     = user_info.nickname;
-    user_info.user_pass     = _.random(100000, 999999);
-    user_info.weixin        = user_info.unionid;
-    user_info.weixin_avatar = user_info.headimgurl;
-
     return biz.user.registerWX(user_info);
   }
 })();
@@ -472,6 +465,13 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.registerWX = function(user_info){
+    user_info.original_data = JSON.stringify(user_info);
+    user_info.id            = user_info.openid;
+    user_info.user_name     = user_info.nickname;
+    user_info.user_pass     = _.random(100000, 999999);
+    user_info.weixin        = user_info.unionid;
+    user_info.weixin_avatar = user_info.headimgurl;
+
     return p2(user_info);
   };
 

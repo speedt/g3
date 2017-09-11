@@ -84,8 +84,7 @@ exports.loginUI = function(req, res, next){
 (() => {
   /**
    *
-
-   *
+   * @return
    */
   exports.payment = function(req, res, next){
     var query = req.body;
