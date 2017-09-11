@@ -67,25 +67,25 @@ const logger = require('log4js').getLogger('biz.pushCake');
         if(!room) return;  // 房间不存在
 
         switch(room.act_status){
-          case 'AS_WAIT_FOR_PLAYER_DICE':         next(room.timeOut_PlayerDice());          break;   //10s
+         // case 'AS_WAIT_FOR_PLAYER_DICE':         next(room.timeOut_PlayerDice());          break;   //10s
           case 'AS_DELAY_PLAYER_DICE':            next(room.delay_PlayerDice());            break;    //5s
-          // case 'AS_WAIT_FOR_BANKER_BET':          next(room.timeOut_BankerBet());           break;      //20s
-          // case 'AS_DELAY_BANKER_BET':             next(room.delay_BankerBet());             break;      //3s
-          // case 'AS_WAIT_FOR_BANKER_DICE':         next(room.timeOut_BankerDice());          break;   //10s
-          // case 'AS_DELAY_BANKER_DICE':            next(room.delay_BankerDice());            break;     //5s
-          // case 'AS_WAIT_FOR_PLAYER_BET':          next(room.timeOut_PlayerBet_Finish());    break;//20s
-          // case 'AS_DELAY_PLAYER_BET':             next(room.delay_PlayerBet());             break;      //3s
-          // case 'AS_DELAY_DEALCARD':               next(room.delay_DealCard());              break;      //5s\
-          // case 'AS_DELAY_COMPARE_CARD':           next(room.delay_ComepareCard());          break;     //5s
-          // case 'AS_DELAY_COMPARE_CARD2':          next(room.delay_ComepareCard2());         break;
-          // case 'AS_DELAY_COMPARE_CARD3':          next(room.delay_ComepareCard3());         break;
-          // case 'AS_WAIT_FOR_BANKER_CONTINUE_BET': next(room.timeOut_Banker_Continue_Bet()); break;
-          // case 'AS_DELAY_BANKER_CONTINUE_BET':    next(room.delay_BankerContinueBet());     break;
-          // case 'AS_WAIT_FOR_NEXT_ROUND':          next(room.timeOut_Next_Round());          break;
-          // case 'AS_GAMEOVER':                     return;
+          //case 'AS_WAIT_FOR_BANKER_BET':          next(room.timeOut_BankerBet());           break;      //20s
+          case 'AS_DELAY_BANKER_BET':             next(room.delay_BankerBet());             break;      //3s
+        //  case 'AS_WAIT_FOR_BANKER_DICE':         next(room.timeOut_BankerDice());          break;   //10s
+          case 'AS_DELAY_BANKER_DICE':            next(room.delay_BankerDice());            break;     //5s
+          case 'AS_WAIT_FOR_PLAYER_BET':          next(room.timeOut_PlayerBet_Finish());    break;//20s
+          case 'AS_DELAY_PLAYER_BET':             next(room.delay_PlayerBet());             break;      //3s
+          case 'AS_DELAY_DEALCARD':               next(room.delay_DealCard());              break;      //5s\
+          case 'AS_DELAY_COMPARE_CARD':           next(room.delay_ComepareCard());          break;     //5s
+          case 'AS_DELAY_COMPARE_CARD2':          next(room.delay_ComepareCard2());         break;
+          case 'AS_DELAY_COMPARE_CARD3':          next(room.delay_ComepareCard3());         break;
+        //  case 'AS_WAIT_FOR_BANKER_CONTINUE_BET': next(room.timeOut_Banker_Continue_Bet()); break;
+          case 'AS_DELAY_BANKER_CONTINUE_BET':    next(room.delay_BankerContinueBet());     break;
+          case 'AS_WAIT_FOR_NEXT_ROUND':          next(room.timeOut_Next_Round());          break;
+          case 'AS_GAMEOVER':                     return;
         }
 
-        schedule(2);
+        schedule(room.delaytime);
       }, second);
     })();
   }

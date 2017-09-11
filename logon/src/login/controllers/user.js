@@ -63,7 +63,7 @@ exports.loginUI = function(req, res, next){
 
 (() => {
   function p1(res, token){
-    res.send({ data: token });
+    res.send(token);
   }
 
   function p2(res, next, err){

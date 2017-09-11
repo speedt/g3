@@ -513,15 +513,18 @@ pro.bankerBet = function(user_id, bet){
    */
   pro.bankerDice = function(user_id){
       
+      console.log('---------1');
       var self = this;
       if(self.act_status !== AS_WAIT_FOR_BANKER_DICE) return 'AS_WAIT_FOR_BANKER_DICE';
-
+       console.log('---------2');
      
 
       var user = self.getUser(user_id);
       if(!user)                            return '用户不存在';
+       console.log('---------3');
       
       if(self.act_seat !== user.opts.seat) return '还没轮到你';
+       console.log('---------4');
      
       //if(user.opts.craps)                  return 'craps';
       
@@ -565,8 +568,8 @@ pro.bankerBet = function(user_id, bet){
       var user = self.getUser(user_id);
       if(!user)                            return '用户不存在';
 
-      bet = data[0];
-      betseat = data[1];
+      var bet = data[0];            //911
+      var betseat = data[1];        //911
 
       bet  = getBet.call(self,bet);
 
@@ -1207,9 +1210,10 @@ pro.bankerBet = function(user_id, bet){
                 ]]; 
     }
 
-    if(self.hand_num == 4)
+    if(self.hand_num == 4){
+      self._cards_36  = genCards();
       restRound.call(self,self);
-    else
+    }else
       restHand.call(self,self);
 
     self.act_status = AS_WAIT_FOR_BANKER_DICE;
@@ -1219,7 +1223,9 @@ pro.bankerBet = function(user_id, bet){
     return [self.getUsers(),
               [ self.act_status,
                 self.delaytime,
-                self.banker_seat
+                self.banker_seat,
+                self.round_num,
+                self.hand_num
               ]];  
   };
 
@@ -1241,6 +1247,8 @@ pro.bankerBet = function(user_id, bet){
     
     that.hand_num++;
     that.first_seat   = that.banker_seat;
+    that.act_seat = that.banker_seat;//911
+    that.result.length= 0;            //911
 
     for( let i of _.values(that.getUsers())){
         if(i.opts.seat == that.banker_seat)
@@ -1259,6 +1267,7 @@ pro.bankerBet = function(user_id, bet){
     that.banker_seat =0;
     that.banker_bet =0;
     that.first_seat   = 1;
+    that.result.length= 0;    
 
     for( let i of _.values(that.getUsers())){
       if(i.opts.seat == that.banker_seat)
