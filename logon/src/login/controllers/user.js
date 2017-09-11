@@ -10,6 +10,8 @@ const biz = require('emag.biz');
 const conf  = require('../settings');
 const utils = require('speedt-utils').utils;
 
+const request = require('request');
+
 const logger = require('log4js').getLogger('controllers.user');
 
 (() => {
@@ -103,3 +105,14 @@ exports.loginUI = function(req, res, next){
     next(err);
   }
 })();
+
+exports.avatarUI = function(req, res, next){
+  var id = req.query.id;
+
+  biz.user.getById(id)
+  .then(doc => {
+    if(!doc || !doc.weixin_avatar) return next(new Error('Not Found'));
+    req.pipe(request(doc.weixin_avatar).on('error', next)).pipe(res);
+  })
+  .catch(next);
+};
