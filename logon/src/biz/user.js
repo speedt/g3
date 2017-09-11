@@ -207,14 +207,7 @@ const logger = require('log4js').getLogger('biz.user');
     if(md5.hex(logInfo.user_pass) !== user.user_pass)
       return Promise.reject('用户名或密码输入错误');
 
-    return new Promise((resolve, reject) => {
-      Promise.all([
-        biz.user.authorize(user),
-        biz.frontend.available(),
-      ])
-      .then(token => resolve(token))
-      .catch(reject);
-    });
+    return Promise.resolve(user);
   }
 
   /**
@@ -226,6 +219,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getByName(logInfo.user_name)
       .then(p1.bind(null, logInfo))
+      .then(biz.user.loginToken)
       .then(token => resolve(token))
       .catch(reject);
     });
@@ -233,11 +227,27 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
+  /**
+   * 登陆令牌
+   *
+   * @return
+   */
+  exports.loginToken = function(user_info){
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        authorize(user_info),
+        biz.frontend.available(),
+      ])
+      .then(token => resolve(token))
+      .catch(reject);
+    });
+  };
+
   var sha1    = '6a63911ac256b0c00cf270c6332119240d52b13e';
   var numkeys = 4;
   var seconds = 5;
 
-  exports.authorize = function(user){
+  function authorize(user){
     return new Promise((resolve, reject) => {
       redis.evalsha(sha1, numkeys,
         conf.redis.database,                   /**/
@@ -262,6 +272,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       p1(logInfo)
       .then(p2)
+      .then(token => resolve(token))
       .catch(reject);
     });
   };
@@ -291,7 +302,11 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getById(user_info.openid)
       .then(user => {
-
+        if(user){
+          return biz.user.loginToken(user)
+          .then((token) => resolve(token))
+          .catch(reject);
+        }
       })
       .catch(reject);
     });

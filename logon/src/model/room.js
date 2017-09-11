@@ -558,12 +558,15 @@ pro.bankerBet = function(user_id, bet){
    */
 (function(){
  
-  pro.unBankerBet = function(user_id, bet,betseat){
+  pro.unBankerBet = function(user_id, data){
       var self = this;
       if(self.act_status !== AS_WAIT_FOR_PLAYER_BET) return 'AS_WAIT_FOR_PLAYER_BET';
 
       var user = self.getUser(user_id);
       if(!user)                            return '用户不存在';
+
+      bet = data[0];
+      betseat = data[1];
 
       bet  = getBet.call(self,bet);
 

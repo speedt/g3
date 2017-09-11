@@ -178,3 +178,31 @@ const logger = require('log4js').getLogger('biz.pushCake');
     });
   };
 })();
+
+(() => {
+  function p1(bet, user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _unBankerBet = room.unBankerBet(user.id, bet);
+    if('string' === typeof _unBankerBet) return Promise.reject(_unBankerBet);
+
+    return Promise.resolve(_unBankerBet);
+  }
+
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  exports.unBankerBet = function(server_id, channel_id, bet){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, bet))
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
