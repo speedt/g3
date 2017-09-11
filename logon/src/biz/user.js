@@ -282,13 +282,19 @@ const logger = require('log4js').getLogger('biz.user');
 
         if('ok' !== data.status) return reject(data.data.error);
 
-        resolve(data.data);
+        resolve(data.data.user_info);
       }).catch(reject);
     });
   }
 
-  function p2(user){
-    // TODO
+  function p2(user_info){
+    return new Promise((resolve, reject) => {
+      biz.user.getById(user_info.openid)
+      .then(user => {
+
+      })
+      .catch(reject);
+    });
   }
 })();
 
@@ -349,8 +355,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       (trans || mysql).query(sql, [id], (err, docs) => {
         if(err) return reject(err);
-        if(!mysql.checkOnly(docs)) return reject('用户不存在');
-        resolve(docs[0]);
+        resolve(mysql.checkOnly(docs) ? docs[0] : null);
       });
     });
   };

@@ -150,3 +150,31 @@ const logger = require('log4js').getLogger('biz.pushCake');
     });
   };
 })();
+
+(() => {
+  function p1(user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _bankerDice = room.bankerDice(user.id);
+    if('string' === typeof _bankerDice) return Promise.reject(_bankerDice);
+
+    return Promise.resolve(_bankerDice);
+  }
+
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  exports.bankerDice = function(server_id, channel_id){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
