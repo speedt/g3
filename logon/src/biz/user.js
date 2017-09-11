@@ -272,7 +272,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       p1(logInfo)
       .then(p2)
-      .then(data => resolve(data))
+      .then(() => resolve('{}'))
       .catch(reject);
     });
   };
@@ -293,16 +293,16 @@ const logger = require('log4js').getLogger('biz.user');
 
         if('ok' !== data.status) return reject(data.data.error);
 
-        resolve(data);
+        resolve(data.data.user_info);
       }).catch(reject);
     });
   }
 
-  function p2(data){
+  function p2(user_info){
     return new Promise((resolve, reject) => {
-      biz.user.getById(data.data.user_info.openid)
-      .then(p3.bind(null, data.data.user_info))
-      .then(data => resolve(data))
+      biz.user.getById(user_info.openid)
+      .then(p3.bind(null, user_info))
+      .then(() => resolve())
       .catch(reject);
     });
   }
