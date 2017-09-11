@@ -10,7 +10,7 @@ const user     = require('../controllers/user');
 
 module.exports = function(app){
   app.post('/user/da426e6076be11e7ad1a29fa785dd421$', user.payment);
-  app.get ('/user/da426e6076be11e71d1a29fa785dd421$', user.wxUI);
+  app.post('/user/da426e6076be11e71d1a29fa785dd421$', user.loginWX);
 
   app.post('/user/login$',    user.login);
   app.get ('/user/login$',    user.loginUI);
