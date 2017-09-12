@@ -219,23 +219,16 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       biz.user.getByName(logInfo.user_name)
       .then(p1.bind(null, logInfo))
-      .then(biz.user.loginToken)
+      .then(loginToken)
       .then(token => resolve(token))
       .catch(reject);
     });
   };
-})();
 
-(() => {
-  /**
-   * 登陆令牌
-   *
-   * @return
-   */
-  exports.loginToken = function(user_info){
+  function loginToken(user){
     return new Promise((resolve, reject) => {
       Promise.all([
-        authorize(user_info),
+        authorize(user),
         biz.frontend.available(),
       ])
       .then(token => resolve(token))
@@ -299,10 +292,12 @@ const logger = require('log4js').getLogger('biz.user');
   }
 
   function p2(data){
+    var _data = _.clone(data);
+
     return new Promise((resolve, reject) => {
       biz.user.getById(data.data.user_info.openid)
       .then(p3.bind(null, data.data.user_info))
-      .then(data => resolve(data))
+      .then(() => resolve(_data))
       .catch(reject);
     });
   }

@@ -63,7 +63,6 @@ exports.loginUI = function(req, res, next){
 
 (() => {
   function p1(res, token){
-    logger.debug(token)
     res.send(token);
   }
 
