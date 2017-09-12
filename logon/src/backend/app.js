@@ -92,10 +92,11 @@ amq.getClient((err) => {
   amq.injection('/queue/qq.3005', before.bind(null, handle.group.quit),     () => {});
   amq.injection('/queue/qq.3007', before.bind(null, handle.group.entry),    () => {});
 
-  amq.injection('/queue/qq.5001', before.bind(null, handle.pushCake.ready),       () => {});
-  amq.injection('/queue/qq.5003', before.bind(null, handle.pushCake.craps4),      () => {});
-  amq.injection('/queue/qq.5005', before.bind(null, handle.pushCake.bankerBet),   () => {});
-  amq.injection('/queue/qq.5007', before.bind(null, handle.pushCake.bankerDice),  () => {});
-  amq.injection('/queue/qq.5009', before.bind(null, handle.pushCake.unBankerBet), () => {});
-  // amq.injection('/queue/qq.5071', handle.pushCake.bankerGoOn,  () => {});
+  amq.injection('/queue/qq.5001', before.bind(null, handle.pushCake.ready),             () => {});
+  amq.injection('/queue/qq.5003', before.bind(null, handle.pushCake.craps4),            () => {});
+  amq.injection('/queue/qq.5005', before.bind(null, handle.pushCake.bankerBet),         () => {});
+  amq.injection('/queue/qq.5007', before.bind(null, handle.pushCake.bankerDice),        () => {});
+  amq.injection('/queue/qq.5009', before.bind(null, handle.pushCake.unBankerBet),       () => {});
+  amq.injection('/queue/qq.5011', before.bind(null, handle.pushCake.bankerContinue),    () => {});
+  amq.injection('/queue/qq.5013', before.bind(null, handle.pushCake.bankerContinueBet), () => {});
 });

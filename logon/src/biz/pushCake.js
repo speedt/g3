@@ -206,3 +206,59 @@ const logger = require('log4js').getLogger('biz.pushCake');
     });
   };
 })();
+
+(() => {
+  function p1(answer, user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _bankerContinue = room.banker_Continue(user.id, answer);
+    if('string' === typeof _bankerContinue) return Promise.reject(_bankerContinue);
+
+    return Promise.resolve(_bankerContinue);
+  }
+
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  exports.bankerContinue = function(server_id, channel_id, answer){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, answer))
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
+
+(() => {
+  function p1(bet, user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
+    var _bankerContinueBet = room.banker_Continue_Bet(user.id, bet);
+    if('string' === typeof _bankerContinueBet) return Promise.reject(_bankerContinueBet);
+
+    return Promise.resolve(_bankerContinueBet);
+  }
+
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  exports.bankerContinueBet = function(server_id, channel_id, bet){
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1.bind(null, bet))
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
