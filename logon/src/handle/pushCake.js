@@ -287,6 +287,8 @@ const logger = require('log4js').getLogger('handle.pushCake');
     try{ var data = JSON.parse(msg);
     }catch(ex){ return; }
 
+    console.log(data)
+
     biz.pushCake.bankerContinue(data.serverId, data.channelId, data.data)
     .then (p1.bind(null, send, data))
     .catch(p2.bind(null, send, data));
@@ -334,6 +336,8 @@ const logger = require('log4js').getLogger('handle.pushCake');
   exports.bankerContinueBet = function(send, msg){
     try{ var data = JSON.parse(msg);
     }catch(ex){ return; }
+
+    console.log(msg)
 
     biz.pushCake.bankerContinueBet(data.serverId, data.channelId, data.data)
     .then (p1.bind(null, send, data))
