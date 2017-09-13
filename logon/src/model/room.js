@@ -122,6 +122,7 @@ var Method = function(opts){
 
   //------------911---------------//
   self.delaytime =0;//延迟时间
+  self.specialflag =0;//d多功能特殊标志位
   //------------------------------//
 };
 
@@ -297,6 +298,21 @@ pro.isFull = function(){
   return (this._player_count + this.visitor_count) <= this.getUserCount();
 };
 
+//  检测用户合法性------------------
+pro.isValidUser = function(id,status){
+    var self = this;
+    var err =null
+
+    if(self.act_status !== status)  return [err='STATUS_ERROR',null];
+
+    var user = self.getUser(id);
+    if(!user)                      return [err ='USER_ERROR',null];
+
+    if(self.act_seat !== user.opts.seat) return [err ='SEAT_ERROR',null];
+
+    return [err,user];
+};
+
 (function(){
   /**
    * 进入群组
@@ -426,11 +442,13 @@ pro.ready = function(user_id){
   pro.craps4 = function(user_id){
       var self = this;
 
-      if(self.act_status !== AS_WAIT_FOR_PLAYER_DICE) return 'AS_WAIT_FOR_PLAYER_DICE';
-
-      var user = self.getUser(user_id);
-      if(!user)                            return '用户不存在';
-      if(self.act_seat !== user.opts.seat) return '还没轮到你';
+      var data = self.isValidUser(user_id,AS_WAIT_FOR_PLAYER_DICE);
+      var user;
+      if(data[0]==null)
+          user = data[1];
+      else
+         console.log(data[0]);     
+      
       if(user.opts.craps)                  return 'craps';
 
       user.opts.craps = [ _.random(1, 6), _.random(1, 6) ];
@@ -454,6 +472,7 @@ pro.ready = function(user_id){
 
       //delay player dice  5s
   };
+
 
 
   function getCrapsCount(){
@@ -494,15 +513,17 @@ pro.ready = function(user_id){
 //
 pro.bankerBet = function(user_id, bet){
     var self = this;
-    if(self.act_status !== AS_WAIT_FOR_BANKER_BET) return 'AS_WAIT_FOR_BANKER_BET';
+
+    var data = self.isValidUser(user_id,AS_WAIT_FOR_BANKER_BET);
+    var user;
+
+    if(data[0]==null)
+        user = data[1];
+    else
+       console.log(data[0]); 
 
     self.act_status =  AS_DELAY_BANKER_BET;
     self.act_seat = self.banker_seat;
-
-    var user = self.getUser(user_id);
-    if(!user)                            return '用户不存在';
-    if(self.act_seat !== user.opts.seat) return '还没轮到你';
-
  
     if( self.chips.length>0 && bet > 0)
       self.banker_bet = self.chips.shift();
@@ -511,7 +532,7 @@ pro.bankerBet = function(user_id, bet){
     if( self.chips.length>0 && bet > 3000)
         self.banker_bet = self.chips.shift();    
  
-        self.delaytime=3;
+    self.delaytime=3;
     return [self.getUsers(),[
       self.act_status,
       self.delaytime,
@@ -526,23 +547,17 @@ pro.bankerBet = function(user_id, bet){
    *庄家打完色子，确定第一起牌人
    * @return
    */
-  pro.bankerDice = function(user_id){
-      
+  pro.bankerDice = function(user_id){      
       
       var self = this;
-     // console.log('-----------1');
+       
       if(self.act_status !== AS_WAIT_FOR_BANKER_DICE && self.act_status !== AS_WAIT_FOR_BANKER_CONTINUE_DICE) return 'AS_WAIT_FOR_BANKER_DICE';      
-     // console.log('-----------2');
-
+       
       var user = self.getUser(user_id);
-      if(!user)                            return '用户不存在';     
-    //  console.log('-----------3'); 
-      
+
+      if(!user)                            return '用户不存在'; 
+        
       if(self.banker_seat !== user.opts.seat) return '还没轮到你';
-    //  console.log('-----------4');
-      
-     
-      //if(user.opts.craps)                  return 'craps';
       
       user.opts.craps = [ _.random(1, 6), _.random(1, 6) ];
       self.first_seat = firstSeat(self.banker_seat,user.opts.craps);
@@ -590,11 +605,11 @@ pro.bankerBet = function(user_id, bet){
       bet  = getBet.call(self,bet);
 
       if( user.opts.bet[betseat]) 
-        return '该玩家已下过注';  // 下过注，则返回
+          return '该玩家已下过注';  // 下过注，则返回
       else
-        user.opts.bet[betseat] = bet;
+          user.opts.bet[betseat] = bet;
 
-        self.delaytime=0;
+      self.delaytime=0;
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
@@ -662,11 +677,13 @@ pro.bankerBet = function(user_id, bet){
 
       if(answer==='true'){
           self.act_status = AS_WAIT_FOR_BANKER_DICE;
+          self.act_seat = self.banker_seat;
+
           self.delaytime=10;
           return [self.getUsers(),[
             self.act_status,
             self.delaytime,
-            self.banker_seat,        
+            self.act_seat,        
           ]];
       }else{
           //下一家坐庄
@@ -677,11 +694,12 @@ pro.bankerBet = function(user_id, bet){
           self.chips = [2000,3000,5000];
 
           self.act_status = AS_WAIT_FOR_BANKER_BET;
+          self.act_seat = self.banker_seat;
           self.delaytime=20;
           return [self.getUsers(),[
             self.act_status,
             self.delaytime,
-            self.banker_seat,        
+            self.act_seat,        
           ]];
       }     
 
@@ -695,14 +713,14 @@ pro.bankerBet = function(user_id, bet){
   
     pro.banker_Continue_Bet =  function(user_id,bet){
       //返回庄家续庄数
-      var self = this;
-      self.act_status = AS_DELAY_BANKER_CONTINUE_BET;
+      var self = this;      
       
       var user = self.getUser(user_id);
       if(!user)        return '用户不存在';      
 
       if(user.opts.seat !== self.banker_seat) return '不是庄家';
 
+      self.act_status = AS_DELAY_BANKER_CONTINUE_BET;
       bet = bet-0;      
       if( self.chips.length>0 && bet > 2000)
         self.banker_bet += self.chips.shift();
@@ -1184,23 +1202,111 @@ pro.bankerBet = function(user_id, bet){
     // 
   })();
 
-  // (function(){
-  //   pro.delay_NextRound = function(){
-  //       var self = this;    
-        
-  //       if()
+  (function(){
+    pro.delay_NextRound = function(){
+        var self = this;    
+       
+        switch(self.specialflag){
+          case AS_WAIT_FOR_BANKER_BET://强制下庄模式 直接设下家为庄
+              self._cards_36  = genCards();
+              restRound.call(self,self);
 
-  //       self.act_status = AS_WAIT_FOR_BANKER_CONTINUE;//询问就否继续坐庄
-  //       self.delaytime =20;
-  //       return [self.getUsers(),
-  //             [ self.act_status,
-  //               self.delaytime,                
-  //               self.banker_seat
-  //             ]]; 
-  //   };
-  // })();
+              self.getUserBySeat(self.banker_seat).opts.checkout = false;
+              self.banker_seat = self.getNextSeatBySeat(self.banker_seat);
+              self.banker_bet=0;
+              self.round_num++;
+              self.chips = [2000,3000,5000];
 
+              self.act_status = AS_WAIT_FOR_BANKER_BET;
+               self.delaytime=20;
+              return [self.getUsers(),[
+                self.act_status,
+                self.delaytime,
+                self.banker_seat,        
+              ]];
+          break;
 
+          case AS_WAIT_FOR_BANKER_CONTINUE://正常结束，询问是否续庄
+                self._cards_36  = genCards();
+                restRound.call(self,self);
+
+                self.act_status = AS_WAIT_FOR_BANKER_CONTINUE;
+                self.act_seat = self.banker_seat;
+
+                self.delaytime=20
+                return [self.getUsers(),
+                        [ self.act_status,
+                          self.delaytime,
+                          self.act_seat
+                        ]];  
+          break;
+
+          case AS_WAIT_FOR_BANKER_CONTINUE_DICE://结束一把，庄家继续打色子
+              restHand.call(self,self);
+              self.act_status = AS_WAIT_FOR_BANKER_DICE;
+              self.act_seat = self.banker_seat;
+
+               self.delaytime=10
+                return [self.getUsers(),
+                      [ self.act_status,
+                        self.delaytime,
+                        self.act_seat 
+                      ]];    
+          break;
+          } 
+      };
+
+       function restHand( that ){
+    //重置回合游戏数据
+    // self. act_seat      = 1;
+    // self. act_status    = AS_READY;
+  
+    // self.round_num             = 1;  // 当前第n局
+    // self.hand_num              = 1;  // 当前第n手
+  
+    // self.round_compare      = []; // 牌比对结果
+  
+    // self.first_seat   = 1;  // 庄家摇骰子确定第一个起牌人的座位 
+    // self.compare_seat = 1;  // 待比牌人的座位
+  
+    // self.banker_seat = 0;                // 庄家座位
+    // self.banker_bet = 0;              // 庄家锅
+    
+    that.hand_num++;
+    that.first_seat   = that.banker_seat;
+    that.act_seat = that.banker_seat;//911
+    that.result.length= 0;            //911
+
+    for( let i of _.values(that.getUsers())){
+        if(i.opts.seat == that.banker_seat)
+            continue;
+        i.opts.bet = [0,0,0,0,0];
+        i.opts.checkout =false;       
+    }
+
+    console.log('rest hand');
+  };
+
+  function restRound(that){
+    //that.round_num++;
+    that.hand =1;
+
+    //that.banker_seat =0;
+    //that.banker_bet =0;
+    that.first_seat   = that.banker_seat;
+    that.act_seat = that.banker_seat;
+    that.result.length= 0;  
+
+    for( let i of _.values(that.getUsers())){
+      if(i.opts.seat == that.banker_seat)
+          continue;
+      i.opts.bet = [0,0,0,0,0];
+      i.opts.checkout =false;       
+    }
+
+    console.log('rest round');
+  };
+  })();
 
 //----------------等待超时处理部分-------------------------
 //
@@ -1322,101 +1428,26 @@ pro.bankerBet = function(user_id, bet){
                 ]]; 
     }
 
-    if(self.hand_num == 4 || type==2){
-        self._cards_36  = genCards();
-        restRound.call(self,self);
-
-        if(type==2){//强制下庄模式 直接设下家为庄
-          self.getUserBySeat(self.banker_seat).opts.checkout = false;
-          self.banker_seat = self.getNextSeatBySeat(self.banker_seat);
-          self.banker_bet=0;
-          self.round_num++;
-          self.chips = [2000,3000,5000];
-
-          self.act_status = AS_WAIT_FOR_BANKER_BET;
-           self.delaytime=20;
-          return [self.getUsers(),[
-            self.act_status,
-            self.delaytime,
-            self.banker_seat,        
-          ]];
-
-        }else{
-          self.act_status = AS_WAIT_FOR_BANKER_CONTINUE;
-
-          self.delaytime=20
-          return [self.getUsers(),
-                  [ self.act_status,
-                    self.delaytime,                
-                    self.round_num,
-                    self.hand_num
-                  ]];  
-      }
+    self.act_status = AS_DELAY_NEXT_ROUND;//用于重置游戏
+    self.delaytime = 1;
     
-    }else{
-      restHand.call(self,self);
-      self.act_status = AS_WAIT_FOR_BANKER_CONTINUE_DICE;
+    self.specialflag=AS_WAIT_FOR_BANKER_CONTINUE_DICE;
+    if(self.hand_num == 4 || type==2)
+      if(type==2)
+          self.specialflag=AS_WAIT_FOR_BANKER_BET;
+        else
+          self.specialflag=AS_WAIT_FOR_BANKER_CONTINUE;
 
-       self.delaytime=10
-        return [self.getUsers(),
-              [ self.act_status,
-                self.delaytime,                
-                self.round_num,
-                self.hand_num
-              ]];    
-    } 
+    return[     self.getUsers(),
+                [ self.act_status,
+                  self.delaytime,
+                  self.round_num,
+                  self.hand_num,
+                  self.specialflag,
+                ]];
   };
 
-  function restHand( that ){
-    //重置回合游戏数据
-    // self. act_seat      = 1;
-    // self. act_status    = AS_READY;
-  
-    // self.round_num             = 1;  // 当前第n局
-    // self.hand_num              = 1;  // 当前第n手
-  
-    // self.round_compare      = []; // 牌比对结果
-  
-    // self.first_seat   = 1;  // 庄家摇骰子确定第一个起牌人的座位 
-    // self.compare_seat = 1;  // 待比牌人的座位
-  
-    // self.banker_seat = 0;                // 庄家座位
-    // self.banker_bet = 0;              // 庄家锅
-    
-    that.hand_num++;
-    that.first_seat   = that.banker_seat;
-    that.act_seat = that.banker_seat;//911
-    that.result.length= 0;            //911
-
-    for( let i of _.values(that.getUsers())){
-        if(i.opts.seat == that.banker_seat)
-            continue;
-        i.opts.bet = [0,0,0,0,0];
-        i.opts.checkout =false;       
-    }
-
-    console.log('rest hand');
-  };
-
-  function restRound(that){
-    //that.round_num++;
-    that.hand =1;
-
-    //that.banker_seat =0;
-    //that.banker_bet =0;
-    that.first_seat   = that.banker_seat;
-    that.act_seat = that.banker_seat;
-    that.result.length= 0;  
-
-    for( let i of _.values(that.getUsers())){
-      if(i.opts.seat == that.banker_seat)
-          continue;
-      i.opts.bet = [0,0,0,0,0];
-      i.opts.checkout =false;       
-    }
-
-    console.log('rest round');
-  };
+ 
 })();
 
 (function(){
