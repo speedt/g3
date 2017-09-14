@@ -9,7 +9,7 @@ module.exports = {
   app: {
     ver: 104,
     client_id: '5a2c6a1043454b168e6d3e8bef5cbce2',
-    name: 'foreworld.net',
+    name: process.env.APP_NAME,
     port: 8888,
   },
   anysdk: {
@@ -22,6 +22,7 @@ module.exports = {
   },
   html: {
     virtualPath: '/client/',
+    cdn: process.env.HTML_CDN,
   },
   activemq: {
     host: process.env.ACTIVEMQ_HOST || '127.0.0.1',

@@ -8,7 +8,7 @@
 module.exports = {
   app: {
     ver: 104,
-    name: 'foreworld.net',
+    name: process.env.APP_NAME,
     port: 9999,
   },
   cookie: {
@@ -17,6 +17,7 @@ module.exports = {
   },
   html: {
     virtualPath: '/manage/',
+    cdn: process.env.HTML_CDN,
   },
   activemq: {
     host: process.env.ACTIVEMQ_HOST || '127.0.0.1',
