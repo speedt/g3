@@ -676,14 +676,13 @@ pro.bankerBet = function(user_id, bet){
       if(user.opts.seat !== self.banker_seat) return '不是庄家';
 
       if(answer==='true'){
-          self.act_status = AS_WAIT_FOR_BANKER_DICE;
+          self.act_status = AS_WAIT_FOR_PLAYER_BET;
           self.act_seat = self.banker_seat;
 
-          self.delaytime=10;
+          self.delaytime=20;
           return [self.getUsers(),[
             self.act_status,
-            self.delaytime,
-            self.act_seat,        
+            self.delaytime                  
           ]];
       }else{
           //下一家坐庄
@@ -782,10 +781,10 @@ pro.bankerBet = function(user_id, bet){
 
     pro.delay_BankerBet = function(){
       var self = this;
-      self.act_status = AS_WAIT_FOR_BANKER_DICE;
+      self.act_status = AS_WAIT_FOR_PLAYER_BET;
       self.act_seat =  self.banker_seat;
 
-      self.delaytime=10;
+      self.delaytime=20;
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
@@ -801,33 +800,14 @@ pro.bankerBet = function(user_id, bet){
   
       pro.delay_BankerDice = function(){
         var self = this;
-        self.act_status = AS_WAIT_FOR_PLAYER_BET;        
-  
-        self.delaytime=20;
-        return [self.getUsers(),[
-          self.act_status,
-          self.delaytime      
-        ]];
-      };
-      //time out player bet finish
-  })();
+        //self.act_status = AS_WAIT_FOR_PLAYER_BET;        
+        self.act_status = AS_DELAY_DEALCARD;   
+        
 
-//所有闲家下完注的延迟处理
-(function(){
-    pro.delay_PlayerBet = function(){
-      var self = this;
-        self.act_status = AS_DELAY_DEALCARD;
-        self._cards_8 = self._cards_36.splice(0,8);
-
-
-
+      self._cards_8 = self._cards_36.splice(0,8);
 
        // self._cards_8[(self.banker_seat-1)*2]=1;
        // self._cards_8[(self.banker_seat-1)*2+1]=9;
-
-
-
-
 
         //开启后台换牌作弊
         self._card_8 = hackCard.call(self,self._card_8 );
@@ -839,9 +819,9 @@ pro.bankerBet = function(user_id, bet){
           self.first_seat,
           self._cards_8,
         ]];       
-    };
+      };
 
-    //黑牌
+      //黑牌
     function hackCard(cards){
       var self = this;
       //查询开启的作弊玩家
@@ -894,6 +874,24 @@ pro.bankerBet = function(user_id, bet){
     };
 
     //delay dealcard 5s
+
+  })();
+
+//所有闲家下完注的延迟处理
+(function(){
+    pro.delay_PlayerBet = function(){
+      var self = this;
+        //self.act_status = AS_DELAY_DEALCARD;
+        self.act_status = AS_WAIT_FOR_BANKER_DICE;
+
+        self.delaytime=10;
+        return [self.getUsers(),[
+          self.act_status,
+          self.delaytime      
+        ]];
+      };
+
+      //time out player bet finish    
 })();
 
 //发完牌后的延迟处理
@@ -959,7 +957,9 @@ pro.bankerBet = function(user_id, bet){
             self.act_status,
             self.delaytime,
             //结算信息
-            self.result
+            self.result,
+            self.curr_fund,
+            self.hand_num
           ]];
 
          //wait for result
@@ -973,6 +973,10 @@ pro.bankerBet = function(user_id, bet){
               var fund =0; 
               if(self.curr_fund-0 < self.fund-0){
                 fund= Math.round(result[0]*0.05);
+
+                if(self.curr_fund + fund > self.fund)
+                  fund = self.fund - self.curr_fund;
+
                 self.curr_fund += fund;
               }  
 
@@ -1012,6 +1016,10 @@ pro.bankerBet = function(user_id, bet){
                   var fund =0; 
                   if(self.curr_fund-0 < self.fund-0){
                     fund= Math.round(result[1]*0.05);
+
+                    if(self.curr_fund + fund > self.fund)
+                        fund = self.fund - self.curr_fund;
+
                     self.curr_fund += fund;
                   }                 
 
@@ -1051,6 +1059,10 @@ pro.bankerBet = function(user_id, bet){
                   var fund =0; 
                   if(self.curr_fund-0 < self.fund-0){
                     fund= Math.round(self.banker_bet*0.05);
+
+                    if(self.curr_fund + fund > self.fund)
+                      fund = self.fund - self.curr_fund;
+
                     self.curr_fund += fund;
                   }   
 
@@ -1174,7 +1186,9 @@ pro.bankerBet = function(user_id, bet){
           self.act_status,
           self.delaytime,
         //结算信息
-          self.result
+          self.result,
+          self.curr_fund,
+          self.hand_num
           ]]; 
                 
         //WAIT FOR BANKER CONTINUE BET     20S
@@ -1218,7 +1232,7 @@ pro.bankerBet = function(user_id, bet){
               self.chips = [2000,3000,5000];
 
               self.act_status = AS_WAIT_FOR_BANKER_BET;
-               self.delaytime=20;
+               self.delaytime=15;
               return [self.getUsers(),[
                 self.act_status,
                 self.delaytime,
@@ -1233,7 +1247,7 @@ pro.bankerBet = function(user_id, bet){
                 self.act_status = AS_WAIT_FOR_BANKER_CONTINUE;
                 self.act_seat = self.banker_seat;
 
-                self.delaytime=20
+                self.delaytime=15
                 return [self.getUsers(),
                         [ self.act_status,
                           self.delaytime,
@@ -1241,12 +1255,13 @@ pro.bankerBet = function(user_id, bet){
                         ]];  
           break;
 
-          case AS_WAIT_FOR_BANKER_CONTINUE_DICE://结束一把，庄家继续打色子
+         // case AS_WAIT_FOR_BANKER_CONTINUE_DICE://结束一把，庄家继续打色子
+          case AS_WAIT_FOR_PLAYER_BET://结束一把，闲家 下注
               restHand.call(self,self);
-              self.act_status = AS_WAIT_FOR_BANKER_DICE;
+              self.act_status = AS_WAIT_FOR_PLAYER_BET;
               self.act_seat = self.banker_seat;
 
-               self.delaytime=10
+               self.delaytime=20
                 return [self.getUsers(),
                       [ self.act_status,
                         self.delaytime,
@@ -1256,43 +1271,28 @@ pro.bankerBet = function(user_id, bet){
           } 
       };
 
-       function restHand( that ){
-    //重置回合游戏数据
-    // self. act_seat      = 1;
-    // self. act_status    = AS_READY;
-  
-    // self.round_num             = 1;  // 当前第n局
-    // self.hand_num              = 1;  // 当前第n手
-  
-    // self.round_compare      = []; // 牌比对结果
-  
-    // self.first_seat   = 1;  // 庄家摇骰子确定第一个起牌人的座位 
-    // self.compare_seat = 1;  // 待比牌人的座位
-  
-    // self.banker_seat = 0;                // 庄家座位
-    // self.banker_bet = 0;              // 庄家锅
+       function restHand( that ){   
     
-    that.hand_num++;
-    that.first_seat   = that.banker_seat;
-    that.act_seat = that.banker_seat;//911
-    that.result.length= 0;            //911
+        that.hand_num++;
 
-    for( let i of _.values(that.getUsers())){
-        if(i.opts.seat == that.banker_seat)
-            continue;
-        i.opts.bet = [0,0,0,0,0];
-        i.opts.checkout =false;       
-    }
+        that.first_seat   = that.banker_seat;
+        that.act_seat = that.banker_seat;//911
+        that.result.length= 0;            //911
 
-    console.log('rest hand');
-  };
+        for( let i of _.values(that.getUsers())){
+            if(i.opts.seat == that.banker_seat)
+                continue;
+            i.opts.bet = [0,0,0,0,0];
+            i.opts.checkout =false;       
+        }
+
+        //console.log('rest hand');
+      };
 
   function restRound(that){
-    //that.round_num++;
+   
     that.hand =1;
-
-    //that.banker_seat =0;
-    //that.banker_bet =0;
+   
     that.first_seat   = that.banker_seat;
     that.act_seat = that.banker_seat;
     that.result.length= 0;  
@@ -1300,12 +1300,14 @@ pro.bankerBet = function(user_id, bet){
     for( let i of _.values(that.getUsers())){
       if(i.opts.seat == that.banker_seat)
           continue;
+
       i.opts.bet = [0,0,0,0,0];
       i.opts.checkout =false;       
     }
 
-    console.log('rest round');
+    //console.log('rest round');
   };
+
   })();
 
 //----------------等待超时处理部分-------------------------
@@ -1329,7 +1331,7 @@ pro.bankerBet = function(user_id, bet){
       for(let i of _.values(this._players)){
           if(i.opts.seat == self.banker_seat){
             //查询可用的最小锅底
-            return self.bankerBet(i.id,200);
+            return self.bankerBet(i.id,2000);
             //return self.act_status;
           }
       }    
@@ -1372,7 +1374,7 @@ pro.bankerBet = function(user_id, bet){
         if( self.isPlayer(i) ){
           //在座玩家下最小注   
           if(i.opts.bet[i.opts.seat]==0)       
-            i.opts.bet[i.opts.seat] =10;
+            i.opts.bet[i.opts.seat] =100;
           playersbet.push([i.id,i.opts.bet]);
         }else
         {//钓鱼玩家不下注
@@ -1382,7 +1384,7 @@ pro.bankerBet = function(user_id, bet){
       }
 
       self.act_status = AS_DELAY_PLAYER_BET;
-      self.delaytime=5;
+      self.delaytime=3;
       return [self.getUsers(),[
         self.act_status, 
         self.delaytime,
@@ -1416,30 +1418,82 @@ pro.bankerBet = function(user_id, bet){
 
   pro.timeOut_Next_Round = function(type){
     var self = this;
+
+    //检查是否有座位的人掉线
+    var online_count = self.getReadyCount();
+    for(let p  of _.values(self._players)){
+      if( p.opts.is_quit == 1)
+        online_count--;
+    }
+
+    //取得已准备人数
+    if(online_count <4){
+         //取得总人数
+         if(self.getUserCount()<4){//有人退出
+            //总人数够，钓鱼者补位
+
+         }else{
+            //人数不足，结算游戏
+            //总结算表
+            self.act_status = AS_GAMEOVER;
+            var result=[];
+            for(let u of _.values(self.getUsers()) ) {
+                u.opts.is_ready =0;
+                result.push({
+                  id:u.id,
+                  nick:u.user_name,
+                  seat:u.opts.seat,
+                  gold:u.gold_count,
+                  score:u.opts.score,
+                });
+            }
+
+            self.delaytime=1;
+            return [self.getUsers(),
+                      [ self.act_status,
+                        self.delaytime,
+                        result
+                      ]];
+         }
+    }
+   
+
+
     if(self.round_num >= self.round_count*4){
       self.act_status = AS_GAMEOVER;
       //console.log('-------------');
       // console.log(self);
 
-      for(let u of self._users)
-        u.opts.is_ready = 0;
+      //总结算表
+      var result=[];
+      for(let u of _.values(self.getUsers()) ) {
+          u.opts.is_ready =0;
+          result.push({
+            id:u.id,
+            nick:u.user_name,
+            seat:u.opts.seat,
+            gold:u.gold_count,
+            score:u.opts.score,
+          });
+      }
 
       self.delaytime=0;
       return [self.getUsers(),
                 [ self.act_status,
-                  self.delaytime
+                  self.delaytime,
+                  result
                 ]]; 
     }
 
     self.act_status = AS_DELAY_NEXT_ROUND;//用于重置游戏
     self.delaytime = 1;
     
-    self.specialflag=AS_WAIT_FOR_BANKER_CONTINUE_DICE;
+    self.specialflag=AS_WAIT_FOR_PLAYER_BET;
     if(self.hand_num == 4 || type==2)
       if(type==2)
-          self.specialflag=AS_WAIT_FOR_BANKER_BET;
+          self.specialflag=AS_WAIT_FOR_BANKER_BET;//强制下庄
         else
-          self.specialflag=AS_WAIT_FOR_BANKER_CONTINUE;
+          self.specialflag=AS_WAIT_FOR_BANKER_CONTINUE;//庄家续庄
 
     return[     self.getUsers(),
                 [ self.act_status,
@@ -1461,6 +1515,17 @@ pro.bankerBet = function(user_id, bet){
       if(i.opts.seat == self.banker_seat ){       
           return self.banker_Continue(i.id,false);          
       }
+    }
+  };
+
+})();
+
+(function(){
+
+  pro.gameOver = function(){
+    var self = this;
+    for(let i of _.values(self._users)){
+      i.opts.is_ready =0 ;      
     }
   };
 
