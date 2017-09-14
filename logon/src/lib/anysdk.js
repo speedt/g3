@@ -11,6 +11,9 @@ const conf = require(path.join(cwd, 'settings'));
 
 const crypto = require('crypto');
 
+const http = require('http');
+const ajax = require('speedt-utils').ajax;
+
 (() => {
   /**
    *
@@ -78,4 +81,26 @@ const crypto = require('crypto');
     
     return  my_md5(my_md5(paramString)+sign_key);
   }
+})();
+
+(() => {
+  exports.wx = function(query){
+    query = query || {};
+    return new Promise((resolve, reject) => {
+      ajax(http.request, {
+        host: 'oauth.anysdk.com',
+        port: 80,
+        path: '/api/User/LoginOauth/',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        }
+      }, query, null).then(html => {
+        try{ var data = JSON.parse(html);
+        }catch(ex){ return reject(ex); }
+        if('ok' === data.status) return resolve(data);
+        reject(data.data.error);
+      }).catch(reject);
+    });
+  };
 })();

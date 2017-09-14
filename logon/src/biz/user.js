@@ -25,9 +25,6 @@ const _  = require('underscore');
 _.str    = require('underscore.string');
 _.mixin(_.str.exports());
 
-const http = require('http');
-const ajax = require('speedt-utils').ajax;
-
 const logger = require('log4js').getLogger('biz.user');
 
 (() => {
@@ -263,33 +260,12 @@ const logger = require('log4js').getLogger('biz.user');
    */
   exports.wx = function(logInfo /* 用户名及密码 */){
     return new Promise((resolve, reject) => {
-      p1(logInfo)
+      anysdk.wx(logInfo)
       .then(p2)
       .then(data => resolve(data))
       .catch(reject);
     });
   };
-
-  function p1(query){
-    return new Promise((resolve, reject) => {
-      ajax(http.request, {
-        host: 'oauth.anysdk.com',
-        port: 80,
-        path: '/api/User/LoginOauth/',
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        }
-      }, query, null).then(html => {
-        try{ var data = JSON.parse(html);
-        }catch(ex){ return reject(ex); }
-
-        if('ok' !== data.status) return reject(data.data.error);
-
-        resolve(data);
-      }).catch(reject);
-    });
-  }
 
   function p2(data){
     var _data = _.clone(data);
