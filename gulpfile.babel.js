@@ -14,7 +14,7 @@ gulp.task("clean", () => {
   return gulp.src("dist/*").pipe(clean({ force: true }));
 });
 
-gulp.task("default", ['copy1', 'copy1_1', 'copy2', 'copy2_1', 'copy3', 'copy3_1', 'copy4', 'copy4_1', 'copy5', 'copy5_1', 'copy6', 'copy6_1', 'copy7', 'copy7_1', 'copy7_2', 'copy8', 'copy8_1', 'copy8_2', 'copy8_3', 'copy8_4', 'copy9', 'copy9_1', 'copy9_2', 'copy9_3', 'copy9_4'], () => {
+gulp.task("default", ['copy1', 'copy1_1', 'copy2', 'copy2_1', 'copy3', 'copy3_1', 'copy4', 'copy4_1', 'copy5', 'copy5_1', 'copy6', 'copy6_1', 'copy7', 'copy7_1', 'copy7_2', 'copy8', 'copy8_1', 'copy8_2', 'copy8_3', 'copy8_4', 'copy8_5', 'copy9', 'copy9_1', 'copy9_2', 'copy9_3', 'copy9_4', 'copy9_5'], () => {
 });
 
 gulp.task("copy1", () => {
@@ -135,6 +135,12 @@ gulp.task("copy8_4", () => {
           .pipe(gulp.dest("dist/login"));
 });
 
+gulp.task("copy8_5", () => {
+  return gulp.src(["logon/src/login/package.json", "!logon/src/login/node_modules/**/*"])
+          .pipe(gulp.dest("dist/login"));
+});
+
+
 gulp.task("copy9", () => {
   return gulp.src(["logon/src/manage/**/*.js", "!logon/src/manage/node_modules/**/*"])
           .pipe(babel())
@@ -159,5 +165,10 @@ gulp.task("copy9_3", () => {
 
 gulp.task("copy9_4", () => {
   return gulp.src(["logon/src/manage/run.*", "!logon/src/manage/node_modules/**/*"])
+          .pipe(gulp.dest("dist/manage"));
+});
+
+gulp.task("copy9_5", () => {
+  return gulp.src(["logon/src/manage/package.json", "!logon/src/manage/node_modules/**/*"])
           .pipe(gulp.dest("dist/manage"));
 });
