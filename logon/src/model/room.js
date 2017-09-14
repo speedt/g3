@@ -1416,10 +1416,13 @@ pro.bankerBet = function(user_id, bet){
 
   pro.timeOut_Next_Round = function(type){
     var self = this;
-    if(self.round_num > self.round_count*4){
+    if(self.round_num >= self.round_count*4){
       self.act_status = AS_GAMEOVER;
       //console.log('-------------');
       // console.log(self);
+
+      for(let u of self._users)
+        u.opts.is_ready = 0;
 
       self.delaytime=0;
       return [self.getUsers(),
