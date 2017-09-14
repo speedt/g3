@@ -1,4 +1,4 @@
--- huangxin <3203317@qq.com>
+
 
 local db        = KEYS[1];
 local client_id = KEYS[2];
