@@ -1291,7 +1291,7 @@ pro.bankerBet = function(user_id, bet){
 
   function restRound(that){
    
-    that.hand =1;
+    that.hand_num =1;
    
     that.first_seat   = that.banker_seat;
     that.act_seat = that.banker_seat;
