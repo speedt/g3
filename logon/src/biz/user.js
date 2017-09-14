@@ -181,7 +181,7 @@ const logger = require('log4js').getLogger('biz.user');
     });
   };
 
-  var sha1    = '3b248050f9965193d8a4836d6258861a1890017f';
+  var sha1    = '6f3e8fc00771defac1a08fd0d7f2aa97e9734f37';
   var numkeys = 3;
 
   function closeChannel(server_id, channel_id){
@@ -236,7 +236,7 @@ const logger = require('log4js').getLogger('biz.user');
     });
   };
 
-  var sha1    = '6a63911ac256b0c00cf270c6332119240d52b13e';
+  var sha1    = '5d6ae7790c5575549e66e87a5bc40cb3c8e182dc';
   var numkeys = 4;
   var seconds = 5;
 
@@ -394,7 +394,7 @@ const logger = require('log4js').getLogger('biz.user');
 
 (() => {
   const numkeys = 3;
-  const sha1    = '6df440fb93a747912f3eae2835c8fec8e90788ca';
+  const sha1    = 'f09fa3f6a5991a98252bd4675a71e34879edda7a';
 
   /**
   * 获取用户信息（user_info_byChannelId.lua）

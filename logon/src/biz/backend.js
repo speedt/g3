@@ -16,7 +16,7 @@ const redis = require('emag.db').redis;
 
 (() => {
   const numkeys = 2;
-  const sha1    = '969d3ead4da89885644e0a0b760f78bae06e3d8f';
+  const sha1    = 'f80e603c00b8ae91b4cecb582bac25097b05c587';
 
   /**
    * back_open.lua
@@ -30,7 +30,7 @@ const redis = require('emag.db').redis;
 
 (() => {
   const numkeys = 2;
-  const sha1    = '3112ead50bc29f6ec9d3459def6b05adb517259d';
+  const sha1    = '16dd95ae2b44a0df9af02f02e8751bbc87b6db4d';
 
   /**
    * back_close.lua
@@ -44,7 +44,7 @@ const redis = require('emag.db').redis;
 
 (() => {
   const numkeys = 1;
-  const sha1    = 'bb198c5798cefca1522ca3f30f76a32f3758dc8c';
+  const sha1    = '6fc99857fffa2bbdf9ea5c34bffb7f5ddb326780';
 
   /**
    * 获取全部后置机id（back_list.lua）

@@ -18,7 +18,7 @@ const redis = require('emag.db').redis;
 
 (() => {
   const numkeys = 1;
-  const sha1    = '51f34ec6eec067fecc66d20c2117523f88c5effe';
+  const sha1    = '480a1dfdd837f2f06fcc937705eccea78123f7b7';
 
   /**
    * 获取全部前置机id（front_list.lua）
