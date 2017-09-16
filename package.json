@@ -1,7 +1,7 @@
 {
-  "name": "pushC",
+  "name": "g3",
   "version": "0.1.0",
-  "description": "pushC",
+  "description": "g3",
   "main": "index.js",
   "scripts": {
     "test": "test.js"
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/speedt/pushC.git"
+    "url": "git+https://github.com/speedt/g3.git"
   },
   "keywords": [
     "activemq"
@@ -32,7 +32,7 @@
   "author": "zhennanzhuce",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/speedt/pushC/issues"
+    "url": "https://github.com/speedt/g3/issues"
   },
-  "homepage": "https://github.com/speedt/pushC"
+  "homepage": "https://github.com/speedt/g3"
 }
