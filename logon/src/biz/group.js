@@ -145,11 +145,16 @@ const logger = require('log4js').getLogger('biz.group');
   }
 
   function p3(group_info, user_info){
+
+    logger.debug(group_info);
+
     var room = roomPool.create(group_info);
     if(!room) return Promise.reject('创建房间失败');
 
     var _entry = room.entry(user_info);
     if('string' === typeof _entry) return Promise.reject(_entry);
+
+    logger.debug(room.name);
 
     return Promise.resolve([[
       room.id,
