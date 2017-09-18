@@ -341,6 +341,9 @@ pro.isValidUser = function(id,status){
     user.opts.hacker = false;
     user.opts.checkout   =false;
 
+    user.opts.fund =0;
+    user.opts.fund_count=0;
+
     return user;
   };
 
@@ -700,6 +703,7 @@ pro.bankerBet = function(user_id, bet){
                   seat:u.opts.seat,
                   gold:u.gold_count,
                   score:u.opts.score,
+                  fund:u.opts.fund_count,
                 });
             }
 
@@ -749,10 +753,11 @@ pro.bankerBet = function(user_id, bet){
       self.act_status = AS_DELAY_BANKER_CONTINUE_BET;
       bet = bet-0;      
       if( self.chips.length>0 && bet > 2000)
-        self.banker_bet += self.chips.shift();
+        self.banker_bet = self.chips.shift();
       if( self.chips.length>0 && bet > 3000)
-        self.banker_bet += self.chips.shift();
-    
+        self.banker_bet = self.chips.shift();    
+
+
         self.delaytime=3;
       return [self.getUsers(),[
         self.act_status,
@@ -961,7 +966,8 @@ pro.bankerBet = function(user_id, bet){
                     nick:i.nickname,     
                     seat:i.opts.seat,      
                     gold:i.gold_count,
-                    score_count:i.opts.score
+                    score_count:i.opts.score,
+                    fund:i.opts.fund
                   }); 
                }else{
                  i.gold_count += i.opts.gold;
@@ -975,7 +981,8 @@ pro.bankerBet = function(user_id, bet){
             nick:banker.nickname,   
             seat:banker.opts.seat,        
             gold:banker.gold_count,
-            score_count:banker.opts.score
+            score_count:banker.opts.score,
+            fund:banker.opts.fund
           }); 
 
          //console.log(self.result);
@@ -1010,6 +1017,8 @@ pro.bankerBet = function(user_id, bet){
 
               self.banker_bet += result[0]-fund;
               banker.opts.score += result[0]-fund;
+              banker.opts.fund += fund;
+              banker.opts.fund_count+= fund;
 
               player.opts.score += result[1];
               player.opts.checkout = true;
@@ -1020,7 +1029,8 @@ pro.bankerBet = function(user_id, bet){
                 nick:player.nickname, 
                 seat:player.opts.seat,              
                 gold:player.gold_count,
-                score_count:player.opts.score
+                score_count:player.opts.score,
+                fund:player.opts.fund
               });
 
               if(banker.opts.seat === result[2] )
@@ -1055,6 +1065,8 @@ pro.bankerBet = function(user_id, bet){
                   banker.opts.score += result[0];
 
                   player.opts.score += result[1]-fund;
+                  player.opts.fund += fund;
+                  player.opts.fund_count += fund;
                   player.opts.checkout = true;                 
 
                   if(player.opts.seat === result[2] )
@@ -1066,7 +1078,8 @@ pro.bankerBet = function(user_id, bet){
                       nick:player.nickname,    
                       seat:player.opts.seat,                  
                       gold:player.gold_count,
-                      score_count:player.opts.score
+                      score_count:player.opts.score,
+                      fund:player.opts.fund
                     }); 
                      
                   self.delaytime=5;
@@ -1097,6 +1110,8 @@ pro.bankerBet = function(user_id, bet){
                   var score = self.banker_bet;
                   banker.opts.score -= self.banker_bet;
                   player.opts.score += score-fund;
+                  player.opts.fund += fund;
+                  player.opts.fund_count += fund;
                   player.opts.bet[self.first_seat] -= self.banker_bet;
                   self.banker_bet =0;
                   //player.opts.checkout = result[1];
@@ -1132,7 +1147,8 @@ pro.bankerBet = function(user_id, bet){
                         nick:player.nickname,   
                         seat:player.opts.seat,                     
                         gold:player.gold_count,
-                        score_count:player.opts.score
+                        score_count:player.opts.score,
+                        fund:player.opts.fund
                       }); 
 
                       self.delaytime=5;
@@ -1193,7 +1209,8 @@ pro.bankerBet = function(user_id, bet){
                  nick:i.nickname,  
                  seat:i.opts.seat,         
                  gold:i.gold_count,
-                 score_count:i.opts.score
+                 score_count:i.opts.score,
+                 fund:i.opts.fund
                }); 
             }else{
               i.gold_count += i.opts.gold;
@@ -1207,7 +1224,8 @@ pro.bankerBet = function(user_id, bet){
          nick:banker.nickname,   
          seat:banker.opts.seat,        
          gold:banker.gold_count,
-         score_count:banker.opts.score
+         score_count:banker.opts.score,
+         fund:banker.opts.fund
        }); 
 
        self.delaytime=20;
@@ -1309,6 +1327,7 @@ pro.bankerBet = function(user_id, bet){
         that.result.length= 0;            //911
 
         for( let i of _.values(that.getUsers())){
+            i.opts.fund =0;
             if(i.opts.seat == that.banker_seat)
                 continue;
             i.opts.bet = [0,0,0,0,0];
@@ -1327,6 +1346,7 @@ pro.bankerBet = function(user_id, bet){
     that.result.length= 0;  
 
     for( let i of _.values(that.getUsers())){
+      i.opts.fund =0;
       if(i.opts.seat == that.banker_seat)
           continue;
 
@@ -1458,10 +1478,10 @@ pro.bankerBet = function(user_id, bet){
     //取得已准备人数
     if(online_count <4){
          //取得总人数
-         if(self.getUserCount()<4){//有人退出
-            //总人数够，钓鱼者补位
+         // if(self.getUserCount()<4){//有人退出
+         //    //总人数够，钓鱼者补位
 
-         }else{
+         // }else{
             //人数不足，结算游戏
             //总结算表
             self.act_status = AS_GAMEOVER;
@@ -1474,6 +1494,7 @@ pro.bankerBet = function(user_id, bet){
                   seat:u.opts.seat,
                   gold:u.gold_count,
                   score:u.opts.score,
+                  fund:u.opts.fund_count,
                 });
             }
 
@@ -1483,7 +1504,7 @@ pro.bankerBet = function(user_id, bet){
                         self.delaytime,
                         result
                       ]];
-         }
+        // }
     }
    
 
@@ -1535,6 +1556,7 @@ pro.bankerBet = function(user_id, bet){
                   seat:u.opts.seat,
                   gold:u.gold_count,
                   score:u.opts.score,
+                  fund:u.opts.fund_count,
                 });
             }
 
@@ -1558,7 +1580,6 @@ pro.bankerBet = function(user_id, bet){
                   self.specialflag,
                 ]];
   };
-
  
 })();
 
