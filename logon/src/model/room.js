@@ -103,7 +103,7 @@ var Method = function(opts){
   self._player_count = self._free_seat.length;
   self.visitor_count = opts.visitor_count || 0;  // 游客人数
 
-  self.fund          = opts.fund          || 1000;
+  self.fund          = opts.fund          || 0;
   self.curr_fund         =  0 ;
   self.round_count   = opts.round_count   || 4;
 
@@ -463,9 +463,9 @@ pro.ready = function(user_id){
         self.act_seat    = self.banker_seat;
       }
 
-      self.act_status = AS_DELAY_PLAYER_DICE;
-      
+      self.act_status = AS_DELAY_PLAYER_DICE;      
       self.delaytime=5;
+
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
@@ -525,7 +525,7 @@ pro.bankerBet = function(user_id, bet){
     else
        console.log(data[0]); 
 
-    self.act_status =  AS_DELAY_BANKER_BET;
+    
     self.act_seat = self.banker_seat;
  
     if( self.chips.length>0 && bet > 0)
@@ -535,7 +535,9 @@ pro.bankerBet = function(user_id, bet){
     if( self.chips.length>0 && bet > 3000)
         self.banker_bet = self.chips.shift();    
  
+    self.act_status =  AS_DELAY_BANKER_BET;
     self.delaytime=3;
+
     return [self.getUsers(),[
       self.act_status,
       self.delaytime,
@@ -564,9 +566,10 @@ pro.bankerBet = function(user_id, bet){
       
       user.opts.craps = [ _.random(1, 6), _.random(1, 6) ];
       self.first_seat = firstSeat(self.banker_seat,user.opts.craps);
-      self.act_status = AS_DELAY_BANKER_DICE;
 
+      self.act_status = AS_DELAY_BANKER_DICE;
       self.delaytime=5      
+
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
@@ -602,23 +605,24 @@ pro.bankerBet = function(user_id, bet){
       var user = self.getUser(user_id);
       if(!user)                            return '用户不存在';
 
-      var bet = data[0];            //911
-      var betseat = data[1];        //911
+      //var bet = data[0];            //911
+      //var betseat = data[1];        //911
 
-      bet  = getBet.call(self,bet);
+      //bet  = getBet.call(self,bet);
 
-      if( user.opts.bet[betseat]) 
-          return '该玩家已下过注';  // 下过注，则返回
-      else
-          user.opts.bet[betseat] = bet;
+      // if( user.opts.bet[betseat]) 
+      //     return '该玩家已下过注';  // 下过注，则返回
+      // else
+      //     user.opts.bet[betseat] = bet;
 
-      self.delaytime=0;
+      user.opts.bet = data;//[0,0,0,0,0]
+      //self.delaytime=0;
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
+        user.id,
         user.opts.seat,
-        bet,
-        betseat,
+        user.opts.bet,       
       ]];
 
   };
@@ -679,10 +683,12 @@ pro.bankerBet = function(user_id, bet){
       if(user.opts.seat !== self.banker_seat) return '不是庄家';
 
       if(answer==='true'){
-          self.act_status = AS_WAIT_FOR_PLAYER_BET;
+          
           self.act_seat = self.banker_seat;
 
+          self.act_status = AS_WAIT_FOR_PLAYER_BET;
           self.delaytime=20;
+
           return [self.getUsers(),[
             self.act_status,
             self.delaytime                  
@@ -723,9 +729,11 @@ pro.bankerBet = function(user_id, bet){
           self.round_num++;
           self.chips = [2000,3000,5000];
 
-          self.act_status = AS_WAIT_FOR_BANKER_BET;
           self.act_seat = self.banker_seat;
+
+          self.act_status = AS_WAIT_FOR_BANKER_BET;          
           self.delaytime=20;
+
           return [self.getUsers(),[
             self.act_status,
             self.delaytime,
@@ -750,7 +758,7 @@ pro.bankerBet = function(user_id, bet){
 
       if(user.opts.seat !== self.banker_seat) return '不是庄家';
 
-      self.act_status = AS_DELAY_BANKER_CONTINUE_BET;
+      
       bet = bet-0;      
       if( self.chips.length>0 && bet > 2000)
         self.banker_bet = self.chips.shift();
@@ -758,7 +766,9 @@ pro.bankerBet = function(user_id, bet){
         self.banker_bet = self.chips.shift();    
 
 
-        self.delaytime=3;
+      self.act_status = AS_DELAY_BANKER_CONTINUE_BET;
+      self.delaytime=3;
+
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
@@ -780,9 +790,10 @@ pro.bankerBet = function(user_id, bet){
       var self = this;
 
       if(self.banker_seat >0){
-         self.act_status = AS_WAIT_FOR_BANKER_BET;
 
+         self.act_status = AS_WAIT_FOR_BANKER_BET;
          self.delaytime=20;
+
          return [self.getUsers(),[
            self.act_status,
            self.delaytime,
@@ -792,10 +803,12 @@ pro.bankerBet = function(user_id, bet){
          //time out banker bet  20s
 
       }else{
-        self.act_status = AS_WAIT_FOR_PLAYER_DICE; 
+       
         self.act_seat = self.getNextSeatBySeat(self.act_seat);
 
+         self.act_status = AS_WAIT_FOR_PLAYER_DICE; 
         self.delaytime=10;
+
         return [self.getUsers(),[
           self.act_status,
           self.delaytime,
@@ -813,10 +826,12 @@ pro.bankerBet = function(user_id, bet){
 
     pro.delay_BankerBet = function(){
       var self = this;
-      self.act_status = AS_WAIT_FOR_PLAYER_BET;
+      
       self.act_seat =  self.banker_seat;
 
+      self.act_status = AS_WAIT_FOR_PLAYER_BET;
       self.delaytime=20;
+
       return [self.getUsers(),[
         self.act_status,
         self.delaytime,
@@ -833,7 +848,7 @@ pro.bankerBet = function(user_id, bet){
       pro.delay_BankerDice = function(){
         var self = this;
         //self.act_status = AS_WAIT_FOR_PLAYER_BET;        
-        self.act_status = AS_DELAY_DEALCARD;   
+          
         
 
       self._cards_8 = self._cards_36.splice(0,8);
@@ -844,7 +859,9 @@ pro.bankerBet = function(user_id, bet){
         //开启后台换牌作弊
         self._card_8 = hackCard.call(self,self._card_8 );
 
+        self.act_status = AS_DELAY_DEALCARD; 
         self.delaytime=3;
+
         return [self.getUsers(),[
           self.act_status,
           self.delaytime,
@@ -914,9 +931,10 @@ pro.bankerBet = function(user_id, bet){
     pro.delay_PlayerBet = function(){
       var self = this;
         //self.act_status = AS_DELAY_DEALCARD;
-        self.act_status = AS_WAIT_FOR_BANKER_DICE;
 
+        self.act_status = AS_WAIT_FOR_BANKER_DICE;
         self.delaytime=10;
+
         return [self.getUsers(),[
           self.act_status,
           self.delaytime      
@@ -929,13 +947,15 @@ pro.bankerBet = function(user_id, bet){
 //发完牌后的延迟处理
 (function(){
   pro.delay_DealCard = function(){
-    var self = this;
-      self.act_status = AS_DELAY_COMPARE_CARD;      
+      var self = this;
+
+      self.act_status = AS_DELAY_COMPARE_CARD;   
+      self.delaytime=1;   
 
       if(self.first_seat == self.banker_seat)
           self.first_seat = self.getNextSeatBySeat(self.first_seat);
      //仅设置状态          
-     self.delaytime=1;
+     
       //dalay compare card
   };
   // 
@@ -1045,7 +1065,7 @@ pro.bankerBet = function(user_id, bet){
                     result[0],
                     banker.opts.seat,
                     player.opts.seat,
-                    self.first_seat]  ]];
+                    player.id]  ]];
               //delay  compare card  5s（下一个玩家，包含钓鱼者）
           }else{//庄家输
               if( self.banker_bet + result[0] >0   ){ //够赔
@@ -1091,7 +1111,7 @@ pro.bankerBet = function(user_id, bet){
                     result[0],
                     banker.opts.seat,
                     player.opts.seat,
-                    self.first_seat]  ]];
+                    player.id]  ]];
                   
                   //delay compare card 5s（继续下一家
               }else{//不够赔
@@ -1134,7 +1154,7 @@ pro.bankerBet = function(user_id, bet){
                         -score,
                         banker.opts.seat,
                         player.opts.seat,
-                        self.first_seat]  ]];                
+                        player.id]  ]];                
                     //DELAY COMPARE CARD 2  5S
                   }else{//无 
                        //先结算目前
@@ -1160,7 +1180,7 @@ pro.bankerBet = function(user_id, bet){
                           -score,
                           banker.opts.seat,
                           player.opts.seat,
-                          self.first_seat]  ]];    
+                          player.id]  ]];    
                         
                        //DELAY COMPARE CARD 3  5S                                       
                   }
@@ -1176,9 +1196,9 @@ pro.bankerBet = function(user_id, bet){
     pro.delay_ComepareCard2 = function(){
       var self = this;    
       
-        self.act_status = AS_WAIT_FOR_BANKER_CONTINUE_BET;      
-
+        self.act_status = AS_WAIT_FOR_BANKER_CONTINUE_BET; 
         self.delaytime=20;
+
         return [self.getUsers(),[
           self.act_status,
           self.delaytime,
@@ -1279,7 +1299,8 @@ pro.bankerBet = function(user_id, bet){
               self.chips = [2000,3000,5000];
 
               self.act_status = AS_WAIT_FOR_BANKER_BET;
-               self.delaytime=15;
+              self.delaytime=15;
+
               return [self.getUsers(),[
                 self.act_status,
                 self.delaytime,
@@ -1294,7 +1315,8 @@ pro.bankerBet = function(user_id, bet){
                 self.act_status = AS_WAIT_FOR_BANKER_CONTINUE;
                 self.act_seat = self.banker_seat;
 
-                self.delaytime=15
+                self.delaytime=20;
+
                 return [self.getUsers(),
                         [ self.act_status,
                           self.delaytime,
@@ -1308,7 +1330,8 @@ pro.bankerBet = function(user_id, bet){
               self.act_status = AS_WAIT_FOR_PLAYER_BET;
               self.act_seat = self.banker_seat;
 
-               self.delaytime=20
+               self.delaytime=20;
+
                 return [self.getUsers(),
                       [ self.act_status,
                         self.delaytime,
@@ -1434,6 +1457,7 @@ pro.bankerBet = function(user_id, bet){
 
       self.act_status = AS_DELAY_PLAYER_BET;
       self.delaytime=3;
+
       return [self.getUsers(),[
         self.act_status, 
         self.delaytime,
@@ -1499,6 +1523,7 @@ pro.bankerBet = function(user_id, bet){
             }
 
             self.delaytime=1;
+
             return [self.getUsers(),
                       [ self.act_status,
                         self.delaytime,
