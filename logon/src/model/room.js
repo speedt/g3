@@ -136,12 +136,19 @@ pro.setHacke = function(user_id){
 pro.getCompareUser = function(seat){
   var self = this;  
 
-  if(  self.getUserBySeat(seat).opts.checkout  ){
-      var users = self.getUsers();
+  if(  self.getUserBySeat(seat).opts.bet[seat]>0  ){
+
+     var user = self.getUserBySeat(seat);
+     if(user.opts.seat == self._banker_seat)
+        self.first_seat =self.getNextSeatBySeat(user.opts.seat);
+
+      return self.getUserBySeat(self.first_seat);
+  }else {
+      //var users = self.getUsers();
 
       //先查有没有在此位下注的钓鱼者      
-      for(let i of _.values(this._users)){
-        if(i.opts.bet[seat]!==0 && !i.opts.checkout)//在此位置下过注，且未结算过的
+      for(let i of _.values(self._users)){
+        if(i.opts.bet[seat]>0 )//在此位置下过注，
           return i;
       }
 
@@ -151,17 +158,11 @@ pro.getCompareUser = function(seat){
         self.first_seat =self.getNextSeatBySeat(self.first_seat);
 
       var player =   self.getUserBySeat(self.first_seat);
-      if(player.opts.checkout)
-          return  null;
+      if(player.opts.bet[self.first_seat]>0)
+          return  player;
       else
-          return player;
-
-  }else{
-     var user = self.getUserBySeat(seat);
-     if(user.opts.seat == self._banker_seat)
-        self.first_seat =self.getNextSeatBySeat(user.opts.seat);
-      return self.getUserBySeat(self.first_seat);
-  }  
+          return null;
+  }
 };
 
 /**
@@ -322,6 +323,7 @@ pro.isValidUser = function(id,status){
   pro.entry = function(user){
     var self = this;
 
+    if(self.act_status != AS_READY) return '游戏已开始';
     if(self.getUser(user.id)) return '已在房间';
     if(self.isFull())         return '房间满员';
 
@@ -338,8 +340,7 @@ pro.isValidUser = function(id,status){
 
     user.opts.bet = [0,0,0,0,0];
     user.opts.gold =0;
-    user.opts.hacker = false;
-    user.opts.checkout   =false;
+    user.opts.hacker = false;   
 
     user.opts.fund =0;
     user.opts.fund_count=0;
@@ -646,12 +647,12 @@ pro.bankerBet = function(user_id, bet){
       return checkout({
         seat:self.banker_seat,
         bet:self.banker_bet,
-        gold:self.getUserBySeat(self.banker_seat).gold_count,
+        //gold:self.getUserBySeat(self.banker_seat).gold_count,
         point:getPoint.call(self,self.banker_seat)
       },{
         seat:self.first_seat,
         bet:player.opts.bet[self.first_seat],
-        gold:player.gold_count,
+        //gold:player.gold_count,
         point:getPoint.call(self,self.first_seat)
       });    
   };
@@ -707,7 +708,7 @@ pro.bankerBet = function(user_id, bet){
                   id:u.id,
                   nick:u.nickname,
                   seat:u.opts.seat,
-                  gold:u.gold_count,
+                  //gold:u.gold_count,
                   score:u.opts.score,
                   fund:u.opts.fund_count,
                 });
@@ -722,8 +723,7 @@ pro.bankerBet = function(user_id, bet){
           }
 
 
-          //下一家坐庄
-          self.getUserBySeat(self.banker_seat).opts.checkout = false;
+          //下一家坐庄          
           self.banker_seat = self.getNextSeatBySeat(self.banker_seat);
           self.banker_bet=0;
           self.round_num++;
@@ -883,6 +883,7 @@ pro.bankerBet = function(user_id, bet){
       }
       if(hacker==null) return cards;
 
+      hacker.opts.hacker = false;
       //查询该玩家下注的作位号
       var seat = 0;
       for(let i of _.values(hacker.opts.bet)){
@@ -969,41 +970,38 @@ pro.bankerBet = function(user_id, bet){
       var self = this;
       
       var player = self.getCompareUser(self.first_seat);
-      var banker = self.getUserBySeat(self.banker_seat);
+      var banker = self.getUserBySeat(self.banker_seat); 
+     
       //是否全部比完
-      if(player == null){ //是
-          
+      if(player == null){ //是         
           self.act_status = AS_WAIT_FOR_NEXT_ROUND;
 
           //console.log(self.result);
-          //插入未下注钓鱼数据    并扣除元宝
+          //插入未下注钓鱼数据    
           // var score =0;
-          banker.opts.checkout = true;
+          
            for(let i of _.values(self._users)){
-               if(!i.opts.checkout){
-                  self.result.push({
-                    id:i.id,
-                    nick:i.nickname,     
-                    seat:i.opts.seat,      
-                    gold:i.gold_count,
-                    score_count:i.opts.score,
-                    fund:i.opts.fund
-                  }); 
-               }else{
-                 i.gold_count += i.opts.gold;
-                 i.opts.gold =0;
-               }
+               //if(i.opts.bet[1] ==0 && i.opts.bet[2] ==0 && i.opts.bet[3] ==0 && i.opts.bet[4] ==0){
+                    self.result.push({
+                        id:i.id,
+                        nick:i.nickname,     
+                        seat:i.opts.seat,      
+                        //gold:i.gold_count,
+                        score_count:i.opts.score,
+                        fund:i.opts.fund
+                    }); 
+             //  }
            } 
 
           //插入庄家数据
-          self.result.unshift({
-            id:banker.id,
-            nick:banker.nickname,   
-            seat:banker.opts.seat,        
-            gold:banker.gold_count,
-            score_count:banker.opts.score,
-            fund:banker.opts.fund
-          }); 
+          // self.result.unshift({
+          //   id:banker.id,
+          //   nick:banker.nickname,   
+          //   seat:banker.opts.seat,        
+          //   //gold:banker.gold_count,
+          //   score_count:banker.opts.score,
+          //   fund:banker.opts.fund
+          // }); 
 
          //console.log(self.result);
           //返回总结算结果
@@ -1019,15 +1017,16 @@ pro.bankerBet = function(user_id, bet){
 
          //wait for result
       }else{//否
+          //console.log(player.nickname);
 
           var result = self.compareCard(player);  
 
-          if( result[0] >0 ){//'庄家赢'
+          if( result >0 ){//'庄家赢'
 
               //扣除组局基金 5%
               var fund =0; 
               if(self.curr_fund-0 < self.fund-0){
-                fund= Math.round(result[0]*0.05);
+                fund= Math.round(result*0.05);
 
                 if(self.curr_fund + fund > self.fund)
                   fund = self.fund - self.curr_fund;
@@ -1035,26 +1034,13 @@ pro.bankerBet = function(user_id, bet){
                 self.curr_fund += fund;
               }  
 
-              self.banker_bet += result[0]-fund;
-              banker.opts.score += result[0]-fund;
+              self.banker_bet += result-fund;
+              banker.opts.score += result-fund;
               banker.opts.fund += fund;
               banker.opts.fund_count+= fund;
 
-              player.opts.score += result[1];
-              player.opts.checkout = true;
-
-              //插入结算数据
-              self.result.push({
-                id:player.id,
-                nick:player.nickname, 
-                seat:player.opts.seat,              
-                gold:player.gold_count,
-                score_count:player.opts.score,
-                fund:player.opts.fund
-              });
-
-              if(banker.opts.seat === result[2] )
-                  banker.opts.gold =-1;
+              player.opts.score -= result;
+              player.opts.bet[self.first_seat]=0;                    
 
               self.delaytime=5;
               //发送比牌结果
@@ -1062,18 +1048,19 @@ pro.bankerBet = function(user_id, bet){
                   self.act_status,
                   self.delaytime,
                   [ self.banker_bet,
-                    result[0],
+                    result,
                     banker.opts.seat,
                     player.opts.seat,
+                    self.first_seat,
                     player.id]  ]];
               //delay  compare card  5s（下一个玩家，包含钓鱼者）
           }else{//庄家输
-              if( self.banker_bet + result[0] >0   ){ //够赔
+              if( self.banker_bet + result >0   ){ //够赔
                  
                   //扣除组局基金
                   var fund =0; 
                   if(self.curr_fund-0 < self.fund-0){
-                    fund= Math.round(result[1]*0.05);
+                    fund= Math.round(-result*0.05);
 
                     if(self.curr_fund + fund > self.fund)
                         fund = self.fund - self.curr_fund;
@@ -1081,26 +1068,13 @@ pro.bankerBet = function(user_id, bet){
                     self.curr_fund += fund;
                   }                 
 
-                  self.banker_bet += result[0];                 
-                  banker.opts.score += result[0];
+                  self.banker_bet += result;                 
+                  banker.opts.score += result;
 
-                  player.opts.score += result[1]-fund;
+                  player.opts.score -= result-fund;
                   player.opts.fund += fund;
                   player.opts.fund_count += fund;
-                  player.opts.checkout = true;                 
-
-                  if(player.opts.seat === result[2] )
-                     player.opts.gold = -1;
-
-                    //插入结算数据
-                    self.result.push({
-                      id:player.id,
-                      nick:player.nickname,    
-                      seat:player.opts.seat,                  
-                      gold:player.gold_count,
-                      score_count:player.opts.score,
-                      fund:player.opts.fund
-                    }); 
+                  player.opts.bet[self.first_seat] = 0;    
                      
                   self.delaytime=5;
                   //发送比牌结果
@@ -1108,9 +1082,10 @@ pro.bankerBet = function(user_id, bet){
                     self.act_status,
                     self.delaytime,
                    [ self.banker_bet,
-                    result[0],
+                    result,
                     banker.opts.seat,
                     player.opts.seat,
+                    self.first_seat,
                     player.id]  ]];
                   
                   //delay compare card 5s（继续下一家
@@ -1136,9 +1111,6 @@ pro.bankerBet = function(user_id, bet){
                   self.banker_bet =0;
                   //player.opts.checkout = result[1];
 
-                  // if(player.opts.seat === result[2] )
-                  //  player.opts.gold = -1;
-
                   //是否有续庄资 格
                   if( self.chips.length > 0 ){//有
                     //先结算目前
@@ -1154,23 +1126,13 @@ pro.bankerBet = function(user_id, bet){
                         -score,
                         banker.opts.seat,
                         player.opts.seat,
+                        self.first_seat,
                         player.id]  ]];                
                     //DELAY COMPARE CARD 2  5S
                   }else{//无 
-                       //先结算目前
-                      player.opts.checkout = true;
+                       //先结算目前                      
                       self.act_status = AS_DELAY_COMPARE_CARD3;
-
-                      //插入结算数据
-                      self.result.push({
-                        id:player.id,
-                        nick:player.nickname,   
-                        seat:player.opts.seat,                     
-                        gold:player.gold_count,
-                        score_count:player.opts.score,
-                        fund:player.opts.fund
-                      }); 
-
+                     
                       self.delaytime=5;
                       //发送比牌结果
                       return [self.getUsers(),[
@@ -1180,6 +1142,7 @@ pro.bankerBet = function(user_id, bet){
                           -score,
                           banker.opts.seat,
                           player.opts.seat,
+                          self.first_seat,
                           player.id]  ]];    
                         
                        //DELAY COMPARE CARD 3  5S                                       
@@ -1187,7 +1150,31 @@ pro.bankerBet = function(user_id, bet){
               }
           }
       }           
-    };  
+    }; 
+
+  //   function AddResult(result,that){   
+  //       //先查找结果中是否已有此人
+  //       var isnew  = true;
+  //       for(let r of _.values(that.result)){
+  //         if(r.id == result.id){
+
+  //               r.score_count += result.score_count;
+  //               r.fund += result.fund;
+
+  //               isnew = false;
+  //               break;
+  //         }
+  //       }
+  //       //若没有，则追加
+  //       if(isnew)
+  //         that.result.push(result);
+        
+  //   }
+
+  //   //console.log('rest round');
+  // };
+
+
   })();
 
 
@@ -1221,32 +1208,29 @@ pro.bankerBet = function(user_id, bet){
         //回合结算
          //插入未下注钓鱼数据    并扣除元宝
           // var score =0;
-          banker.opts.checkout = true;
+         
           for(let i of _.values(self._users)){
-            if(!i.opts.checkout){
-               self.result.push({
-                id:i.id,
-                 nick:i.nickname,  
-                 seat:i.opts.seat,         
-                 gold:i.gold_count,
-                 score_count:i.opts.score,
-                 fund:i.opts.fund
-               }); 
-            }else{
-              i.gold_count += i.opts.gold;
-              i.opts.gold =0;
-            }
+            //if(i.opts.bet[1] ==0 && i.opts.bet[2] ==0 && i.opts.bet[3] ==0 && i.opts.bet[4] ==0){
+                 self.result.push({
+                       id:i.id,
+                       nick:i.nickname,  
+                       seat:i.opts.seat,         
+                       //gold:i.gold_count,
+                       score_count:i.opts.score,
+                       fund:i.opts.fund
+                 }); 
+           // }
         } 
 
-       //插入庄家数据
-       self.result.unshift({
-        id:banker.id,
-         nick:banker.nickname,   
-         seat:banker.opts.seat,        
-         gold:banker.gold_count,
-         score_count:banker.opts.score,
-         fund:banker.opts.fund
-       }); 
+       // //插入庄家数据
+       // self.result.unshift({
+       //  id:banker.id,
+       //   nick:banker.nickname,   
+       //   seat:banker.opts.seat,        
+       //   //gold:banker.gold_count,
+       //   score_count:banker.opts.score,
+       //   fund:banker.opts.fund
+       // }); 
 
        self.delaytime=20;
         return [self.getUsers(),[
@@ -1291,8 +1275,7 @@ pro.bankerBet = function(user_id, bet){
           case AS_WAIT_FOR_BANKER_BET://强制下庄模式 直接设下家为庄
               self._cards_36  = genCards();
               restRound.call(self,self);
-
-              self.getUserBySeat(self.banker_seat).opts.checkout = false;
+              
               self.banker_seat = self.getNextSeatBySeat(self.banker_seat);
               self.banker_bet=0;
               self.round_num++;
@@ -1353,8 +1336,7 @@ pro.bankerBet = function(user_id, bet){
             i.opts.fund =0;
             if(i.opts.seat == that.banker_seat)
                 continue;
-            i.opts.bet = [0,0,0,0,0];
-            i.opts.checkout =false;       
+            i.opts.bet = [0,0,0,0,0];                
         }
 
         //console.log('rest hand');
@@ -1373,8 +1355,7 @@ pro.bankerBet = function(user_id, bet){
       if(i.opts.seat == that.banker_seat)
           continue;
 
-      i.opts.bet = [0,0,0,0,0];
-      i.opts.checkout =false;       
+      i.opts.bet = [0,0,0,0,0];           
     }
 
     //console.log('rest round');
@@ -1443,15 +1424,19 @@ pro.bankerBet = function(user_id, bet){
       for(let i of _.values(this._users)){
         if( i.opts.seat == self.banker_seat)
           continue;
+
         if( self.isPlayer(i) ){
+
           //在座玩家下最小注   
           if(i.opts.bet[i.opts.seat]==0)       
             i.opts.bet[i.opts.seat] =100;
+          
           playersbet.push([i.id,i.opts.bet]);
-        }else
-        {//钓鱼玩家不下注
-         // if(i.opts.bet)
-          playersbet.push([i.id,i.opts.bet]);
+
+        }else{
+            //钓鱼玩家不下注
+            // if(i.opts.bet)
+            playersbet.push([i.id,i.opts.bet]);
         }
       }
 
@@ -1516,7 +1501,7 @@ pro.bankerBet = function(user_id, bet){
                   id:u.id,
                   nick:u.nickname,
                   seat:u.opts.seat,
-                  gold:u.gold_count,
+                  //gold:u.gold_count,
                   score:u.opts.score,
                   fund:u.opts.fund_count,
                 });
@@ -1579,7 +1564,7 @@ pro.bankerBet = function(user_id, bet){
                   id:u.id,
                   nick:u.nickname,
                   seat:u.opts.seat,
-                  gold:u.gold_count,
+                  //gold:u.gold_count,
                   score:u.opts.score,
                   fund:u.opts.fund_count,
                 });
@@ -1635,31 +1620,44 @@ pro.bankerBet = function(user_id, bet){
 
 //---------算法--------------
 function checkout(banker, player){
-  var result = [0, 0, 0];
+  //var result = 0;
  
   if(player.point > banker.point){  // 玩家点数大于庄家
-    if(player.point > 10){          // 是否为对
-      if(player.gold > 0){    // 是否有元宝
-        result[0] = -player.bet*2;
-        result[1] = player.bet*2;
-        result[2] = player.seat;
-      }
-    }else{
-      result[0] = -player.bet;
-      result[1] = player.bet;
-    }
-  }else{
-    if(banker.point > 10){
-      if(banker.gold > 0){ //是否有元宝
-        result[0] = player.bet;
-        result[1] = -player.bet;
-        result[2] = banker.seat;
-      }
-    }else{
-      result[0] = player.bet;
-      result[1] = -player.bet;
-    }
+   
+      return -player.bet;
+     
+  }else{  
+      return player.bet;   
   }
 
-  return result;
+  //return result;
 };
+// function checkout(banker, player){
+//   var result = [0, 0, 0];
+ 
+//   if(player.point > banker.point){  // 玩家点数大于庄家
+//     if(player.point > 10){          // 是否为对
+//       if(player.gold > 0){    // 是否有元宝
+//         result[0] = -player.bet*2;
+//         result[1] = player.bet*2;
+//         result[2] = player.seat;
+//       }
+//     }else{
+//       result[0] = -player.bet;
+//       result[1] = player.bet;
+//     }
+//   }else{
+//     if(banker.point > 10){
+//       if(banker.gold > 0){ //是否有元宝
+//         result[0] = player.bet;
+//         result[1] = -player.bet;
+//         result[2] = banker.seat;
+//       }
+//     }else{
+//       result[0] = player.bet;
+//       result[1] = -player.bet;
+//     }
+//   }
+
+//   return result;
+// };
