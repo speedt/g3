@@ -7,7 +7,7 @@
 
 module.exports = {
   app: {
-    ver: 104,
+    ver: 105,
     id: process.env.BACKEND_ID || '1',
     name: process.env.APP_NAME,
     resHost: '127.0.0.1',
