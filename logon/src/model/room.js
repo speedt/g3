@@ -803,7 +803,7 @@ pro.bankerBet = function(user_id, bet){
          //time out banker bet  20s
 
       }else{
-       
+
         self.act_seat = self.getNextSeatBySeat(self.act_seat);
 
          self.act_status = AS_WAIT_FOR_PLAYER_DICE; 
@@ -1610,6 +1610,7 @@ pro.bankerBet = function(user_id, bet){
 
   pro.gameOver = function(){
     var self = this;
+    self.act_status = 'QUIT';
     for(let i of _.values(self._users)){
       i.opts.is_ready =0 ;      
     }
@@ -1624,7 +1625,10 @@ function checkout(banker, player){
  
   if(player.point > banker.point){  // 玩家点数大于庄家
    
-      return -player.bet;
+      if(player.point > 10)
+        return -2*player.bet;
+      else
+        return -player.bet;
      
   }else{  
       return player.bet;   

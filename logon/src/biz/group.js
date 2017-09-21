@@ -122,6 +122,8 @@ const logger = require('log4js').getLogger('biz.group');
   function p1(user){
     if(user.group_id) return Promise.reject('MUST_BE_QUIT');
 
+    if(5 > user.gold_count) return Promise.reject('元宝不足');
+
     return new Promise((resolve, reject) => {
       biz.user.genFreeGroupId()
       .then(group_id => {
@@ -133,8 +135,8 @@ const logger = require('log4js').getLogger('biz.group');
   }
 
   function p2(group_info, user){
-    group_info.id             = user.group_id;
-    group_info.create_user_id = user.id;
+    group_info.id      = user.group_id;
+    group_info.user_id = user.id;
 
     return new Promise((resolve, reject) => {
       biz.user.createGroup(user)

@@ -241,7 +241,7 @@ const logger = require('log4js').getLogger('biz.user');
     return new Promise((resolve, reject) => {
       redis.evalsha(sha1, numkeys,
         conf.redis.database,                   /**/
-        conf.app.id,                    /**/
+        conf.app.client_id,                    /**/
         user.id,                               /**/
         utils.replaceAll(uuid.v4(), '-', ''),  /**/
         seconds, (err, code) => {

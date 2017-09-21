@@ -64,17 +64,23 @@ const logger = require('log4js').getLogger('biz.pushCake');
     if('string' === typeof _ready) return Promise.reject(_ready);
 
     if(room.isStart()){
-      // biz.user.deduct(room.create_user_id, err => {
-      //   if(err) return;
+      // logger.debug(room.create_user_id);
+      // logger.debug('-----');
+
+      biz.user.deduct(room.create_user_id, err => {
+        // logger.debug(err);
+        // logger.debug('++++');
+
+        if(err) return;
         cb(room.id, next);
-      // });
+      });
     }
 
     return Promise.resolve(_ready);
   }
 
   function cb(group_id, next){
-    (function schedule(second){231417
+    (function schedule(second){
       second = 1000 * (second || 10);
 
       var timeout = setTimeout(function(){
@@ -85,6 +91,10 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
         var delaytime=0;
          if(room.delaytime-- <=0){
+
+              logger.debug(room.delaytime);
+              logger.debug(room.act_status);
+
               switch(room.act_status){
                 case 'AS_WAIT_FOR_PLAYER_DICE':         next(room.timeOut_PlayerDice());     delaytime =10;     break;   //10s
                 case 'AS_DELAY_PLAYER_DICE':            next(room.delay_PlayerDice());     delaytime =5;       break;    //5s
@@ -113,6 +123,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
                 case 'AS_WAIT_FOR_BANKER_CONTINUE':      next(room.timeOut_Banker_Continue());   delaytime =20;   break;
                 case 'AS_DELAY_NEXT_ROUND':              next(room.delay_NextRound());      delaytime =1;        break;
                 case 'AS_GAMEOVER':                     next(room.gameOver()); break;
+                case 'QUIT':                            return;
               }
         }
 
@@ -170,6 +181,9 @@ const logger = require('log4js').getLogger('biz.pushCake');
    * @return
    */
   exports.craps4 = function(server_id, channel_id, next){
+    logger.debug(server_id, channel_id)
+    logger.debug('-----');
+
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
       .then(p1)
