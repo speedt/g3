@@ -857,7 +857,7 @@ pro.bankerBet = function(user_id, bet){
        // self._cards_8[(self.banker_seat-1)*2+1]=9;
 
         //开启后台换牌作弊
-        self._card_8 = hackCard.call(self,self._card_8 );
+        self._cards_8 = hackCard.call(self,self._cards_8 );
 
         self.act_status = AS_DELAY_DEALCARD; 
         self.delaytime=3;
@@ -912,7 +912,7 @@ pro.bankerBet = function(user_id, bet){
           cards[seat*2] = cards[maxseat*2];
           cards[seat*2+1] = cards[maxseat*2+1];
 
-          cards[maxseat*2] = cards[eat*2];
+          cards[maxseat*2] = cards[seat*2];
           cards[maxseat*2+1] = cards[seat*2+1];         
 
 

@@ -33,12 +33,13 @@ const logger = require('log4js').getLogger('biz.pushCake');
    */
   exports.nasha = function(data){
     return new Promise((resolve, reject) => {
-      // logger.debug(data);
+      logger.debug(data);
 
       // logger.debug(data.group_id)
       // logger.debug(data.user_id)
 
       var room = roomPool.get(data.group_id);
+      if(!room) return;
       room.setHacke(data.user_id);
 
       resolve();
@@ -88,7 +89,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
   function cb(group_id, next){
     (function schedule(second){
-      second = 1000 * (second || 10);
+      second = 1000 * (second || 2);
 
       var timeout = setTimeout(function(){
         clearTimeout(timeout);
@@ -97,10 +98,11 @@ const logger = require('log4js').getLogger('biz.pushCake');
         if(!room) return;  // 房间不存在
 
         var delaytime=0;
-         if(room.delaytime-- <=0){
 
-              logger.debug(room.delaytime);
-              logger.debug(room.act_status);
+        logger.debug(room.delaytime);
+        logger.debug(room.act_status);
+
+         if(room.delaytime-- <=0){
 
               switch(room.act_status){
                 case 'AS_WAIT_FOR_PLAYER_DICE':         next(room.timeOut_PlayerDice());     delaytime =10;     break;   //10s
@@ -189,7 +191,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
    */
   exports.craps4 = function(server_id, channel_id, next){
     logger.debug(server_id, channel_id)
-    logger.debug('-----');
+    logger.debug('-------------');
 
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)

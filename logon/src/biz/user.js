@@ -393,7 +393,7 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
-  var sql = 'UPDATE s_user SET gold_count=gold_count-? WHERE id=?';
+  var sql = 'UPDATE s_user SET gold_count=gold_count-5 WHERE id=?';
 
   /**
    * 开房间扣款
@@ -401,7 +401,7 @@ const logger = require('log4js').getLogger('biz.user');
    * @return
    */
   exports.deduct = function(user_id, cb){
-    mysql.query(sql, [5, user_id], err => {
+    mysql.query(sql, [user_id], err => {
       if(err) return cb(err);
       cb();
     });
