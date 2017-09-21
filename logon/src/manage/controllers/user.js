@@ -111,23 +111,18 @@ exports.paymentUI = function(req, res, next){
     return new Promise((resolve, reject) => {
       if(0 === docs.length) return reject(new Error('前置机未启动'));
 
-      console.log(user_id);
-
-      resolve();
+      p2(docs, user_id)
+      .then(() => resolve())
+      .catch(reject);
     });
   }
 
-  function p2(frontends, doc){
+  function p2(frontends, user_id){
     return new Promise((resolve, reject) => {
-      if(!doc) return reject(new Error('Not Found'));
-
-      delete doc.user_id;
-      delete doc.last_time;
-
-      var _data = ['ALL', JSON.stringify([1008, , _.now(), doc])];
+      if(!user_id) return reject(new Error('Not Found'));
 
       for(let i of frontends){
-        amq.send('/queue/back.send.v3.'+ i, { priority: 8 }, _data, (err, code) => { /*  */ });
+        amq.send('/queue/qq.5015', { priority: 8 }, user_id, (err, code) => { /*  */ });
       }
 
       resolve();

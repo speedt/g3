@@ -22,6 +22,26 @@ const logger = require('log4js').getLogger('handle.pushCake');
    *
    * @return
    */
+  exports.nasha = function(send, msg){
+    biz.pushCake.nasha(msg)
+    .then (p1.bind(null, send, msg))
+    .catch(p2.bind(null, send, msg));
+  };
+
+  function p1(send, data, doc){}
+
+  function p2(send, data, err){
+    if('object'   === typeof err) return logger.error('pushCake nasha:', err);
+    logger.debug('pushCake nasha:', err);
+  }
+})();
+
+(() => {
+  /**
+   * 举手
+   *
+   * @return
+   */
   exports.ready = function(send, msg){
     try{ var data = JSON.parse(msg);
     }catch(ex){ return; }

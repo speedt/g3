@@ -31,6 +31,20 @@ const logger = require('log4js').getLogger('biz.pushCake');
    *
    * @return
    */
+  exports.nasha = function(user_id){
+    return new Promise((resolve, reject) => {
+      logger.debug(user_id);
+      resolve();
+    });
+  };
+})();
+
+(() => {
+  /**
+   * 准备
+   *
+   * @return
+   */
   exports.ready = function(server_id, channel_id, next){
     return new Promise((resolve, reject) => {
       biz.user.getByChannelId(server_id, channel_id)
