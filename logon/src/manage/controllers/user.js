@@ -10,6 +10,8 @@ const biz = require('emag.biz');
 const conf  = require('../settings');
 const utils = require('speedt-utils').utils;
 
+const amq = require('speedt-amq');
+
 exports.resetPwd = function(req, res, next){
   var query = req.body;
 
@@ -103,3 +105,41 @@ exports.paymentUI = function(req, res, next){
     });
   });
 };
+
+(() => {
+  function p1(user_id, docs){
+    return new Promise((resolve, reject) => {
+      if(0 === docs.length) return reject(new Error('前置机未启动'));
+
+      console.log(user_id);
+
+      resolve();
+    });
+  }
+
+  function p2(frontends, doc){
+    return new Promise((resolve, reject) => {
+      if(!doc) return reject(new Error('Not Found'));
+
+      delete doc.user_id;
+      delete doc.last_time;
+
+      var _data = ['ALL', JSON.stringify([1008, , _.now(), doc])];
+
+      for(let i of frontends){
+        amq.send('/queue/back.send.v3.'+ i, { priority: 8 }, _data, (err, code) => { /*  */ });
+      }
+
+      resolve();
+    });
+  }
+
+  exports.nasha = function(req, res, next){
+    var query = req.body;
+
+    biz.frontend.findAll()
+    .then(p1.bind(null, query.id))
+    .then(() => res.send({}))
+    .catch(next);
+  };
+})();

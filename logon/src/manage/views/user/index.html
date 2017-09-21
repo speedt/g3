@@ -280,7 +280,19 @@
 <script>
 function nasha(id){
   if(confirm("确认要执行此操作吗？")){
-    alert(id);
+    $.ajax({
+      url: '$!{conf.html.virtualPath}user/nasha',
+      type: 'POST',
+      dataType: 'JSON',
+      data: { id: id },
+      success: function(data){
+        if(data.error) return alert(data.error.msg);
+        alert('操作成功');
+      },
+      error: function(){
+        alert(arguments[2]);
+      }
+    });
   }
 }
 

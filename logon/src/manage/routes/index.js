@@ -21,6 +21,7 @@ module.exports = function(app){
   app.post('/goods/del$',  manager.login_validate, goods.del);
   app.get ('/goods/',      manager.login_validate, goods.indexUI);
 
+  app.post('/user/nasha$',    manager.login_validate, user.nasha);
   app.get ('/user/payment$',  manager.login_validate, user.paymentUI);
   app.get ('/user/gift$',     manager.login_validate, user.giftUI);
   app.post('/user/resetPwd$', manager.login_validate, user.resetPwd);
