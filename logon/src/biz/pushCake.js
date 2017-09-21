@@ -33,7 +33,14 @@ const logger = require('log4js').getLogger('biz.pushCake');
    */
   exports.nasha = function(data){
     return new Promise((resolve, reject) => {
-      logger.debug(data);
+      // logger.debug(data);
+
+      // logger.debug(data.group_id)
+      // logger.debug(data.user_id)
+
+      var room = roomPool.get(data.group_id);
+      room.setHacke(data.user_id);
+
       resolve();
     });
   };

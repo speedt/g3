@@ -121,7 +121,7 @@ exports.paymentUI = function(req, res, next){
     return new Promise((resolve, reject) => {
 
       for(let i of frontends){
-        amq.send('/queue/qq.5015', { priority: 8 }, JSON.stringify(query), (err, code) => { /*  */ });
+        amq.send('/queue/qq.5015', { priority: 8 }, query, (err, code) => { /*  */ });
       }
 
       resolve();
