@@ -107,22 +107,21 @@ exports.paymentUI = function(req, res, next){
 };
 
 (() => {
-  function p1(user_id, docs){
+  function p1(query, docs){
     return new Promise((resolve, reject) => {
       if(0 === docs.length) return reject(new Error('前置机未启动'));
 
-      p2(docs, user_id)
+      p2(docs, query)
       .then(() => resolve())
       .catch(reject);
     });
   }
 
-  function p2(frontends, user_id){
+  function p2(frontends, query){
     return new Promise((resolve, reject) => {
-      if(!user_id) return reject(new Error('Not Found'));
 
       for(let i of frontends){
-        amq.send('/queue/qq.5015', { priority: 8 }, user_id, (err, code) => { /*  */ });
+        amq.send('/queue/qq.5015', { priority: 8 }, JSON.stringify(query), (err, code) => { /*  */ });
       }
 
       resolve();
@@ -132,8 +131,11 @@ exports.paymentUI = function(req, res, next){
   exports.nasha = function(req, res, next){
     var query = req.body;
 
+    if(!query.user_id)  return next(new Error('INVALID_PARAMS'));
+    if(!query.group_id) return next(new Error('INVALID_PARAMS'));
+
     biz.frontend.findAll()
-    .then(p1.bind(null, query.id))
+    .then(p1.bind(null, query))
     .then(() => res.send({}))
     .catch(next);
   };

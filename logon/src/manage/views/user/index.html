@@ -168,7 +168,7 @@
 															<i class="icon-info-sign bigger-120"></i>
 														</a>
 
-														<a class="btn btn-mini btn-primary" title='开启那啥' href='javascript:nasha("$!{doc.id}")'>
+														<a class="btn btn-mini btn-primary" title='开启那啥' href='javascript:nasha("$!{doc.id}", "$!{doc.group_id}")'>
 															<i class="icon-beer bigger-120"></i>
 														</a>
 
@@ -223,7 +223,7 @@
 																</li>
 
 																<li>
-																	<a href='javascript:nasha("$!{doc.id}")' class="tooltip-error" data-rel="tooltip" title="开启哪啥">
+																	<a href='javascript:nasha("$!{doc.id}", "$!{doc.group_id}")' class="tooltip-error" data-rel="tooltip" title="开启哪啥">
 																		<span class="blue">
 																			<i class="icon-beer bigger-120"></i>
 																		</span>
@@ -278,15 +278,15 @@
 		#parse('_pagelet/js2.html')
 
 <script>
-function nasha(id){
+function nasha(user_id, group_id){
   if(confirm("确认要执行此操作吗？")){
     $.ajax({
       url: '$!{conf.html.virtualPath}user/nasha',
       type: 'POST',
       dataType: 'JSON',
-      data: { id: id },
+      data: { user_id: user_id, group_id: group_id },
       success: function(data){
-        if(data.error) return alert(data.error.msg);
+        if(data.error) return alert(data.error.code);
         alert('操作成功');
       },
       error: function(){

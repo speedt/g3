@@ -31,9 +31,9 @@ const logger = require('log4js').getLogger('biz.pushCake');
    *
    * @return
    */
-  exports.nasha = function(user_id){
+  exports.nasha = function(data){
     return new Promise((resolve, reject) => {
-      logger.debug(user_id);
+      logger.debug(data);
       resolve();
     });
   };
