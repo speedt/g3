@@ -393,6 +393,22 @@ const logger = require('log4js').getLogger('biz.user');
 })();
 
 (() => {
+  var sql = 'UPDATE s_user SET gold_count=gold_count-? WHERE id=?';
+
+  /**
+   * 开房间扣款
+   *
+   * @return
+   */
+  exports.deduct = function(user_id, cb){
+    mysql.query(sql, [5, user_id], err => {
+      if(err) return cb(err);
+      cb();
+    });
+  };
+})();
+
+(() => {
   var sql = 'UPDATE s_user SET nickname=?, current_score=?, vip=?, gold_count=gold_count+? WHERE id=?';
 
   /**

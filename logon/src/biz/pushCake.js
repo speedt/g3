@@ -50,7 +50,10 @@ const logger = require('log4js').getLogger('biz.pushCake');
     if('string' === typeof _ready) return Promise.reject(_ready);
 
     if(room.isStart()){
-      cb(room.id, next);
+      biz.user.deduct(room.id, err => {
+        if(err) return;
+        cb(room.id, next);
+      });
     }
 
     return Promise.resolve(_ready);
