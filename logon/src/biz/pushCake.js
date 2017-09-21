@@ -64,7 +64,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
     if('string' === typeof _ready) return Promise.reject(_ready);
 
     if(room.isStart()){
-      biz.user.deduct(room.id, err => {
+      biz.user.deduct(room.create_user_id, err => {
         if(err) return;
         cb(room.id, next);
       });
@@ -74,7 +74,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
   }
 
   function cb(group_id, next){
-    (function schedule(second){
+    (function schedule(second){231417
       second = 1000 * (second || 10);
 
       var timeout = setTimeout(function(){
