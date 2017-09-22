@@ -89,6 +89,26 @@ const logger = require('log4js').getLogger('biz.pushCake');
     return Promise.resolve(_ready);
   }
 
+  var sql = 'INSERT INTO g_group_balance (create_time, group_id, room_owner, user_id, seat, user_fund, user_score) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+  function groupBalance(data){
+    for(var i in data){
+      var m = data[i];
+
+      mysql.query(sql, [
+        m.time,
+        m.room_id,
+        m.room_owner,
+        m.user_id,
+        m.user_seat,
+        m.user_fund,
+        m.user_score,
+      ], err => {
+        if(err) return;
+      });
+    }
+  };
+
   function cb(group_id, next){
     (function schedule(second){
       second = 1000 * (second || 2);
@@ -128,8 +148,23 @@ const logger = require('log4js').getLogger('biz.pushCake');
                 case 'AS_WAIT_FOR_BANKER_CONTINUE_BET': next(room.timeOut_Banker_Continue_Bet());       delaytime =20;              break;
                 case 'AS_DELAY_BANKER_CONTINUE_BET':    next(room.delay_BankerContinueBet());     delaytime =3;      break;
 
-                case 'AS_WAIT_FOR_NEXT_ROUND':          next(room.timeOut_Next_Round(1));     delaytime =20;     break;
-                case 'AS_WAIT_FOR_NEXT_ROUND2':          next(room.timeOut_Next_Round(2));     delaytime =20;     break;
+                case 'AS_WAIT_FOR_NEXT_ROUND': {
+
+                  groupBalance(room.saveDB());
+
+                  next(room.timeOut_Next_Round(1));
+                  delaytime =20;
+                  break;
+                }          
+
+                case 'AS_WAIT_FOR_NEXT_ROUND2': {
+
+                  groupBalance(room.saveDB());
+
+                  next(room.timeOut_Next_Round(2));
+                  delaytime =20;
+                  break;
+                }          
                 
                 case 'AS_WAIT_FOR_BANKER_CONTINUE':      next(room.timeOut_Banker_Continue());   delaytime =20;   break;
                 case 'AS_DELAY_NEXT_ROUND':              next(room.delay_NextRound());      delaytime =1;        break;
