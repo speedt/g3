@@ -34,12 +34,14 @@ const logger = require('log4js').getLogger('biz.pushCake');
   exports.nasha = function(data){
     return new Promise((resolve, reject) => {
       logger.debug(data);
+      logger.debug('+++++')
 
       // logger.debug(data.group_id)
       // logger.debug(data.user_id)
 
       var room = roomPool.get(data.group_id);
       if(!room) return;
+      logger.debug(!!room);
       room.setHacke(data.user_id);
 
       resolve();
@@ -99,8 +101,8 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
         var delaytime=0;
 
-        logger.debug(room.delaytime);
-        logger.debug(room.act_status);
+        //logger.debug(room.delaytime);
+       // logger.debug(room.act_status);
 
          if(room.delaytime-- <=0){
 
