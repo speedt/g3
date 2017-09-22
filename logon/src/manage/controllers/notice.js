@@ -106,7 +106,7 @@ exports.del = function(req, res, next){
       delete doc.user_id;
       delete doc.last_time;
 
-      var _data = ['ALL', JSON.stringify([1008, , _.now(), doc])];
+      var _data = ['ALL', JSON.stringify([1008, doc, _.now()])];
 
       for(let i of frontends){
         amq.send('/queue/back.send.v3.'+ i, { priority: 8 }, _data, (err, code) => { /*  */ });
