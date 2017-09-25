@@ -804,6 +804,7 @@ pro.bankerBet = function(user_id, bet){
           record.room_id = self.opts.id; //房间号
           record.room_owner = self.create_user_id;//房主id
           record.user_id = i.id;         //用户id
+          record.banker_seat = self.banker_seat;//当前庄座位
           record.user_seat = i.opts.seat; //座位号
           record.user_fund = i.opts.fund;//组局基金
           record.user_score = i.opts.score_curr;//分数
@@ -1503,11 +1504,16 @@ pro.bankerBet = function(user_id, bet){
         if( i.opts.seat == self.banker_seat)
           continue;
 
+
+        var minbet =200;
+        if(self.chips.length==1) minbet =300;
+        if(self.chips.length==0) minbet =500; 
+
         if( self.isPlayer(i) ){
 
           //在座玩家下最小注   
           if(i.opts.bet[i.opts.seat]==0)       
-            i.opts.bet[i.opts.seat] =100;
+            i.opts.bet[i.opts.seat] =minbet;
           
           playersbet.push([i.id,i.opts.bet]);
 
