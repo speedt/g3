@@ -89,9 +89,12 @@ const logger = require('log4js').getLogger('biz.pushCake');
     return Promise.resolve(_ready);
   }
 
-  var sql = 'INSERT INTO g_group_balance (create_time, group_id, room_owner, user_id, seat, user_fund, user_score) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO g_group_balance (create_time, group_id, room_owner, user_id, seat, user_fund, user_score, banker_seat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
   function groupBalance(data){
+
+    logger.debug(data);
+
     for(var i in data){
       var m = data[i];
 
@@ -103,8 +106,9 @@ const logger = require('log4js').getLogger('biz.pushCake');
         m.user_seat,
         m.user_fund,
         m.user_score,
+        m.banker_seat,
       ], err => {
-        if(err) return;
+        if(err) logger.error(err);
       });
     }
   };
