@@ -455,7 +455,16 @@ const logger = require('log4js').getLogger('biz.user');
     user_info.weixin        = user_info.unionid;
     user_info.weixin_avatar = user_info.headimgurl;
 
-    return p2(user_info);
+    return new Promise((resolve, reject) => {
+      biz.user.genFreeUserCode()
+      .then(user_code => {
+        user_info.user_code = user_code;
+        return Promise.resolve(user_info);
+      })
+      .then(p2)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
   };
 
   /**
@@ -498,7 +507,7 @@ const logger = require('log4js').getLogger('biz.user');
     return Promise.resolve();
   }
 
-  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, weixin_avatar, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count, original_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO s_user (id, user_name, user_pass, status, create_time, mobile, weixin, weixin_avatar, current_score, nickname, vip, consume_count, win_count, lose_count, win_score_count, lose_score_count, line_gone_count, gold_count, original_data, user_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   function p2(user_info){
     user_info.id               = user_info.id || utils.replaceAll(uuid.v1(), '-', '');
@@ -536,6 +545,7 @@ const logger = require('log4js').getLogger('biz.user');
         user_info.line_gone_count,
         user_info.gold_count,
         user_info.original_data,
+        user_info.user_code,
       ], err => {
         if(err) return reject(err);
         resolve(user_info);
@@ -674,6 +684,33 @@ const logger = require('log4js').getLogger('biz.user');
         if(!mysql.checkOnly(docs)) return reject('通道不存在');
         resolve(docs[0]);
       });
+    });
+  };
+})();
+
+(() => {
+  function p1(cb, trans){
+    var user_code = utils.randomStr(6).toUpperCase();
+
+    mysql.query(sql, [user_code], function (err, doc){
+      if(err) return cb(err);
+      if(doc) return p1(cb, trans);
+      cb(null, user_code);
+    });
+  }
+
+  var sql = 'SELECT * FROM s_user WHERE user_code=?';
+
+  /**
+   *
+   * @return
+   */
+  exports.genFreeUserCode = function(trans){
+    return new Promise((resolve, reject) => {
+      p1((err, user_code) => {
+        if(err) return reject(err);
+        resolve(user_code);
+      }, trans);
     });
   };
 })();
