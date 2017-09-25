@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : 118.190.149.221
+Source Server         : g-1
 Source Server Version : 50623
-Source Host           : 118.190.149.221:12306
+Source Host           : 127.0.0.01:12306
 Source Database       : emag2
 
 Target Server Type    : MYSQL
 Target Server Version : 50623
 File Encoding         : 65001
 
-Date: 2017-09-25 17:15:34
+Date: 2017-09-25 20:40:25
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -42,6 +42,7 @@ CREATE TABLE `g_group_balance` (
   `seat` int(2) DEFAULT '0',
   `user_fund` int(11) DEFAULT NULL,
   `user_score` int(11) DEFAULT NULL,
+  `banker_seat` int(2) DEFAULT NULL,
   PRIMARY KEY (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
