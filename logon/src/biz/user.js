@@ -692,9 +692,9 @@ const logger = require('log4js').getLogger('biz.user');
   function p1(cb, trans){
     var user_code = utils.randomStr(6).toUpperCase();
 
-    mysql.query(sql, [user_code], function (err, doc){
+    mysql.query(sql, [user_code], function (err, docs){
       if(err) return cb(err);
-      if(doc) return p1(cb, trans);
+      if(0 < docs.length) return p1(cb, trans);
       cb(null, user_code);
     });
   }
