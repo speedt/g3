@@ -393,17 +393,29 @@ pro.quit = function(user_id){
   if(!_user) return true;
 
   if(self.isPlayer(_user)){
-    if(self.isStart()){
-      _user.opts.quit_time = new Date().getTime();
-      _user.opts.is_quit   = 1;
-      return false;
-    }
 
-    self._free_seat.push(_user.opts.seat);
-    delete self._players[_user.opts.seat];
+      if(self.isStart()){
+          _user.opts.quit_time = new Date().getTime();
+          _user.opts.is_quit   = 1;
+          return false;
+      }
+
+      self._free_seat.push(_user.opts.seat);
+      delete self._players[_user.opts.seat];
+
+  }else{
+
+      if(self.isStart()){
+            _user.opts.quit_time = new Date().getTime();
+            _user.opts.is_quit   = 1;
+            return false;
+      }
+      else
+          return (delete self._users[user_id]);
   }
 
-  return (delete self._users[user_id]);
+  return false;
+  
 };
 
 //------------------------------------------------------------------
