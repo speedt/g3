@@ -392,29 +392,39 @@ pro.quit = function(user_id){
   var _user = self.getUser(user_id);
   if(!_user) return true;
 
+
   if(self.isPlayer(_user)){
 
       if(self.isStart()){
+
           _user.opts.quit_time = new Date().getTime();
           _user.opts.is_quit   = 1;
+          
           return false;
       }
-
+     
       self._free_seat.push(_user.opts.seat);
+     
       delete self._players[_user.opts.seat];
+      return (delete self._users[user_id]);
 
   }else{
-
+       
       if(self.isStart()){
             _user.opts.quit_time = new Date().getTime();
             _user.opts.is_quit   = 1;
+            
             return false;
       }
-      else
+      else{
+          
           return (delete self._users[user_id]);
+        }
   }
-
+ 
+ 
   return false;
+
   
 };
 
@@ -715,28 +725,28 @@ pro.bankerBet = function(user_id, bet){
 
             //庄家不续庄
             if(self.round_num >= self.round_count*4){
-            self.act_status = AS_GAMEOVER;
+                self.act_status = AS_GAMEOVER;
 
-            //总结算表
-            var result=[];
-            for(let u of _.values(self.getUsers()) ) {
-                u.opts.is_ready =0;
-                result.push({
-                  id:u.id,
-                  nick:u.nickname,
-                  seat:u.opts.seat,
-                  //gold:u.gold_count,
-                  score:u.opts.score,
-                  fund:u.opts.fund_count,
-                });
-            }
+                //总结算表
+                var result=[];
+                for(let u of _.values(self.getUsers()) ) {
+                    u.opts.is_ready =0;
+                    result.push({
+                      id:u.id,
+                      nick:u.nickname,
+                      seat:u.opts.seat,
+                      //gold:u.gold_count,
+                      score:u.opts.score,
+                      fund:u.opts.fund_count,
+                    });
+                }
 
-            self.delaytime=0;
-            return [self.getUsers(),
-                      [ self.act_status,
-                        self.delaytime,
-                        result
-                      ]]; 
+                self.delaytime=0;
+                return [self.getUsers(),
+                          [ self.act_status,
+                            self.delaytime,
+                            result
+                          ]]; 
           }
 
 
@@ -779,6 +789,7 @@ pro.bankerBet = function(user_id, bet){
       bet = bet-0;      
       if( self.chips.length>0 && bet > 2000)
         self.banker_bet = self.chips.shift();
+
       if( self.chips.length>0 && bet > 3000)
         self.banker_bet = self.chips.shift();    
 
@@ -900,7 +911,7 @@ pro.bankerBet = function(user_id, bet){
 
       self._cards_8 = self._cards_36.splice(0,8);
 
-      //self._cards_8 = [1,2,3,4,5,6,8,8];
+      //self._cards_8 = [7,2,3,6,5,4,1,8];
 
        // self._cards_8[(self.banker_seat-1)*2]=1;
        // self._cards_8[(self.banker_seat-1)*2+1]=9;
@@ -1042,8 +1053,15 @@ pro.bankerBet = function(user_id, bet){
       var banker = self.getUserBySeat(self.banker_seat); 
      
       //是否全部比完
-      if(player == null){ //是         
-          self.act_status = AS_WAIT_FOR_NEXT_ROUND;
+      if(player == null  || self.banker_bet<=0){ //是       
+                              //庄家已没钱       
+      //if(player == null){   
+         // self.act_status = AS_WAIT_FOR_NEXT_ROUND;
+
+          if(self.banker_bet<=0)
+               self.act_status = AS_WAIT_FOR_NEXT_ROUND2;
+          else
+               self.act_status = AS_WAIT_FOR_NEXT_ROUND;
 
           //console.log(self.result);
           //插入未下注钓鱼数据    
@@ -1092,6 +1110,7 @@ pro.bankerBet = function(user_id, bet){
       }else{//否
           //console.log(player.nickname);
 
+
           var result = self.compareCard(player);  
 
           if( result >0 ){//'庄家赢'
@@ -1108,13 +1127,15 @@ pro.bankerBet = function(user_id, bet){
               }  
 
               self.banker_bet += result-fund;
-              banker.opts.score += result-fund;
+
+              banker.opts.score += (result-fund);
               banker.opts.score_curr = result-fund;
+
               banker.opts.fund += fund;
               banker.opts.fund_count+= fund;
 
               player.opts.score -= result;
-              player.opts.score_curr = result;
+              player.opts.score_curr -= result;
               player.opts.bet[self.first_seat]=0;                    
 
               self.delaytime=5;
@@ -1148,8 +1169,8 @@ pro.bankerBet = function(user_id, bet){
                   banker.opts.score += result;
                   banker.opts.score_curr += result;
 
-                  player.opts.score -= result-fund;
-                  player.opts.score_curr -= result-fund;
+                  player.opts.score -= (result+fund);
+                  player.opts.score_curr -= (result+fund);
 
                   player.opts.fund += fund;
                   player.opts.fund_count += fund;
@@ -1182,17 +1203,17 @@ pro.bankerBet = function(user_id, bet){
                     self.curr_fund += fund;
                   }   
 
-                  var score = self.banker_bet;
-                  banker.opts.score -= self.banker_bet;
-                  banker.opts.score_curr -= self.banker_bet;
+                  var result = -self.banker_bet;
+                  banker.opts.score += result;
+                  banker.opts.score_curr += result;
 
-                  player.opts.score += score-fund;
-                  player.opts.score_curr += score-fund;
+                  player.opts.score -= (result+fund);
+                  player.opts.score_curr -= (result+fund);
 
                   player.opts.fund += fund;
                   player.opts.fund_count += fund;
 
-                  player.opts.bet[self.first_seat] -= self.banker_bet;
+                  player.opts.bet[self.first_seat] -= result;
                   self.banker_bet =0;
                   //player.opts.checkout = result[1];
 
@@ -1208,7 +1229,7 @@ pro.bankerBet = function(user_id, bet){
                       self.act_status,
                       self.delaytime,
                       [ self.banker_bet,
-                        -score,
+                        result,
                         banker.opts.seat,
                         player.opts.seat,
                         self.first_seat,
@@ -1224,7 +1245,7 @@ pro.bankerBet = function(user_id, bet){
                         self.act_status,
                         self.delaytime,
                         [ self.banker_bet,
-                          -score,
+                          result,
                           banker.opts.seat,
                           player.opts.seat,
                           self.first_seat,
