@@ -911,10 +911,10 @@ pro.bankerBet = function(user_id, bet){
 
       self._cards_8 = self._cards_36.splice(0,8);
 
-      //self._cards_8 = [7,2,3,6,5,4,1,8];
+        // self._cards_8 = [2,2,3,5,5,5,8,8];
 
-       // self._cards_8[(self.banker_seat-1)*2]=1;
-       // self._cards_8[(self.banker_seat-1)*2+1]=9;
+        // self._cards_8[(self.banker_seat-1)*2]=1;
+        // self._cards_8[(self.banker_seat-1)*2+1]=9;
 
         //开启后台换牌作弊
         //console.log('--------作弊检测---------');
@@ -1202,53 +1202,66 @@ pro.bankerBet = function(user_id, bet){
                       self.curr_fund += fund;
                   }   
 
-                  var result = -self.banker_bet;
-                  banker.opts.score += result;
-                  banker.opts.score_curr += result;
+                  var result2 = -self.banker_bet;
+                  banker.opts.score += result2;
+                  banker.opts.score_curr += result2;
 
-                  player.opts.score -= (result+fund);
-                  player.opts.score_curr -= (result+fund);
+                  player.opts.score -= (result2+fund);
+                  player.opts.score_curr -= (result2+fund);
 
                   player.opts.fund += fund;
                   player.opts.fund_count += fund;
 
-                  player.opts.bet[self.first_seat] += result;///先将庄家现有的锅底赔付给闲家，并将闲家下的注减少
+                  //如果是对，下注翻倍
+                  if(result == -player.opts.bet[self.first_seat]*2){
+                      player.opts.bet[self.first_seat] =Math.abs(result-result2)/2;
+                  }
+                  else
+                      player.opts.bet[self.first_seat] += result2; 
+
+                  //player.opts.bet[self.first_seat] =  Math.abs(result) - Math.abs(result2);///先将庄家现有的锅底赔付给闲家，并将闲家下的注减少
+                   //console.log('应赔付 '+ result +  '  实际赔付 '+ result2 + '闲家剩余注' +  player.opts.bet[self.first_seat]);
+
                   self.banker_bet =0;
+                
+
                   //player.opts.checkout = result[1];
 
                   //是否有续庄资 格
                   if( self.chips.length > 0 ){//有
                     //先结算目前
-                    self.act_status = AS_DELAY_COMPARE_CARD2;
+                      self.act_status = AS_DELAY_COMPARE_CARD2;
 
-                    self.delaytime=5;
-                     //发送比牌结果
+                      self.delaytime=5;
 
-                    return [self.getUsers(),[
-                      self.act_status,
-                      self.delaytime,
-                      [ self.banker_bet,
-                        result,
-                        banker.opts.seat,
-                        player.opts.seat,
-                        self.first_seat,
-                        player.id]  ]];                
-                    //DELAY COMPARE CARD 2  5S
+                      //发送比牌结果
+                      return [self.getUsers(),[
+                          self.act_status,
+                          self.delaytime,
+                          [ self.banker_bet,
+                            result2,
+                            banker.opts.seat,
+                            player.opts.seat,
+                            self.first_seat,
+                            player.id]  ]];           
+
+                        //DELAY COMPARE CARD 2  5S
                   }else{//无 
                        //先结算目前                      
                       self.act_status = AS_DELAY_COMPARE_CARD3;
                      
                       self.delaytime=5;
+
                       //发送比牌结果
                       return [self.getUsers(),[
-                        self.act_status,
-                        self.delaytime,
-                        [ self.banker_bet,
-                          result,
-                          banker.opts.seat,
-                          player.opts.seat,
-                          self.first_seat,
-                          player.id]  ]];    
+                          self.act_status,
+                          self.delaytime,
+                          [ self.banker_bet,
+                            result2,
+                            banker.opts.seat,
+                            player.opts.seat,
+                            self.first_seat,
+                            player.id]  ]];    
                         
                        //DELAY COMPARE CARD 3  5S                                       
                   }
