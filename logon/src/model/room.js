@@ -911,10 +911,10 @@ pro.bankerBet = function(user_id, bet){
 
       self._cards_8 = self._cards_36.splice(0,8);
 
-        // self._cards_8 = [2,2,3,5,5,5,8,8];
+        self._cards_8 = [2,2,3,5,5,5,8,8];
 
-        // self._cards_8[(self.banker_seat-1)*2]=1;
-        // self._cards_8[(self.banker_seat-1)*2+1]=9;
+        self._cards_8[(self.banker_seat-1)*2]=1;
+        self._cards_8[(self.banker_seat-1)*2+1]=9;
 
         //开启后台换牌作弊
         //console.log('--------作弊检测---------');
