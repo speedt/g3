@@ -89,7 +89,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
     return Promise.resolve(_ready);
   }
 
-  var sql = 'INSERT INTO g_group_balance (create_time, group_id, room_owner, user_id, seat, user_fund, user_score, banker_seat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  var sql = 'INSERT INTO g_group_balance (create_time, group_id, group_user_id, user_id, user_seat, user_fund, user_score, banker_seat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
   function groupBalance(data){
 

@@ -714,3 +714,31 @@ const logger = require('log4js').getLogger('biz.user');
     });
   };
 })();
+
+(() => {
+  function p1(cb, trans){
+    var id = utils.randomStr(6).toUpperCase();
+
+    mysql.query(sql, [id], (err, docs) => {
+      if(err) return cb(err);
+      if(0 < docs.length) return p1(cb, trans);
+      cb(null, id);
+    });
+  }
+
+  var sql = 'SELECT a.* FROM s_user a WHERE a.id=?';
+
+  /**
+   * 生成空闲的群组id
+   *
+   * @return
+   */
+  exports.genId = function(trans){
+    return new Promise((resolve, reject) => {
+      p1((err, id) => {
+        if(err) return reject(err);
+        resolve(id);
+      }, trans);
+    });
+  };
+})();
