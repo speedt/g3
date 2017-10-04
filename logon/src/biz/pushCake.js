@@ -93,7 +93,7 @@ const logger = require('log4js').getLogger('biz.pushCake');
 
   function groupBalance(data){
 
-    logger.debug(data);
+    // logger.debug(data);
 
     for(var i in data){
       var m = data[i];

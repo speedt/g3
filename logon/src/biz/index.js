@@ -15,6 +15,7 @@ exports.frontend     = require('./frontend');
 
 exports.manager      = require('./manager');
 exports.user         = require('./user');
+exports.user2        = require('./user2/');
 exports.user_payment = require('./user_payment');
 
 exports.cfg          = require('./cfg');
