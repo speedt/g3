@@ -75,7 +75,7 @@ exports.loginUI = function(req, res, next){
   exports.loginWX = function(req, res, next){
     var query = req.body;
 
-    biz.user2.loginWX(query)
+    biz.user.wx(query)
     .then (p1.bind(null, res))
     .catch(p2.bind(null, res, next));
   };
