@@ -118,7 +118,7 @@ var Method = function(opts){
   self.compare_seat = 1;  // 待比牌人的座位
 
   self.banker_bet = 0;              // 庄家锅
-  self.chips = [2000, 3000, 5000];  //可用的筹码
+  self.chips = [200, 300, 500];  //可用的筹码
 
   //------------911---------------//
   self.delaytime =0;//延迟时间
@@ -435,6 +435,35 @@ pro.quit = function(user_id){
  *
  * @return
  */
+ //切换位置（做门/钓鱼）
+pro.switchSeat = function(user_id){
+  var self = this;
+
+  //游戏已开始不能切换位置
+  if(self.isStart())     return '已经开始';
+
+  var _user = self.getUser(user_id);
+  if(!_user)                return '用户不存在';
+
+  if(self.isFull())         return '房间满员';
+
+  if( self.isPlayer() ){     //做门换钓鱼 
+      self._free_seat.push(_user.opts.seat);
+      delete self._players[_user.opts.seat];
+      _user.opts.seat = 0;
+      _user.opts.is_ready = 0;
+
+  }else{ //钓鱼者换做门
+      if(self._free_seat.length > 0){//有可用位置
+         var seat_no = this._free_seat.shift();
+          if(0 < seat_no) {
+            this._players[seat_no] = _user;
+            _user.opts.seat         = seat_no;
+          }
+      }
+  }
+};
+
 pro.ready = function(user_id){
   var self = this;
 
@@ -558,9 +587,9 @@ pro.bankerBet = function(user_id, bet){
  
     if( self.chips.length>0 && bet > 0)
       self.banker_bet = self.chips.shift();
-    if( self.chips.length>0 && bet > 2000)
+    if( self.chips.length>0 && bet > 200)
         self.banker_bet = self.chips.shift();
-    if( self.chips.length>0 && bet > 3000)
+    if( self.chips.length>0 && bet > 300)
         self.banker_bet = self.chips.shift();    
  
     self.act_status =  AS_DELAY_BANKER_BET;
@@ -754,7 +783,7 @@ pro.bankerBet = function(user_id, bet){
           self.banker_seat = self.getNextSeatBySeat(self.banker_seat);
           self.banker_bet=0;
           self.round_num++;
-          self.chips = [2000,3000,5000];
+          self.chips = [200,300,500];
 
           self.act_seat = self.banker_seat;
 
@@ -787,10 +816,10 @@ pro.bankerBet = function(user_id, bet){
 
       
       bet = bet-0;      
-      if( self.chips.length>0 && bet > 2000)
+      if( self.chips.length>0 && bet > 200)
         self.banker_bet = self.chips.shift();
 
-      if( self.chips.length>0 && bet > 3000)
+      if( self.chips.length>0 && bet > 300)
         self.banker_bet = self.chips.shift();    
 
 
@@ -1401,7 +1430,7 @@ pro.bankerBet = function(user_id, bet){
               self.banker_seat = self.getNextSeatBySeat(self.banker_seat);
               self.banker_bet=0;
               self.round_num++;
-              self.chips = [2000,3000,5000];
+              self.chips = [200,300,500];
 
               self.act_status = AS_WAIT_FOR_BANKER_BET;
               self.delaytime=15;
@@ -1508,7 +1537,7 @@ pro.bankerBet = function(user_id, bet){
       for(let i of _.values(this._players)){
           if(i.opts.seat == self.banker_seat){
             //查询可用的最小锅底
-            return self.bankerBet(i.id,2000);
+            return self.bankerBet(i.id,200);
             //return self.act_status;
           }
       }    
@@ -1550,9 +1579,9 @@ pro.bankerBet = function(user_id, bet){
           continue;
 
 
-        var minbet =200;
-        if(self.chips.length==1) minbet =300;
-        if(self.chips.length==0) minbet =500; 
+        var minbet =20;
+        if(self.chips.length==1) minbet =30;
+        if(self.chips.length==0) minbet =50; 
 
         if( self.isPlayer(i) ){
 
