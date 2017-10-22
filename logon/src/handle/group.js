@@ -20,6 +20,48 @@ const logger = require('log4js').getLogger('handle.group');
   /**
    *
    */
+  exports.delegate = function(send, msg){
+    try{ var data = JSON.parse(msg);
+    }catch(ex){ return; }
+
+    try{ var group_info = JSON.parse(data.data);
+    }catch(ex){ return; }
+
+    biz.group.delegate(data.serverId, data.channelId, group_info)
+    .then (p1.bind(null, send, data))
+    .catch(p2.bind(null, send, data));
+  };
+
+  function p1(send, data, doc){
+    var _data = [
+      data.channelId,
+      JSON.stringify([3010, doc, _.now(), data.seqId]),
+    ];
+
+    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
+      if(err) return logger.error('group delegate:', err);
+    });
+  }
+
+  function p2(send, data, err){
+    if('object'   === typeof err) return logger.error('group delegate:', err);
+    if('invalid_user_id' === err) return logger.debug('group delegate:', err);
+
+    var _data = [
+      data.channelId,
+      JSON.stringify([3010, , _.now(), data.seqId, err]),
+    ];
+
+    send('/queue/back.send.v3.'+ data.serverId, { priority: 9 }, _data, err => {
+      if(err) return logger.error('group delegate:', err);
+    });
+  }
+})();
+
+(() => {
+  /**
+   *
+   */
   exports.search = function(send, msg){
     try{ var data = JSON.parse(msg);
     }catch(ex){ return; }

@@ -86,6 +86,7 @@ amq.start({
   '/queue/qq.3003':       before.bind(null, handle.group.re_entry),
   '/queue/qq.3005':       before.bind(null, handle.group.quit),
   '/queue/qq.3007':       before.bind(null, handle.group.entry),
+  '/queue/qq.3009':       before.bind(null, handle.group.delegate),
   '/queue/qq.5001':       before.bind(null, handle.pushCake.ready),
   '/queue/qq.5003':       before.bind(null, handle.pushCake.craps4),
   '/queue/qq.5005':       before.bind(null, handle.pushCake.bankerBet),

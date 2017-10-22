@@ -88,6 +88,38 @@ const logger = require('log4js').getLogger('biz.group');
 
 (() => {
   /**
+   * 代开
+   *
+   * @return
+   */
+  exports.delegate = function(server_id, channel_id, group_info){
+    group_info = group_info || {};
+
+    if(!_.isNumber(group_info.visitor_count))
+      return Promise.reject('INVALID_PARAMS');
+    if(6 < group_info.visitor_count || 0 > group_info.visitor_count)
+      return Promise.reject('INVALID_PARAMS');
+
+    if(!_.isNumber(group_info.fund))
+      return Promise.reject('INVALID_PARAMS');
+    if(999999 < group_info.fund || 0 > group_info.fund)
+      return Promise.reject('INVALID_PARAMS');
+
+    if(!_.isNumber(group_info.round_count))
+      return Promise.reject('INVALID_PARAMS');
+    if(4 < group_info.round_count || 1 > group_info.round_count)
+      return Promise.reject('INVALID_PARAMS');
+
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1)
+      .then(p2_1.bind(null, group_info))
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+
+  /**
    * 创建群组
    *
    * @return
@@ -146,6 +178,17 @@ const logger = require('log4js').getLogger('biz.group');
     });
   }
 
+  function p2_1(group_info, user){
+    group_info.id      = user.group_id;
+    group_info.user_id = user.id;
+
+    return new Promise((resolve, reject) => {
+      p3_1(group_info)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  }
+
   function p3(group_info, user_info){
 
     logger.debug(group_info);
@@ -177,6 +220,31 @@ const logger = require('log4js').getLogger('biz.group');
       _entry.nickname,
       _entry.weixin_avatar,
     ]]);
+  }
+
+  function p3_1(group_info){
+
+    logger.debug(group_info);
+
+    var room = roomPool.create(group_info);
+    if(!room) return Promise.reject('创建房间失败');
+
+    logger.debug(room.name);
+
+    return Promise.resolve([
+      room.id,
+      room.name,
+      room.fund,
+      room.round_count,
+      room.visitor_count,        // 游客人数
+      room.banker_seat,          // 当前庄家座位
+      room.round_pno,            // 当前第n局
+      room.round_no,             // 当前第n把
+      room.round_no_first_seat,  // 庄家摇骰子确定第一个起牌的人
+      room.getReadyCount(),      // 举手人数
+      room.act_status,
+      room.act_seat,
+    ]);
   }
 })();
 
