@@ -18,5 +18,7 @@ module.exports = function(app){
   app.get ('/user/login$',    user.loginUI);
   app.post('/user/register$', user.register);
 
+  app.get('/help', pushCake.helpUI);
+  app.get('/club', pushCake.clubUI);
   app.get('/', pushCake.indexUI);
 };
