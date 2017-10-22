@@ -95,6 +95,7 @@ amq.start({
   '/queue/qq.5011':       before.bind(null, handle.pushCake.bankerContinue),
   '/queue/qq.5013':       before.bind(null, handle.pushCake.bankerContinueBet),
   '/queue/qq.5015':       before.bind(null, handle.pushCake.nasha),
+  '/queue/qq.5017':       before.bind(null, handle.pushCake.switchSeat),
 }, err => {
   logger.error('amq error:', err);
 });

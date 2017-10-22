@@ -219,6 +219,37 @@ const logger = require('log4js').getLogger('biz.pushCake');
     var room = roomPool.get(user.group_id);
     if(!room) return Promise.reject('房间不存在');
 
+    var _switchSeat = room.switchSeat(user.id);
+    if('string' === typeof _switchSeat) return Promise.reject(_switchSeat);
+
+    return Promise.resolve(_switchSeat);
+  }
+
+  /**
+   * 4人摇骰子
+   *
+   * @return
+   */
+  exports.switchSeat = function(server_id, channel_id, next){
+    logger.debug(server_id, channel_id)
+    logger.debug('-------------');
+
+    return new Promise((resolve, reject) => {
+      biz.user.getByChannelId(server_id, channel_id)
+      .then(p1)
+      .then(doc => resolve(doc))
+      .catch(reject);
+    });
+  };
+})();
+
+(() => {
+  function p1(user){
+    if(!user.group_id) return Promise.reject('已经退出了');
+
+    var room = roomPool.get(user.group_id);
+    if(!room) return Promise.reject('房间不存在');
+
     var _craps4 = room.craps4(user.id);
     if('string' === typeof _craps4) return Promise.reject(_craps4);
 

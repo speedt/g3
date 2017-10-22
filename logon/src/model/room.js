@@ -453,14 +453,21 @@ pro.switchSeat = function(user_id){
       _user.opts.seat = 0;
       _user.opts.is_ready = 0;
 
+      return [self.getUsers(), [user_id,0]];
+
   }else{ //钓鱼者换做门
       if(self._free_seat.length > 0){//有可用位置
          var seat_no = this._free_seat.shift();
           if(0 < seat_no) {
             this._players[seat_no] = _user;
             _user.opts.seat         = seat_no;
+
+            return [self.getUsers(), [user_id,seat_no]];
           }
+      }else{
+        return '没有座位';
       }
+
   }
 };
 
