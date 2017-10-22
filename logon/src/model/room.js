@@ -447,7 +447,7 @@ pro.switchSeat = function(user_id){
 
   if(self.isFull())         return '房间满员';
 
-  if( self.isPlayer() ){     //做门换钓鱼 
+  if( self.isPlayer(_user) ){     //做门换钓鱼 
       self._free_seat.push(_user.opts.seat);
       delete self._players[_user.opts.seat];
       _user.opts.seat = 0;
